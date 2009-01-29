@@ -1,0 +1,16 @@
+name:                   random-fu
+version:                0.0.0.1
+stability:              experimental
+
+cabal-version:          >= 1.2
+build-type:             Simple
+
+author:                 Cook, J. MR  SSD, Inc. <your email here>
+maintainer:             Cook, J. MR  SSD, Inc. <your email here>
+
+description:            I'm too lame to describe my project
+
+Library
+  hs-source-dirs:       src
+  exposed-modules:      
+  build-depends:        base >= 3
