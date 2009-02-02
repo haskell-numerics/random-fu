@@ -40,7 +40,7 @@ instance (Floating a, Distribution Uniform a) => Distribution Normal a where
         return (x * s + m)
 
 stdNormal :: Distribution Normal a => RVar a
-stdNormal = sample StdNormal
+stdNormal = rvar StdNormal
 
 normal :: Distribution Normal a => a -> a -> RVar a
-normal m s = sample (Normal m s)
+normal m s = rvar (Normal m s)
