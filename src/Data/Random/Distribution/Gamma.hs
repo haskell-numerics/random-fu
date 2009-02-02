@@ -3,7 +3,7 @@
  -      (c) 2009 Cook, J. MR  SSD, Inc.
  -
  -  needs cleanup, verification, and automagic selection of appropriate
- -  algorithms
+ -  algorithms, and proper citations
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,
