@@ -38,3 +38,9 @@ instance (Floating a, Distribution Uniform a) => Distribution Normal a where
     sampleFrom src (Normal m s) = do
         x <- sampleFrom src StdNormal
         return (x * s + m)
+
+stdNormal :: Distribution Normal a => RVar a
+stdNormal = sample StdNormal
+
+normal :: Distribution Normal a => a -> a -> RVar a
+normal m s = sample (Normal m s)
