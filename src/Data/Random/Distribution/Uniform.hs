@@ -10,6 +10,7 @@ module Data.Random.Distribution.Uniform where
 
 import Data.Random.Source
 import Data.Random.Distribution
+import Data.Random.RVar
 
 import Data.Word
 import Data.Int
@@ -19,6 +20,9 @@ import Data.List
 -- quick & dirty test:
 -- let x = sampleFrom DevRandom (Uniform (-100) (100) :: Uniform Int8) :: IO Int8 in mapM_ (\x -> putStrLn (replicate (x `div` 10) '*')) . map length . group . sort =<< replicateM 100000 x
 data Uniform t = Uniform !t !t
+
+uniform :: Distribution Uniform a => a -> a -> RVar a
+uniform a b = sample (Uniform a b)
 
 instance Distribution Uniform Int8    where sampleFrom = computeIntegralUniformDist
 instance Distribution Uniform Int16   where sampleFrom = computeIntegralUniformDist
