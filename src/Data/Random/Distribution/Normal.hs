@@ -14,27 +14,27 @@ module Data.Random.Distribution.Normal where
 import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
+import Data.Random.RVar
 
 import Control.Monad
 
-data NormalPair a = NormalPair
-instance (Floating a, Distribution Uniform a) => Distribution NormalPair (a, a) where
-    sampleFrom src NormalPair = do
-        u <- sampleFrom src (Uniform 0 1)
-        v <- sampleFrom src (Uniform 0 1)
+normalPair :: (Floating a, Distribution Uniform a) => RVar (a,a)
+normalPair = do
+        u <- sample (Uniform 0 1)
+        t <- sample (Uniform 0 (2 * pi))
         let r = sqrt (-2 * log u)
-            t = 2 * pi * v
             
             x = r * cos t
             y = r * sin t
         return (x,y)
+    
 
 data Normal a
     = StdNormal
     | Normal a a -- mean, sd
 
-instance (Num a, Distribution NormalPair (a,a)) => Distribution Normal a where
-    sampleFrom src StdNormal = liftM (fst :: (a,a) -> a) (sampleFrom src NormalPair)
+instance (Floating a, Distribution Uniform a) => Distribution Normal a where
+    sampleFrom src StdNormal = liftM fst (sampleFrom src normalPair)
     sampleFrom src (Normal m s) = do
         x <- sampleFrom src StdNormal
         return (x * s + m)
