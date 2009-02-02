@@ -18,6 +18,7 @@ module Data.Random
     , module Data.Random.Distribution.Exponential
     , module Data.Random.Distribution.Normal
     , module Data.Random.Distribution.Uniform
+    , module Data.Random.RVar
     ) where
 
 import Data.Random.Source
@@ -31,6 +32,7 @@ import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Exponential
 import Data.Random.Distribution.Normal
 import Data.Random.Distribution.Uniform
+import Data.Random.RVar
 
 -- some convenient testing stuff
 import Data.List
