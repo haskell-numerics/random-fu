@@ -11,13 +11,17 @@
 module Data.Random.Distribution.Exponential where
 
 import Data.Random.Source
+import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 
 data Exponential a = Exp a
 
+exponential :: Distribution Exponential a => a -> RVar a
+exponential = sample . Exp
+
 instance (Floating a, Distribution Uniform a) => 
     Distribution Exponential a where
-        sampleFrom src (Exp lambdaRecip) = do
-            x <- sampleFrom src (Uniform 0 1)
+        rvar (Exp lambdaRecip) = do
+            x <- uniform 0 1
             return (negate (log x) * lambdaRecip)

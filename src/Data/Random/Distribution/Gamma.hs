@@ -36,14 +36,14 @@ data Gamma a
 
 instance (Floating a, RealFrac a, Distribution Uniform a) => Distribution Gamma a where
     -- translated from gsl source - seems to be best I've found by far
-    sampleFrom src (Gamma a b)
+    rvar (Gamma a b)
         | a < 1 
-        = sampleFrom src $ do
+        = do
             u <- uniform 0 1
             x <- gamma (1 + a) b
             return (x * u ** recip a)
         | otherwise
-        = sampleFrom src go
+        = go
             where
                 d = a - (1 / 3)
                 c = recip (3 * sqrt d) -- (1 / 3) / sqrt d

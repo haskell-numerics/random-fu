@@ -28,6 +28,7 @@ instance Monad RVar where
         
 
 instance Distribution RVar a where
+    rvar = id
     sampleFrom src (RVar x) = x src
 
 instance MonadRandom RVar where

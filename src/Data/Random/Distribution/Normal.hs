@@ -34,9 +34,9 @@ data Normal a
     | Normal a a -- mean, sd
 
 instance (Floating a, Distribution Uniform a) => Distribution Normal a where
-    sampleFrom src StdNormal = liftM fst (sampleFrom src normalPair)
-    sampleFrom src (Normal m s) = do
-        x <- sampleFrom src StdNormal
+    rvar StdNormal = liftM fst normalPair
+    rvar (Normal m s) = do
+        x <- liftM fst normalPair
         return (x * s + m)
 
 stdNormal :: Distribution Normal a => RVar a
