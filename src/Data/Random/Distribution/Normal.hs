@@ -20,8 +20,8 @@ import Control.Monad
 
 normalPair :: (Floating a, Distribution Uniform a) => RVar (a,a)
 normalPair = do
-        u <- sample (Uniform 0 1)
-        t <- sample (Uniform 0 (2 * pi))
+        u <- uniform 0 1
+        t <- uniform 0 (2 * pi)
         let r = sqrt (-2 * log u)
             
             x = r * cos t
