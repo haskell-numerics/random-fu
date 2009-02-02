@@ -47,23 +47,23 @@ hist xs ys = map (id *** length) (hist' xs (sort ys))
         hist' (x:xs) ys = case break (>x) ys of
             (as, bs) -> (x, as) : hist' xs bs
 
-pHist :: (Fractional a, Ord a, PrintfArg a) => Int -> IO a -> IO ()
+pHist :: Int -> RVar Double -> IO ()
 pHist n x = do
-    y <- replicateM n x
+    y <- replicateM n (sampleFrom DevRandom x)
     
     let a = minimum y
         b = maximum y
-        c = 80
-        d = 120
-        step = (b - a) / fromInteger c
+        rows = 80
+        cols = 140
+        step = (b - a) / fromInteger rows
         steps = [ a + fromInteger n * step
-                | n <- [1..c]
+                | n <- [1..rows]
                 ]
         h = hist steps y
         
-        z = maximum (map snd h)
-        scale = max 1 (z `div` d)
-
-        fmt (n, x) = printf "%0.3f%9s: " n ( '(' : show x ++ ")" ) ++ replicate (x `div` scale) '*'
+        maxVal = maximum (map snd h)
+        scale = fromIntegral maxVal / cols
+        
+        fmt (bin, x) = printf "%+0.3f%9s: " bin (printf "(%0.2f%%)" (100 * fromIntegral x / fromIntegral n :: Float) :: String) ++ replicate (round (fromIntegral x / scale)) '*'
         
     mapM_ (putStrLn . fmt) h
