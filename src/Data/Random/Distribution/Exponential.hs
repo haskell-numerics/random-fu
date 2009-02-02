@@ -18,6 +18,6 @@ data Exponential a = Exp a
 
 instance (Floating a, Distribution Uniform a) => 
     Distribution Exponential a where
-        getDistFrom src (Exp lambdaRecip) = do
-            x <- getDistFrom src (Uniform 0 1)
+        sampleFrom src (Exp lambdaRecip) = do
+            x <- sampleFrom src (Uniform 0 1)
             return (negate (log x) * lambdaRecip)

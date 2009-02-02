@@ -19,9 +19,9 @@ import Control.Monad
 
 data NormalPair a = NormalPair
 instance (Floating a, Distribution Uniform a) => Distribution NormalPair (a, a) where
-    getDistFrom src NormalPair = do
-        u <- getDistFrom src (Uniform 0 1)
-        v <- getDistFrom src (Uniform 0 1)
+    sampleFrom src NormalPair = do
+        u <- sampleFrom src (Uniform 0 1)
+        v <- sampleFrom src (Uniform 0 1)
         let r = sqrt (-2 * log u)
             t = 2 * pi * v
             
@@ -34,7 +34,7 @@ data Normal a
     | Normal a a -- mean, sd
 
 instance (Num a, Distribution NormalPair (a,a)) => Distribution Normal a where
-    getDistFrom src StdNormal = liftM (fst :: (a,a) -> a) (getDistFrom src NormalPair)
-    getDistFrom src (Normal m s) = do
-        x <- getDistFrom src StdNormal
+    sampleFrom src StdNormal = liftM (fst :: (a,a) -> a) (sampleFrom src NormalPair)
+    sampleFrom src (Normal m s) = do
+        x <- sampleFrom src StdNormal
         return (x * s + m)
