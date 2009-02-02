@@ -86,7 +86,7 @@ instance (Floating a, RealFrac a, Distribution Uniform a) => Distribution Gamma 
         return (x * theta)
     
 instance (Floating a, RealFrac a, Distribution Uniform a, Distribution Normal a) => Distribution MTGamma a where
-    -- translated from gsl source
+    -- translated from gsl source - seems to be best I've found by far
     sampleFrom src (MTGamma a b)
         | a < 1 
         = do
@@ -97,18 +97,22 @@ instance (Floating a, RealFrac a, Distribution Uniform a, Distribution Normal a)
         = go
             where
                 d = a - (1 / 3)
-                c = (1 / 3) / sqrt d
+                c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
                 
                 go = do
                     x <- sampleFrom src StdNormal
-                    let v' = 1 + c * x
-                        v = v' ^ 3
+                    let cx = c * x
+                        v = (1 + cx) ^ 3
+                        
+                        x_2 = x * x
+                        x_4 = x_2 * x_2
                     
-                    if v' <= 0
+                    if cx <= (-1)
                         then go
                         else do
                             u <- sampleFrom src (Uniform 0 1)
-                
-                            if (u < 1 - 0.0331 * x ^ 4) || (log u < 0.5 * x ^ 2  + d * (1 - v + log v))
+                            
+                            if         u < 1 - 0.0331 * x_4
+                                || log u < 0.5 * x_2  + d * (1 - v + log v)
                                 then return (b * d * v)
                                 else go
