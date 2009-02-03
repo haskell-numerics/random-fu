@@ -3,7 +3,7 @@
  -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
-    MultiParamTypeClasses
+    MultiParamTypeClasses, FlexibleContexts
   #-}
 
 module Data.Random.Distribution where
@@ -17,12 +17,7 @@ class Distribution d t where
     rvar :: d t -> RVar t
     rvar = sampleFrom StdRandom
     sampleFrom :: RandomSource m s => s -> d t -> m t
-
+    sampleFrom src dist = sampleFrom src (rvar dist)
+    
 sample :: (Distribution d t, MonadRandom m) => d t -> m t
 sample = (sampleFrom :: (Distribution d t, MonadRandom m) => (Int -> m [Word8]) -> d t -> m t) getRandomBytes
-
-sampleUntil :: Monad m => (a -> Bool) -> m a -> m a
-sampleUntil p d = do
-    x <- d
-    if p x then return x
-        else sampleUntil p d

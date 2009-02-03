@@ -20,13 +20,22 @@ import Control.Monad
 
 normalPair :: (Floating a, Distribution Uniform a) => RVar (a,a)
 normalPair = do
-        u <- uniform 0 1
-        t <- uniform 0 (2 * pi)
-        let r = sqrt (-2 * log u)
-            
-            x = r * cos t
-            y = r * sin t
-        return (x,y)
+    u <- uniform 0 1
+    t <- uniform 0 (2 * pi)
+    let r = sqrt (-2 * log u)
+        
+        x = r * cos t
+        y = r * sin t
+    return (x,y)
+
+realFloatStdNormal :: RealFloat a => RVar a
+realFloatStdNormal = do
+    u <- realFloatStdUniform
+    t <- realFloatStdUniform
+    let r = sqrt (-2 * log u)
+        
+        x = r * cos (t * 2 * pi)
+    return x
     
 
 data Normal a
