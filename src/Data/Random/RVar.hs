@@ -21,7 +21,13 @@ import Data.Random.Source
 import Data.Word
 import Data.Bits
 
+import Control.Applicative
+import Control.Monad
+
 newtype RVar a = RVar { runDistM :: forall m s. RandomSource m s => s -> m a }
+
+instance Functor RVar where
+    fmap = liftM
 
 instance Monad RVar where
     return x = RVar (\_ -> return x)
@@ -31,7 +37,10 @@ instance Monad RVar where
             case f x of
                 RVar y -> y s
         )
-        
+
+instance Applicative RVar where
+    pure  = return
+    (<*>) = ap
 
 instance Distribution RVar a where
     rvar = id

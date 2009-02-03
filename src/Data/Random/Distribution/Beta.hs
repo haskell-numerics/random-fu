@@ -16,6 +16,15 @@ import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Uniform
 
+import Control.Monad
+
+realFloatBeta :: RealFloat a => a -> a -> RVar a
+realFloatBeta 1 1 = realFloatStdUniform
+realFloatBeta a b = do
+    x <- realFloatGamma a 1
+    y <- realFloatGamma b 1
+    return (x / (x + y))
+
 beta :: Distribution Beta a => a -> a -> RVar a
 beta a b = sample (Beta a b)
 

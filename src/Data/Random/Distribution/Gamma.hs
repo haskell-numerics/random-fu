@@ -57,7 +57,6 @@ realFloatGamma a b
                             then return (b * d * v)
                             else go
 
-
 gamma :: (Distribution Gamma a) => a -> a -> RVar a
 gamma a b = sample (Gamma a b)
 
