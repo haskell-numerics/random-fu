@@ -13,10 +13,13 @@ module Data.Random
     , module Data.Random.Source.PreFetch
     , module Data.Random.Source.Std
     , module Data.Random.Distribution
+    , module Data.Random.Distribution.Bernoulli
     , module Data.Random.Distribution.Beta
+    , module Data.Random.Distribution.Binomial
     , module Data.Random.Distribution.Gamma
     , module Data.Random.Distribution.Exponential
     , module Data.Random.Distribution.Normal
+    , module Data.Random.Distribution.Poisson
     , module Data.Random.Distribution.Uniform
     , module Data.Random.RVar
     ) where
@@ -27,10 +30,13 @@ import Data.Random.Source.Old
 import Data.Random.Source.PreFetch
 import Data.Random.Source.Std
 import Data.Random.Distribution
+import Data.Random.Distribution.Bernoulli
 import Data.Random.Distribution.Beta
+import Data.Random.Distribution.Binomial
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Exponential
 import Data.Random.Distribution.Normal
+import Data.Random.Distribution.Poisson
 import Data.Random.Distribution.Uniform
 import Data.Random.RVar
 
