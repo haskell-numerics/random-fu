@@ -67,3 +67,5 @@ pHist n x = do
         fmt (bin, x) = printf "%+0.3f%9s: " bin (printf "(%0.2f%%)" (100 * fromIntegral x / fromIntegral n :: Float) :: String) ++ replicate (round (fromIntegral x / scale)) '*'
         
     mapM_ (putStrLn . fmt) h
+
+cHist xs ys = scanl1 (+) (map snd $ hist xs ys)
