@@ -4,10 +4,13 @@
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,
-    FlexibleInstances, FlexibleContexts
+    FlexibleInstances, FlexibleContexts,
+    UndecidableInstances
   #-}
 
 module Data.Random.Distribution.Binomial where
+
+import Data.Random.Internal.Classification
 
 import Data.Random.Source
 import Data.Random.Distribution
@@ -47,18 +50,16 @@ integralBinomial t p = bin 0 t p
 binomial :: Distribution (Binomial b) a => a -> b -> RVar a
 binomial t p = sample (Binomial t p)
 
+class (Classification NumericType t c) => BinomialByClassification c t where
+    binomialByClassification :: RealFloat a => t -> a -> RVar t
+
+instance (Classification NumericType t IntegralType, Integral t) => BinomialByClassification IntegralType t
+    where binomialByClassification = integralBinomial
+instance (Classification NumericType t FractionalType, RealFrac t) => BinomialByClassification FractionalType t
+    where binomialByClassification t p = liftM fromInteger (integralBinomial (truncate t) p)
+
+instance (BinomialByClassification c t, RealFloat b) => Distribution (Binomial b) t where
+    rvar (Binomial t p) = binomialByClassification t p
+
 data Binomial b a = Binomial a b
 
-instance (RealFloat b) => Distribution (Binomial b) Int     where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Int8    where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Int16   where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Int32   where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Int64   where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Word8   where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Word16  where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Word32  where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Word64  where rvar (Binomial t p) = integralBinomial t p
-instance (RealFloat b) => Distribution (Binomial b) Integer where rvar (Binomial t p) = integralBinomial t p
-
-instance (RealFloat b) => Distribution (Binomial b) Float   where rvar (Binomial t p) = liftM fromInteger (integralBinomial (truncate t) p)
-instance (RealFloat b) => Distribution (Binomial b) Double  where rvar (Binomial t p) = liftM fromInteger (integralBinomial (truncate t) p)

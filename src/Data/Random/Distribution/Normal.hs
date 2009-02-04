@@ -18,6 +18,7 @@ import Data.Random.RVar
 
 import Control.Monad
 
+-- Box-Muller method
 normalPair :: (Floating a, Distribution Uniform a) => RVar (a,a)
 normalPair = do
     u <- uniform 0 1
@@ -27,6 +28,20 @@ normalPair = do
         x = r * cos t
         y = r * sin t
     return (x,y)
+
+-- slightly slower
+knuthPolarNormalPair :: (Floating a, Ord a, Distribution Uniform a) => RVar (a,a)
+knuthPolarNormalPair = do
+    v1 <- uniform (-1) 1
+    v2 <- uniform (-1) 1
+    
+    let s = v1*v1 + v2*v2
+    if s >= 1
+        then knuthPolarNormalPair
+        else return $ if s == 0
+            then (0,0)
+            else let scale = sqrt (-2 * log s / s) 
+                  in (v1 * scale, v2 * scale)
 
 realFloatStdNormal :: RealFloat a => RVar a
 realFloatStdNormal = do

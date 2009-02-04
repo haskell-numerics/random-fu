@@ -4,10 +4,13 @@
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,
-    FlexibleInstances, FlexibleContexts
+    FlexibleInstances, FlexibleContexts,
+    UndecidableInstances
   #-}
 
 module Data.Random.Distribution.Bernoulli where
+
+import Data.Random.Internal.Classification
 
 import Data.Random.Source
 import Data.Random.Distribution
@@ -22,34 +25,24 @@ bernoulli :: (Distribution (Bernoulli b) a) => b -> RVar a
 bernoulli p = sample (Bernoulli p)
 
 boolBernoulli p = do
-    x <- uniform 0 1
+    x <- realFloatUniform 0 1
     return (x <= p)
 
-generalBernoulli p t f = do
+generalBernoulli t f p = do
     x <- boolBernoulli p
     return (if x then t else f)
 
+class (Classification NumericType t c) => BernoulliByClassification c t where
+    bernoulliByClassification :: RealFloat a => a -> RVar t
+
+instance (Classification NumericType t IntegralType, Num t) => BernoulliByClassification IntegralType t
+    where bernoulliByClassification = generalBernoulli 0 1
+instance (Classification NumericType t FractionalType, Num t) => BernoulliByClassification FractionalType t
+    where bernoulliByClassification = generalBernoulli 0 1
+instance (Classification NumericType t EnumType, Enum t) => BernoulliByClassification EnumType t
+    where bernoulliByClassification = generalBernoulli (toEnum 0) (toEnum 1)
+
 data Bernoulli b a = Bernoulli b
 
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Bool where
-    rvar (Bernoulli p) = boolBernoulli p
-
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Int        where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Int8       where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Int16      where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Int32      where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Int64      where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Word8      where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Word16     where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Word32     where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Word64     where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Integer    where rvar (Bernoulli p) = generalBernoulli p 0 1
-
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Float      where rvar (Bernoulli p) = generalBernoulli p 0 1
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Double     where rvar (Bernoulli p) = generalBernoulli p 0 1
-
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) (a -> Either a a) where
-    rvar (Bernoulli p) = generalBernoulli p Left Right
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) ((a,a) -> a) where
-    rvar (Bernoulli p) = generalBernoulli p fst snd
-
+instance (BernoulliByClassification c t, RealFloat b) => Distribution (Bernoulli b) t where
+    rvar (Bernoulli p) = bernoulliByClassification p

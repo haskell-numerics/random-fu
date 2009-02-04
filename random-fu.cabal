@@ -12,5 +12,28 @@ description:            I'm too lame to describe my project
 
 Library
   hs-source-dirs:       src
-  exposed-modules:      
-  build-depends:        base >= 3
+  exposed-modules:      Data.Random
+                        Data.Random.Distribution
+                        Data.Random.Distribution.Bernoulli
+                        Data.Random.Distribution.Beta
+                        Data.Random.Distribution.Binomial
+                        Data.Random.Distribution.Exponential
+                        Data.Random.Distribution.Gamma
+                        Data.Random.Distribution.Normal
+                        Data.Random.Distribution.Poisson
+                        Data.Random.Distribution.Uniform
+                        Data.Random.Internal.Classification
+                        Data.Random.RVar
+                        Data.Random.Source
+                        Data.Random.Source.DevRandom
+                        Data.Random.Source.Old
+                        Data.Random.Source.PreFetch
+                        Data.Random.Source.Std
+                        
+  build-depends:        base >= 3,
+                        bytestring,
+                        channel,
+                        monad-loops,
+                        mtl,
+                        random,
+                        stateref

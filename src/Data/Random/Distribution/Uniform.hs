@@ -3,14 +3,17 @@
  -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
-    MultiParamTypeClasses, FlexibleContexts, PatternSignatures, RankNTypes
+    MultiParamTypeClasses, FlexibleContexts, PatternSignatures, RankNTypes,
+    FlexibleInstances, UndecidableInstances, FunctionalDependencies
   #-}
 
 module Data.Random.Distribution.Uniform
     ( Uniform(..)
+	, UniformByClassification(..)
 	, uniform
 	
     , StdUniform(..)
+    , StdUniformByClassification(..)
     , stdUniform
     
     , integralUniform
@@ -20,6 +23,8 @@ module Data.Random.Distribution.Uniform
     , boundedEnumStdUniform
     , realFloatStdUniform
     ) where
+
+import Data.Random.Internal.Classification
 
 import Data.Random.Source
 import Data.Random.Distribution
@@ -81,48 +86,37 @@ enumUniform a b = do
     x <- integralUniform (fromEnum a) (fromEnum b)
     return (toEnum x)
 
-data Uniform t = Uniform !t !t
-data StdUniform t = StdUniform
-
 uniform :: Distribution Uniform a => a -> a -> RVar a
 uniform a b = rvar (Uniform a b)
 
 stdUniform :: Distribution StdUniform a => RVar a
 stdUniform = rvar StdUniform
 
-instance Distribution Uniform Int8          where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int16         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int32         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int64         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int           where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Integer       where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word8         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word16        where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word32        where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word64        where rvar (Uniform a b) = integralUniform a b
+class (Classification NumericType t c) => UniformByClassification c t where
+    uniformByClassification :: t -> t -> RVar t
 
-instance Distribution StdUniform Int8       where rvar _ = boundedStdUniform
-instance Distribution StdUniform Int16      where rvar _ = boundedStdUniform
-instance Distribution StdUniform Int32      where rvar _ = boundedStdUniform
-instance Distribution StdUniform Int64      where rvar _ = boundedStdUniform
-instance Distribution StdUniform Int        where rvar _ = boundedStdUniform
-instance Distribution StdUniform Word8      where rvar _ = boundedStdUniform
-instance Distribution StdUniform Word16     where rvar _ = boundedStdUniform
-instance Distribution StdUniform Word32     where rvar _ = boundedStdUniform
-instance Distribution StdUniform Word64     where rvar _ = boundedStdUniform
+class (Classification NumericType t c) => StdUniformByClassification c t where
+    stdUniformByClassification :: RVar t
 
-instance Distribution Uniform Float         where rvar (Uniform a b) = realFloatUniform a b
-instance Distribution Uniform Double        where rvar (Uniform a b) = realFloatUniform a b
+data Uniform t = Uniform !t !t
+data StdUniform t = StdUniform
 
-instance Distribution StdUniform Float      where rvar _ = realFloatStdUniform
-instance Distribution StdUniform Double     where rvar _ = realFloatStdUniform
+instance UniformByClassification c t => Distribution Uniform t
+    where rvar (Uniform a b) = uniformByClassification a b
 
-instance Distribution Uniform Bool          where rvar (Uniform a b) = enumUniform a b
-instance Distribution Uniform Char          where rvar (Uniform a b) = enumUniform a b
-instance Distribution Uniform Ordering      where rvar (Uniform a b) = enumUniform a b
+instance StdUniformByClassification c t => Distribution StdUniform t
+    where rvar _ = stdUniformByClassification
 
-instance Distribution StdUniform Bool       where rvar _ = getRandomBytes 1 >>= (\(x:_) -> return (x >= 128))
-instance Distribution StdUniform Char       where rvar _ = boundedEnumStdUniform
-instance Distribution StdUniform Ordering   where rvar _ = boundedEnumStdUniform
+instance (Classification NumericType t IntegralType, Integral t) => UniformByClassification IntegralType t
+    where uniformByClassification = integralUniform
+instance (Classification NumericType t FractionalType, RealFloat t) => UniformByClassification FractionalType t
+    where uniformByClassification = realFloatUniform
+instance (Classification NumericType t EnumType, Enum t) => UniformByClassification EnumType t
+    where uniformByClassification = enumUniform
 
-instance Distribution Uniform ()            where rvar _ = return ()
+instance (Classification NumericType t IntegralType, Integral t, Bounded t) => StdUniformByClassification IntegralType t
+    where stdUniformByClassification = boundedStdUniform
+instance (Classification NumericType t FractionalType, RealFloat t) => StdUniformByClassification FractionalType t
+    where stdUniformByClassification = realFloatStdUniform
+instance (Classification NumericType t EnumType, Enum t, Bounded t) => StdUniformByClassification EnumType t
+    where stdUniformByClassification = boundedStdUniform
