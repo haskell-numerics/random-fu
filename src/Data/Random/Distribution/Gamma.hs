@@ -25,7 +25,10 @@ import Data.Random.Distribution.Normal
 
 import Control.Monad
 
-    -- translated from gsl source - seems to be best I've found by far
+    -- translated from gsl source - seems to be best I've found by far.
+    -- originally comes from Marsaglia & Tang, "A Simple Method for
+    -- generating gamma variables", ACM Transactions on Mathematical
+    -- Software, Vol 26, No 3 (2000), p363-372.
 realFloatGamma :: RealFloat a => a -> a -> RVar a
 realFloatGamma a b
     | a < 1 
@@ -56,6 +59,9 @@ realFloatGamma a b
                             || log u < 0.5 * x_2  + d * (1 - v + log v)
                             then return (b * d * v)
                             else go
+
+realFloatErlang :: (Integral a, RealFloat b) => a -> RVar b
+realFloatErlang a = realFloatGamma (fromIntegral a) 1
 
 gamma :: (Distribution Gamma a) => a -> a -> RVar a
 gamma a b = sample (Gamma a b)

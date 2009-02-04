@@ -25,14 +25,16 @@ realFloatBeta a b = do
     y <- realFloatGamma b 1
     return (x / (x + y))
 
+realFloatBetaFromIntegral :: (Integral a, Integral b, RealFloat c) => a -> b -> RVar c
+realFloatBetaFromIntegral a b =  do
+    x <- realFloatErlang a
+    y <- realFloatErlang b
+    return (x / (x + y))
+
 beta :: Distribution Beta a => a -> a -> RVar a
 beta a b = sample (Beta a b)
 
 data Beta a = Beta a a
 
-instance (Fractional a, Distribution Gamma a, Distribution Uniform a) => Distribution Beta a where
-    rvar (Beta 1 1) = uniform 0 1
-    rvar (Beta alpha beta) = do
-        x <- gamma alpha 1
-        y <- gamma beta  1
-        return (x / (x + y))
+instance (RealFloat a) => Distribution Beta a where
+    rvar (Beta a b) = realFloatBeta a b

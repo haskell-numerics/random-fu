@@ -30,7 +30,7 @@ integralPoisson mu = psn 0 mu
             | mu > 10   = do
                 let m = floor (mu * (7/8))
             
-                x <- realFloatGamma (fromIntegral m) 1
+                x <- realFloatErlang m
                 if x >= mu
                     then do
                         b <- integralBinomial (m - 1) (mu / x)

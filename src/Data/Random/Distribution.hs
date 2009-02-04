@@ -18,6 +18,6 @@ class Distribution d t where
     rvar = sampleFrom StdRandom
     sampleFrom :: RandomSource m s => s -> d t -> m t
     sampleFrom src dist = sampleFrom src (rvar dist)
-    
+
 sample :: (Distribution d t, MonadRandom m) => d t -> m t
 sample = (sampleFrom :: (Distribution d t, MonadRandom m) => (Int -> m [Word8]) -> d t -> m t) getRandomBytes

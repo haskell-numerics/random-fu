@@ -23,6 +23,7 @@ import Data.Bits
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.State
 
 newtype RVar a = RVar { runDistM :: forall m s. RandomSource m s => s -> m a }
 
