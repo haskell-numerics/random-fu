@@ -14,7 +14,7 @@ data StdRandom = StdRandom
 
 instance MonadRandom m => RandomSource m StdRandom where
     getRandomBytesFrom StdRandom = getRandomBytes
+    getRandomWordsFrom StdRandom = getRandomWords
 
 instance MonadRandomSeed m => RandomSourceSeed m StdRandom where
-    getRandomStateFor StdRandom = getRandomState
     setRandomStateFor StdRandom = setRandomState

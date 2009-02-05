@@ -49,12 +49,26 @@ instance Distribution RVar a where
 
 instance MonadRandom RVar where
     getRandomBytes n = RVar (\s -> getRandomBytesFrom s n)
+    getRandomWords n = RVar (\s -> getRandomWordsFrom s n)
 
 -- some 'fundamental' RVars
 nByteInteger :: Int -> RVar Integer
-nByteInteger n = do
-    xs <- getRandomBytes n
-    return (concatBytes xs)
+nByteInteger n
+    | n .&. 7 == 0
+    = do
+        xs <- getRandomWords (n `shiftR` 3)
+        return $! concatWords xs
+    | n > 8
+    = do
+        let nWords = n `shiftR` 3
+            nBytes = n .&. 7
+        ws <- getRandomWords nWords
+        bs <- getRandomBytes nBytes
+        return $! ((concatWords ws `shiftL` (nBytes `shiftL` 3)) .|. concatBytes bs)
+    | otherwise
+    = do
+        xs <- getRandomBytes n
+        return $! concatBytes xs
 
 nBitInteger :: Int -> RVar Integer
 nBitInteger n
@@ -62,11 +76,14 @@ nBitInteger n
     = nByteInteger (n `shiftR` 3)
     | otherwise
     = do
-    x <- nByteInteger ((n `shiftR` 3) + 1)
-    return (x .&. (bit n - 1))
+        x <- nByteInteger ((n `shiftR` 3) + 1)
+        return $! (x .&. (bit n - 1))
 
 concatBytes :: (Bits a, Num a) => [Word8] -> a
 concatBytes = concatBits fromIntegral
+
+concatWords :: (Bits a, Num a) => [Word64] -> a
+concatWords = concatBits fromIntegral
 
 concatBits :: (Bits a, Bits b, Num b) => (a -> b) -> [a] -> b
 concatBits f [] = 0
