@@ -1,3 +1,7 @@
+{-# LANGUAGE
+    MultiParamTypeClasses, FunctionalDependencies,
+    EmptyDataDecls
+  #-}
 {-
  -      ``Data/Random/Internal/Classification''
  -      
@@ -37,18 +41,12 @@
  -  All in all, although it is not yet well-tested, it has the "feel" of 
  -  a good compromise.
  -}
-{-# LANGUAGE
-    MultiParamTypeClasses, FunctionalDependencies,
-    EmptyDataDecls
-  #-}
-
 
 module Data.Random.Internal.Classification where
 
 import Data.Int
 import Data.Word
 import Data.Ratio
-import Data.Complex
 
 -- classificiation system, experimental
 --      c (a phantom type) is the classification system
@@ -61,6 +59,9 @@ import Data.Complex
 -- > class Classification SomeCS t c => FooByClassification t c where ...
 -- > instance FooByClassification t c => Foo t where ...
 -- 
+-- Thus the class of interest to the end user need not display anything
+-- at all about the classification system, except in the superclasses of 
+-- the classes in the contexts of some of its instances.
 class Classification c t tc | c t -> tc
 
 -- NumericType : a simple classification system covering the cases we care
@@ -89,7 +90,6 @@ instance Classification NumericType Integer        IntegralType
 instance Classification NumericType Float          FractionalType
 instance Classification NumericType Double         FractionalType
 instance Classification NumericType (Ratio a)      FractionalType
-instance Classification NumericType (Complex a)    FractionalType
 
 instance Classification NumericType Char           EnumType
 instance Classification NumericType Bool           EnumType
