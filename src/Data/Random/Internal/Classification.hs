@@ -54,10 +54,21 @@ import Data.Complex
 --      c (a phantom type) is the classification system
 --      t is the type to be classified
 --      tc (a phantom type) is the classification of t according to c
+-- The functional dependency, aside from being important because the relation
+-- is functional, allows the classification system to be "discharged" in
+-- cases such as the following:
+--
+-- > class Classification SomeCS t c => FooByClassification t c where ...
+-- > instance FooByClassification t c => Foo t where ...
+-- 
 class Classification c t tc | c t -> tc
 
 -- NumericType : a simple classification system covering the cases we care
--- about when sampling distributions
+-- about when sampling distributions.  Loosely, these are the reasons we care:
+--   * distributions over Fractional types are handled as if the type were continuous.
+--   * distributions over Integral types are handled discretely.
+--   * distributions over Enum types (which are not Num instances) are handled 
+--     like Integral types, but require use of "fromEnum" and/or "toEnum" to work with them.
 data NumericType
 
 data IntegralType
