@@ -1,6 +1,41 @@
 {-
  -      ``Data/Random/Internal/Classification''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
+ -      
+ -      "Classification systems" - for a motivating example, see
+ -  the implementation of the Uniform distribution.  Basically,
+ -  I would like to make instances like:
+ -  
+ -  > instance RealFloat a => Distribution Uniform a where ...
+ -  > instance Integral a =>  Distribution Uniform a where ...
+ -  
+ -  and so on.  However, this is not sound - what happens if someone
+ -  comes along and makes a type that's an instance of both Integral and
+ -  RealFloat?
+ -  
+ -  So, we introduce a classification system based on phantom types, so
+ -  that each type can be unambiguously declared to be "intensionally"
+ -  Integral, Floating, or whatever.
+ -  
+ -  Now, obviously it'd be nice not to clutter the Distribution typeclass
+ -  with extra phantom types that the end user shouldn't care about.  Hence
+ -  the pattern of introducing typeclasses such as "UniformByClassification"
+ -  
+ -  Now, if a new type comes along that is Integral, a single declaration
+ -  of the following form suffices to attach it to all such Distribution
+ -  instances:
+ -  
+ -  > instance Classification NumericType t IntegralType
+ -  
+ -  Not quite as automagic as the "Integral a => Distribution ..."  case,
+ -  but a bit closer.  Not only that, it leaves open the possibility that
+ -  a user may bring in a type that is "mostly" integral, and has an Integral
+ -  instance, but should be handled differently for purposes of uniform
+ -  random number generation.  In such a case, the user may introduce a new
+ -  classification of their own and provide the required instances for that
+ -  classification.
+ -  
+ -  All in all, although it is not yet well-tested, it has the "feel" of 
+ -  a good compromise.
  -}
 {-# LANGUAGE
     MultiParamTypeClasses, FunctionalDependencies,
