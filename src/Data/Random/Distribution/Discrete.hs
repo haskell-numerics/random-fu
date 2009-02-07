@@ -13,7 +13,7 @@ import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 
-discrete :: Distribution (Discrete Float) a => [(Float,a)] -> RVar a
+discrete :: Distribution (Discrete p) a => [(p,a)] -> RVar a
 discrete ps = rvar (Discrete ps)
 
 data Discrete p a = Discrete [(p, a)]
