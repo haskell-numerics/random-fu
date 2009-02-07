@@ -18,6 +18,7 @@ Library
                         Data.Random.Distribution.Beta
                         Data.Random.Distribution.Binomial
                         Data.Random.Distribution.Exponential
+                        Data.Random.Distribution.Discrete
                         Data.Random.Distribution.Gamma
                         Data.Random.Distribution.Normal
                         Data.Random.Distribution.Poisson
