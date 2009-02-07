@@ -3,8 +3,9 @@
  -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
-    MultiParamTypeClasses, FlexibleContexts, PatternSignatures, RankNTypes,
-    FlexibleInstances, UndecidableInstances, FunctionalDependencies
+    MultiParamTypeClasses, FunctionalDependencies,
+    FlexibleContexts, FlexibleInstances, 
+    UndecidableInstances
   #-}
 
 module Data.Random.Distribution.Uniform
