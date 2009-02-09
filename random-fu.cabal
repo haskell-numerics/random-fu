@@ -25,6 +25,7 @@ Library
                         Data.Random.Distribution.Triangular
                         Data.Random.Distribution.Uniform
                         Data.Random.Internal.Classification
+                        Data.Random.Internal.Words
                         Data.Random.RVar
                         Data.Random.Source
                         Data.Random.Source.DevRandom
