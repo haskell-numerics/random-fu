@@ -5,10 +5,12 @@ stability:              experimental
 cabal-version:          >= 1.2
 build-type:             Simple
 
-author:                 Cook, J. MR  SSD, Inc. <your email here>
-maintainer:             Cook, J. MR  SSD, Inc. <your email here>
+author:                 James Cook <james.cook@usma.edu>
+maintainer:             James Cook <james.cook@usma.edu>
 
-description:            I'm too lame to describe my project
+description:            Random number generation
+synopsis:               Random number generation based on orthogonal typeclasses
+                        for entropy sources and random variable distributions.
 
 Library
   hs-source-dirs:       src
