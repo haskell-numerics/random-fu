@@ -60,20 +60,29 @@ hist xs ys = map (id *** length) (hist' xs (sort ys))
         hist' (x:xs) ys = case break (>x) ys of
             (as, bs) -> (x, as) : hist' xs bs
 
+-- cumulative histogram
+cHist xs ys = tail (scanl (\(_, p1) (x,p2) -> (x, p1+p2)) (undefined, 0) (hist xs ys))
+
 -- probability density histogram
 pHist :: Int -> RVar Double -> IO ()
 pHist n x = do
     y <- replicateM n (sampleFrom DevRandom x)
-    printHist y n
+    printHist hist y n
+
+-- cumulative probability histogram
+cpHist :: Int -> RVar Double -> IO ()
+cpHist n x = do
+    y <- replicateM n (sampleFrom DevRandom x)
+    printHist cHist y n
 
 -- byte-count histogram (random source usage)
 bcHist :: Int -> RVar Double -> IO ()
 bcHist n x = do
     (src, dx) <- mkByteCounter DevRandom
     y <- replicateM n (sampleFrom src x >> fmap fromIntegral dx) :: IO [Double]
-    printHist y n
+    printHist hist y n
 
-printHist y n = mapM_ (putStrLn . fmt) h
+printHist hist y n = mapM_ (putStrLn . fmt) h
     where
         a = minimum y
         b = maximum y
@@ -89,9 +98,6 @@ printHist y n = mapM_ (putStrLn . fmt) h
         scale = fromIntegral maxVal / cols
         
         fmt (bin, x) = printf "%+0.3f%9s: " bin (printf "(%0.2f%%)" (100 * fromIntegral x / fromIntegral n :: Float) :: String) ++ replicate (round (fromIntegral x / scale)) '*'
-
--- cumulative density histogram
-cHist xs ys = scanl1 (+) (map snd $ hist xs ys)
 
 mkByteCounter src = do
     x <- newDefaultRef 0
