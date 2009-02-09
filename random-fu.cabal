@@ -22,6 +22,7 @@ Library
                         Data.Random.Distribution.Gamma
                         Data.Random.Distribution.Normal
                         Data.Random.Distribution.Poisson
+                        Data.Random.Distribution.Triangular
                         Data.Random.Distribution.Uniform
                         Data.Random.Internal.Classification
                         Data.Random.RVar

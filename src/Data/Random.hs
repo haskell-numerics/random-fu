@@ -21,6 +21,7 @@ module Data.Random
     , module Data.Random.Distribution.Exponential
     , module Data.Random.Distribution.Normal
     , module Data.Random.Distribution.Poisson
+    , module Data.Random.Distribution.Triangular
     , module Data.Random.Distribution.Uniform
     , module Data.Random.RVar
     ) where
@@ -39,6 +40,7 @@ import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Exponential
 import Data.Random.Distribution.Normal
 import Data.Random.Distribution.Poisson
+import Data.Random.Distribution.Triangular
 import Data.Random.Distribution.Uniform
 import Data.Random.RVar
 
