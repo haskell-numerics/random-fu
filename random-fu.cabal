@@ -31,11 +31,13 @@ Library
                         Data.Random.Source.DevRandom
                         Data.Random.Source.Old
                         Data.Random.Source.PreFetch
+                        Data.Random.Source.PureMT
                         Data.Random.Source.Std
                         
   build-depends:        base >= 3,
                         bytestring,
                         channel,
+                        mersenne-random-pure64,
                         monad-loops,
                         mtl,
                         random,

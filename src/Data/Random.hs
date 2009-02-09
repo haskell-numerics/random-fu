@@ -11,6 +11,7 @@ module Data.Random
     , module Data.Random.Source.DevRandom
     , module Data.Random.Source.Old
     , module Data.Random.Source.PreFetch
+    , module Data.Random.Source.PureMT
     , module Data.Random.Source.Std
     , module Data.Random.Distribution
     , module Data.Random.Distribution.Bernoulli
@@ -30,6 +31,7 @@ import Data.Random.Source
 import Data.Random.Source.DevRandom
 import Data.Random.Source.Old
 import Data.Random.Source.PreFetch
+import Data.Random.Source.PureMT
 import Data.Random.Source.Std
 import Data.Random.Distribution
 import Data.Random.Distribution.Bernoulli
