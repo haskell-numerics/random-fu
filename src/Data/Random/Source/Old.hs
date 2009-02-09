@@ -15,9 +15,15 @@ import Control.Monad.State
 import Data.StateRef
 import Data.Word
 
-instance (ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where getRandomBytesFrom = getRandomBytesFromRandomGenRef
-instance (ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where getRandomBytesFrom = getRandomBytesFromRandomGenRef
-instance (ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where getRandomBytesFrom = getRandomBytesFromRandomGenRef
+instance (ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
+    getRandomBytesFrom = getRandomBytesFromRandomGenRef
+    getRandomWordsFrom = getRandomWordsFromRandomGenRef
+instance (ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where
+    getRandomBytesFrom = getRandomBytesFromRandomGenRef
+    getRandomWordsFrom = getRandomWordsFromRandomGenRef
+instance (ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where
+    getRandomBytesFrom = getRandomBytesFromRandomGenRef
+    getRandomWordsFrom = getRandomWordsFromRandomGenRef
 
 getRandomBytesFromStdGenIO :: Int -> IO [Word8]
 getRandomBytesFromStdGenIO n = do
