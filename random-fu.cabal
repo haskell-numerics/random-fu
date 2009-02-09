@@ -10,7 +10,12 @@ maintainer:             James Cook <james.cook@usma.edu>
 
 description:            Random number generation
 synopsis:               Random number generation based on orthogonal typeclasses
-                        for entropy sources and random variable distributions.
+                        for entropy sources and random variable distributions, all
+                        served up on a monadic platter.  Aspires to be useful
+                        in an idiomatic way in both "pure" and "impure" styles,
+                        as well as reasonably fast.  May not yet meet the latter
+                        goal, but I think the former is starting to shape up
+                        nicely.
 
 Library
   hs-source-dirs:       src
