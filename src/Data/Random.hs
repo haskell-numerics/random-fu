@@ -82,20 +82,20 @@ bcHist n x = do
     y <- replicateM n (sampleFrom src x >> fmap fromIntegral dx) :: IO [Double]
     printHist hist y n
 
-printHist hist y n = mapM_ (putStrLn . fmt) h
+printHist hist ys n = mapM_ (putStrLn . fmt) xs
     where
-        a = minimum y
-        b = maximum y
+        y0 = minimum ys
+        y1 = maximum ys
         rows = 80
         cols = 140
-        step = (b - a) / fromInteger rows
-        steps = [ a + fromInteger n * step
+        step = (y1 - y0) / fromInteger rows
+        steps = [ y0 + fromInteger n * step
                 | n <- [1..rows]
                 ]
-        h = hist steps y
+        xs = hist steps ys
         
-        maxVal = maximum (map snd h)
-        scale = fromIntegral maxVal / cols
+        maxX = maximum (map snd xs)
+        scale = fromIntegral maxX / cols
         
         fmt (bin, x) = printf "%+0.3f%9s: " bin (printf "(%0.2f%%)" (100 * fromIntegral x / fromIntegral n :: Float) :: String) ++ replicate (round (fromIntegral x / scale)) '*'
 
