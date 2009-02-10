@@ -45,7 +45,7 @@ Library
                         bytestring,
                         channel,
                         mersenne-random-pure64,
-                        monad-loops,
+                        monad-loops >= 0.3.0.1,
                         mtl,
                         random,
                         stateref
