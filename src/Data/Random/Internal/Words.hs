@@ -2,6 +2,10 @@
  -      ``Data/Random/Internal/Words''
  -}
 
+-- |A few little functions I found myself writing inline over and over again.
+--
+-- Note that these need to be checked to ensure proper behavior on big-endian 
+-- systems.  They are probably not right at the moment.
 module Data.Random.Internal.Words where
 
 import Foreign
