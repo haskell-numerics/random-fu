@@ -17,10 +17,10 @@ import Data.List
 import Data.Random.Internal.Words
 
 -- |A typeclass for monads with a chosen source of entropy.  For example,
--- 'RVar' is such a monad - the source from which it is sampled is the
--- only source from which a random variable is permitted to draw, so
--- when directly requesting entropy for a random variable these methods
--- can be used.
+-- 'RVar' is such a monad - the source from which it is (eventually) sampled
+-- is the only source from which a random variable is permitted to draw, so
+-- when directly requesting entropy for a random variable these functions
+-- are used.
 -- 
 -- The minimal definition is either 'getRandomBytes' or 'getRandomWords'.
 class Monad m => MonadRandom m where
