@@ -7,9 +7,7 @@
 
 module Data.Random.Source
     ( MonadRandom(..)
-    , MonadRandomSeed(..)
     , RandomSource(..)
-    , RandomSourceSeed(..)
     ) where
 
 import Data.Word
@@ -18,9 +16,13 @@ import Data.List
 
 import Data.Random.Internal.Words
 
-class MonadRandom m => MonadRandomSeed m where
-    setRandomState :: RandomSource m seed => seed -> m ()
-
+-- |A typeclass for monads with a chosen source of entropy.  For example,
+-- 'RVar' is such a monad - the source from which it is sampled is the
+-- only source from which a random variable is permitted to draw, so
+-- when directly requesting entropy for a random variable these methods
+-- can be used.
+-- 
+-- The minimal definition is either 'getRandomBytes' or 'getRandomWords'.
 class Monad m => MonadRandom m where
     -- |get the specified number of random (uniformly distributed) bytes
     getRandomBytes :: Int -> m [Word8]
@@ -42,6 +44,9 @@ class Monad m => MonadRandom m where
         bs <- getRandomBytes (n `shiftL` 3)
         return (bytesToWords bs)
 
+-- |A source of entropy which can be used in the given monad.
+--
+-- The minimal definition is either 'getRandomBytesFrom' or 'getRandomWordsFrom'
 class Monad m => RandomSource m s where
     getRandomBytesFrom :: s -> Int -> m [Word8]
     getRandomBytesFrom src n
@@ -61,9 +66,6 @@ class Monad m => RandomSource m s where
     getRandomWordsFrom src n = do
         bs <- getRandomBytesFrom src (n `shiftL` 3)
         return (bytesToWords bs)
-
-class RandomSource m s => RandomSourceSeed m s where
-    setRandomStateFor :: RandomSource m seed => s -> seed -> m ()
 
 instance Monad m => RandomSource m (Int -> m [Word8]) where
     getRandomBytesFrom = id

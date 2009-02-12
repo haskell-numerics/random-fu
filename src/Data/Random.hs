@@ -5,11 +5,23 @@
     FlexibleContexts
   #-}
 
+-- |Random numbers and stuff...
+-- 
+-- Data.Random.Source exports the typeclasses for entropy sources, and
+-- Data.Random.Source.* export various instances and/or functions with which
+-- instances can be defined.
+-- 
+-- Data.Random.Distribution exports the typeclasses for sampling distributions,
+-- and Data.Random.Distribution.* export various specific distributions.
+--
+-- Data.Random.RVar exports the 'RVar' type, which is a probability distribution
+-- monad that allows for concise definitions of random variables, as well as
+-- a couple handy 'RVar's.
+
 module Data.Random
     ( module Data.Random.Source
     , module Data.Random.Source.DevRandom
     , module Data.Random.Source.StdGen
-    , module Data.Random.Source.PreFetch
     , module Data.Random.Source.PureMT
     , module Data.Random.Source.Std
     , module Data.Random.Distribution
@@ -29,7 +41,6 @@ module Data.Random
 import Data.Random.Source
 import Data.Random.Source.DevRandom
 import Data.Random.Source.StdGen
-import Data.Random.Source.PreFetch
 import Data.Random.Source.PureMT
 import Data.Random.Source.Std
 import Data.Random.Distribution
