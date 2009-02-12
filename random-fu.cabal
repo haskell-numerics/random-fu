@@ -8,6 +8,7 @@ build-type:             Simple
 author:                 James Cook <james.cook@usma.edu>
 maintainer:             James Cook <james.cook@usma.edu>
 license:                PublicDomain
+homepage:               http://code.haskell.org/~mokus/random-fu
 
 synopsis:               Random number generation
 description:            Random number generation based on orthogonal typeclasses
