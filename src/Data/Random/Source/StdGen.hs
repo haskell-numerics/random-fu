@@ -1,12 +1,11 @@
 {-
- -      ``Data/Random/Source/Old''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
+ -      ``Data/Random/Source/StdGen''
  -}
 {-# LANGUAGE
     MultiParamTypeClasses, FlexibleInstances, UndecidableInstances
   #-}
 
-module Data.Random.Source.Old where
+module Data.Random.Source.StdGen where
 
 import Data.Random.Source
 import System.Random

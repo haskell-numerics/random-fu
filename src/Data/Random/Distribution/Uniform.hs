@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random/Distribution/Uniform''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
     MultiParamTypeClasses, FunctionalDependencies,

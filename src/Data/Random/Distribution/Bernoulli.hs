@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random/Distribution/Bernoulli''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,

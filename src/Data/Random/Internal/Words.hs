@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random/Internal/Words''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 
 module Data.Random.Internal.Words where

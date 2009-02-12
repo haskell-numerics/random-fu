@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random/Distribution''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
     MultiParamTypeClasses, FlexibleContexts

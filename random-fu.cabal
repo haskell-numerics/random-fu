@@ -7,6 +7,7 @@ build-type:             Simple
 
 author:                 James Cook <james.cook@usma.edu>
 maintainer:             James Cook <james.cook@usma.edu>
+license:                PublicDomain
 
 description:            Random number generation
 synopsis:               Random number generation based on orthogonal typeclasses
@@ -36,7 +37,7 @@ Library
                         Data.Random.RVar
                         Data.Random.Source
                         Data.Random.Source.DevRandom
-                        Data.Random.Source.Old
+                        Data.Random.Source.StdGen
                         Data.Random.Source.PreFetch
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std

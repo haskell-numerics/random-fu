@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random/Distribution/Gamma''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -
  -  needs cleanup, verification, and automagic selection of appropriate
  -  algorithms, and proper citations.

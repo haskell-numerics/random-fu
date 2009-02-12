@@ -1,6 +1,5 @@
 {-
  -      ``Test/Shuffle''
- -      (c) 2009 James Cook
  -}
 {-# LANGUAGE
     FlexibleContexts

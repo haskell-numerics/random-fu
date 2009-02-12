@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random/Source/PureMT''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,

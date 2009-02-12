@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE
     FlexibleContexts
@@ -9,7 +8,7 @@
 module Data.Random
     ( module Data.Random.Source
     , module Data.Random.Source.DevRandom
-    , module Data.Random.Source.Old
+    , module Data.Random.Source.StdGen
     , module Data.Random.Source.PreFetch
     , module Data.Random.Source.PureMT
     , module Data.Random.Source.Std
@@ -29,7 +28,7 @@ module Data.Random
 
 import Data.Random.Source
 import Data.Random.Source.DevRandom
-import Data.Random.Source.Old
+import Data.Random.Source.StdGen
 import Data.Random.Source.PreFetch
 import Data.Random.Source.PureMT
 import Data.Random.Source.Std
