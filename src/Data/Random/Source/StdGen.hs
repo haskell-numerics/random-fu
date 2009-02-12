@@ -30,6 +30,14 @@ getRandomBytesFromStdGenIO n = do
     let bytes = map fromIntegral (ints :: [Int])
     return bytes
 
+-- |Given a mutable reference to a 'RandomGen' generator, we can make a
+-- 'RandomSource' usable in any monad in which the reference can be modified.
+--
+-- For example, if @x :: TVar StdGen@, @getRandomBytesFromRandomGenRef x@ can be
+-- used as a 'RandomSource' in 'IO', 'STM', or any monad which is an instance
+-- of 'MonadIO'.  It's generally probably better to use
+-- 'getRandomWordsFromRandomGenRef' though, as this one is likely to throw
+-- away a lot of perfectly good entropy.
 getRandomBytesFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
                                   sr -> Int -> m [Word8]
 getRandomBytesFromRandomGenRef g n = do
@@ -38,6 +46,11 @@ getRandomBytesFromRandomGenRef g n = do
     let bytes = map fromIntegral (ints :: [Int])
     return bytes
     
+-- |Similarly, @getRandomWordsFromRandomGenState x@ can be used in any \"state\"
+-- monad in the mtl sense whose state is a 'RandomGen' generator.
+-- Additionally, the standard mtl state monads have 'MonadRandom' instances
+-- which do precisely that, allowing an easy conversion of 'RVar's and
+-- other 'Distribution' instances to \"pure\" random variables.
 getRandomBytesFromRandomGenState :: (RandomGen g, MonadState g m) =>
                                   Int -> m [Word8]
 getRandomBytesFromRandomGenState n = replicateM n $ do
@@ -47,6 +60,7 @@ getRandomBytesFromRandomGenState n = replicateM n $ do
             put g
             return (fromIntegral i)
 
+-- |See 'getRandomBytesFromRandomGenRef'
 getRandomWordsFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
                                   sr -> Int -> m [Word64]
 getRandomWordsFromRandomGenRef g n = do
@@ -55,6 +69,7 @@ getRandomWordsFromRandomGenRef g n = do
     let bytes = map fromInteger ints
     return bytes
     
+-- |See 'getRandomBytesFromRandomGenState'
 getRandomWordsFromRandomGenState :: (RandomGen g, MonadState g m) =>
                                   Int -> m [Word64]
 getRandomWordsFromRandomGenState n = replicateM n $ do
@@ -63,12 +78,6 @@ getRandomWordsFromRandomGenState n = replicateM n $ do
         (i,g) -> do
             put g
             return (fromInteger i)
-
-data RandomGenState g = RandomGenState
-
-instance (MonadState g m, RandomGen g) => RandomSource m (RandomGenState g) where
-    getRandomBytesFrom _ = getRandomBytesFromRandomGenState
-    getRandomWordsFrom _ = getRandomWordsFromRandomGenState
 
 instance MonadRandom (State StdGen) where
     getRandomBytes = getRandomBytesFromRandomGenState

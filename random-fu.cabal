@@ -10,6 +10,7 @@ maintainer:             James Cook <james.cook@usma.edu>
 license:                PublicDomain
 homepage:               http://code.haskell.org/~mokus/random-fu
 
+category:               Math
 synopsis:               Random number generation
 description:            Random number generation based on orthogonal typeclasses
                         for entropy sources and random variable distributions, all
