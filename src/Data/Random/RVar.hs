@@ -30,7 +30,7 @@ import Control.Monad
 
 -- |An opaque type containing a \"random variable\" - a value 
 -- which depends on the outcome of some random process.
-newtype RVar a = RVar { runDistM :: forall m s. RandomSource m s => s -> m a }
+newtype RVar a = RVar { runRVar :: forall m s. RandomSource m s => s -> m a }
 
 instance Functor RVar where
     fmap = liftM
@@ -40,8 +40,7 @@ instance Monad RVar where
     fail s   = RVar (\_ -> fail s)
     (RVar x) >>= f = RVar (\s -> do
             x <- x s
-            case f x of
-                RVar y -> y s
+            runRVar (f x) s
         )
 
 instance Applicative RVar where
@@ -50,7 +49,7 @@ instance Applicative RVar where
 
 instance Distribution RVar a where
     rvar = id
-    sampleFrom src x = runDistM x src
+    sampleFrom src x = runRVar x src
 
 instance MonadRandom RVar where
     getRandomBytes n = RVar (\s -> getRandomBytesFrom s n)
