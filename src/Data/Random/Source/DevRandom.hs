@@ -5,7 +5,9 @@
     MultiParamTypeClasses
   #-}
 
-module Data.Random.Source.DevRandom where
+module Data.Random.Source.DevRandom 
+    ( DevRandom(..)
+    ) where
 
 import Data.Random.Source
 
@@ -15,10 +17,13 @@ import System.IO (openBinaryFile, IOMode(..))
 
 -- |On systems that have it, \/dev\/random is a handy-dandy ready-to-use source
 -- of nonsense.
-data DevRandom = DevRandom
-{-# NOINLINE devRandom #-}
-devRandom = unsafePerformIO (openBinaryFile "/dev/random" ReadMode)
+data DevRandom = DevRandom | DevURandom
+
+{-# NOINLINE devRandom  #-}
+devRandom  = unsafePerformIO (openBinaryFile "/dev/random"  ReadMode)
+{-# NOINLINE devURandom #-}
+devURandom = unsafePerformIO (openBinaryFile "/dev/urandom" ReadMode)
 
 instance RandomSource IO DevRandom where
-    getRandomBytesFrom DevRandom n = fmap unpack (hGet devRandom n)
-
+    getRandomBytesFrom DevRandom  n = fmap unpack (hGet devRandom  n)
+    getRandomBytesFrom DevURandom n = fmap unpack (hGet devURandom n)
