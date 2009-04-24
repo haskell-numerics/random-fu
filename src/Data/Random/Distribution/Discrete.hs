@@ -11,6 +11,7 @@ module Data.Random.Distribution.Discrete where
 import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
+import Data.Random.List (randomElement)
 
 import Control.Monad
 import Control.Applicative
@@ -32,12 +33,16 @@ instance (Num p, Ord p, Distribution Uniform p) => Distribution (Discrete p) a w
         
         when (any (<0) ps) $ fail "negative probability in discrete distribution"
         
-        u <- uniform 0 (last cs)
-        return $ head
-            [ x
-            | (c,x) <- zip cs xs
-            , c >= u
-            ]
+        let totalProb = last cs
+        if totalProb <= 0
+            then randomElement xs   -- this probably makes the monad instance incorrect for discarding zero-probability events...
+            else do
+                u <- uniform 0 totalProb
+                return $ head
+                    [ x
+                    | (c,x) <- zip cs xs
+                    , c >= u
+                    ]
 
 instance Functor (Discrete p) where
     fmap f (Discrete ds) = Discrete [(p, f x) | (p, x) <- ds]
@@ -56,7 +61,7 @@ instance (Fractional p, Ord p) => Monad (Discrete p) where
         let Discrete fx = f x
         let qx = [ (q, x)
                  | (q, x) <- fx
-                 , q > 0
+                 , q > 0    -- should this be done?  Consider case where all results have 0 weight...
                  ]
             qs = map fst qx     -- either (qx == []) or (sum qs > 0)
             scale = recip (sum qs)
