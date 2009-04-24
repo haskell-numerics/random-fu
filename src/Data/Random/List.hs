@@ -15,7 +15,6 @@ import Data.Random.Distribution.Uniform
 import GHC.IOBase
 
 import qualified Data.Sequence as S
-import qualified Data.Map as M
 
 randomElement :: [a] -> RVar a
 randomElement [] = error "randomElement: empty list!"
@@ -40,12 +39,10 @@ shuffleSeq s = shuffle (S.length s) s
             (l,r) -> case S.viewl r of
                 x S.:< r  -> (x, l S.>< r)
 
-lazyShuffleFrom :: (RandomSource IO s) =>
-                   s -> [a] -> IO [a]
+lazyShuffleFrom :: (RandomSource IO s) => s -> [a] -> IO [a]
 lazyShuffleFrom src = lazyShuffleSeqFrom src . S.fromList
 
-lazyShuffleSeqFrom :: (RandomSource IO s) =>
-                   s -> S.Seq a -> IO [a]
+lazyShuffleSeqFrom :: (RandomSource IO s) => s -> S.Seq a -> IO [a]
 lazyShuffleSeqFrom src s = shuffle (S.length s) s
     where
         shuffle 0     _  = return []

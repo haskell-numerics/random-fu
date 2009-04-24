@@ -46,6 +46,7 @@ Library
                         
   build-depends:        base >= 3,
                         bytestring,
+                        containers,
                         mersenne-random-pure64,
                         monad-loops >= 0.3.0.1,
                         mtl,
