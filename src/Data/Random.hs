@@ -35,6 +35,7 @@ module Data.Random
     , module Data.Random.Distribution.Poisson
     , module Data.Random.Distribution.Triangular
     , module Data.Random.Distribution.Uniform
+    , module Data.Random.List
     , module Data.Random.RVar
     ) where
 
@@ -54,5 +55,6 @@ import Data.Random.Distribution.Normal
 import Data.Random.Distribution.Poisson
 import Data.Random.Distribution.Triangular
 import Data.Random.Distribution.Uniform
+import Data.Random.List
 import Data.Random.RVar
 
