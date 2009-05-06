@@ -18,7 +18,7 @@ data Triangular a = Triangular
     , triUpper  :: a
     } deriving (Eq, Show)
 
-realFloatTriangular :: (RealFloat a) => a -> a -> a -> RVar a
+realFloatTriangular :: (RealFloat a) => a -> a -> a -> RVarT m a
 realFloatTriangular a b c
     | a <= b && b <= c
     = do

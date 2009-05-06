@@ -19,7 +19,7 @@ import Control.Applicative
 import Data.List
 import Data.Function
 
-discrete :: Distribution (Discrete p) a => [(p,a)] -> RVar a
+discrete :: Distribution (Discrete p) a => [(p,a)] -> RVarT m a
 discrete ps = rvar (Discrete ps)
 
 newtype Discrete p a = Discrete [(p, a)]

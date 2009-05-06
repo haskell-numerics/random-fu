@@ -19,7 +19,7 @@ import Data.Random.RVar
 import Control.Monad
 
 -- Box-Muller method
-normalPair :: (Floating a, Distribution Uniform a) => RVar (a,a)
+normalPair :: (Floating a, Distribution Uniform a) => RVarT m (a,a)
 normalPair = do
     u <- uniform 0 1
     t <- uniform 0 (2 * pi)
@@ -30,7 +30,7 @@ normalPair = do
     return (x,y)
 
 -- slightly slower
-knuthPolarNormalPair :: (Floating a, Ord a, Distribution Uniform a) => RVar (a,a)
+knuthPolarNormalPair :: (Floating a, Ord a, Distribution Uniform a) => RVarT m (a,a)
 knuthPolarNormalPair = do
     v1 <- uniform (-1) 1
     v2 <- uniform (-1) 1
@@ -43,7 +43,7 @@ knuthPolarNormalPair = do
             else let scale = sqrt (-2 * log s / s) 
                   in (v1 * scale, v2 * scale)
 
-realFloatStdNormal :: RealFloat a => RVar a
+realFloatStdNormal :: RealFloat a => RVarT m a
 realFloatStdNormal = do
     u <- realFloatStdUniform
     t <- realFloatStdUniform
@@ -63,8 +63,8 @@ instance (Floating a, Distribution Uniform a) => Distribution Normal a where
         x <- liftM fst normalPair
         return (x * s + m)
 
-stdNormal :: Distribution Normal a => RVar a
+stdNormal :: Distribution Normal a => RVarT m a
 stdNormal = rvar StdNormal
 
-normal :: Distribution Normal a => a -> a -> RVar a
+normal :: Distribution Normal a => a -> a -> RVarT m a
 normal m s = rvar (Normal m s)

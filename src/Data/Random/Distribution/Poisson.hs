@@ -22,7 +22,7 @@ import Data.Word
 import Control.Monad
 
 -- from Knuth, with interpretation help from gsl sources
-integralPoisson :: (Integral a, RealFloat b) => b -> RVar a
+integralPoisson :: (Integral a, RealFloat b) => b -> RVarT m a
 integralPoisson mu = psn 0 mu
     where
         psn k mu
@@ -47,8 +47,8 @@ integralPoisson mu = psn 0 mu
                             else return k
 
 
-poisson :: (Distribution (Poisson b) a) => b -> RVar a
-poisson mu = sample (Poisson mu)
+poisson :: (Distribution (Poisson b) a) => b -> RVarT m a
+poisson mu = rvar (Poisson mu)
 
 data Poisson b a = Poisson b
 

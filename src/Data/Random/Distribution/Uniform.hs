@@ -55,14 +55,14 @@ bytesNeeded x = case findIndex (> x) powersOf256 of
     Just x -> x
 powersOf256 = iterate (256 *) 1
 
-boundedStdUniform :: (Distribution Uniform a, Bounded a) => RVar a
+boundedStdUniform :: (Distribution Uniform a, Bounded a) => RVarT m a
 boundedStdUniform = uniform minBound maxBound
 
-boundedEnumStdUniform :: (Enum a, Bounded a) => RVar a
+boundedEnumStdUniform :: (Enum a, Bounded a) => RVarT m a
 boundedEnumStdUniform = enumUniform minBound maxBound
 
 -- (0,1]
-realFloatStdUniform :: RealFloat a => RVar a
+realFloatStdUniform :: RealFloat a => RVarT m a
 realFloatStdUniform | False     = return one
                     | otherwise = do
     let bitsNeeded  = floatDigits one
@@ -75,28 +75,28 @@ realFloatStdUniform | False     = return one
     
     where one = 1
 
-realFloatUniform :: RealFloat a => a -> a -> RVar a
+realFloatUniform :: RealFloat a => a -> a -> RVarT m a
 realFloatUniform 0 1 = realFloatStdUniform
 realFloatUniform a b = do
     x <- realFloatStdUniform
     return (a + x * (b - a))
 
-enumUniform :: Enum a => a -> a -> RVar a
+enumUniform :: Enum a => a -> a -> RVarT m a
 enumUniform a b = do
     x <- integralUniform (fromEnum a) (fromEnum b)
     return (toEnum x)
 
-uniform :: Distribution Uniform a => a -> a -> RVar a
+uniform :: Distribution Uniform a => a -> a -> RVarT m a
 uniform a b = rvar (Uniform a b)
 
-stdUniform :: Distribution StdUniform a => RVar a
+stdUniform :: (Distribution StdUniform a) => RVarT m a
 stdUniform = rvar StdUniform
 
 class (Classification NumericType t c) => UniformByClassification c t where
-    uniformByClassification :: t -> t -> RVar t
+    uniformByClassification :: t -> t -> RVarT m t
 
 class (Classification NumericType t c) => StdUniformByClassification c t where
-    stdUniformByClassification :: RVar t
+    stdUniformByClassification :: RVarT m t
 
 data Uniform t = Uniform !t !t
 data StdUniform t = StdUniform

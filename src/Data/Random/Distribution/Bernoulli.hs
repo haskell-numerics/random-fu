@@ -20,8 +20,8 @@ import Data.Random.Distribution.Uniform
 import Data.Int
 import Data.Word
 
-bernoulli :: (Distribution (Bernoulli b) a) => b -> RVar a
-bernoulli p = sample (Bernoulli p)
+bernoulli :: Distribution (Bernoulli b) a => b -> RVarT m a
+bernoulli p = rvar (Bernoulli p)
 
 boolBernoulli p = do
     x <- realFloatUniform 0 1
@@ -32,7 +32,7 @@ generalBernoulli t f p = do
     return (if x then t else f)
 
 class (Classification NumericType t c) => BernoulliByClassification c t where
-    bernoulliByClassification :: RealFloat a => a -> RVar t
+    bernoulliByClassification :: RealFloat a => a -> RVarT m t
 
 instance (Classification NumericType t IntegralType, Num t) => BernoulliByClassification IntegralType t
     where bernoulliByClassification = generalBernoulli 0 1

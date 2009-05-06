@@ -14,52 +14,59 @@
 -- 'RVar's.
 module Data.Random.RVar
     ( RVar
-    
+    , RVarT
+    , sampleFromR
     , nByteInteger
     , nBitInteger
     ) where
 
-import Data.Random.Distribution
+
 import Data.Random.Source
+import Data.Random.Lift as L
 
 import Data.Word
 import Data.Bits
 
+import qualified Control.Monad.Trans as T
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Reader
+import Control.Monad.Identity
+
+type RVar = RVarT Identity
 
 -- |An opaque type containing a \"random variable\" - a value 
 -- which depends on the outcome of some random process.
-newtype RVar a = RVar { runRVar :: forall m s. RandomSource m s => s -> m a }
+newtype RVarT n a = RVarT { runRVarT :: forall m s. (Lift n m, RandomSource m s) => ReaderT s m a }
 
-instance Functor RVar where
+instance Functor (RVarT n) where
     fmap = liftM
 
-instance Monad RVar where
-    return x = RVar (\_ -> return x)
-    fail s   = RVar (\_ -> fail s)
-    (RVar x) >>= f = RVar (\s -> do
-            x <- x s
-            runRVar (f x) s
-        )
+instance Monad (RVarT n) where
+    return x = RVarT (return x)
+    fail s   = RVarT (fail s)
+    (RVarT x) >>= f = RVarT (x >>= runRVarT . f)
 
-instance Applicative RVar where
+instance Applicative (RVarT n) where
     pure  = return
     (<*>) = ap
 
-instance Distribution RVar a where
-    rvar = id
-    sampleFrom src x = runRVar x src
+instance T.MonadTrans RVarT where
+    lift m = RVarT (T.lift . L.lift $ m)
 
-instance MonadRandom RVar where
-    getRandomBytes n = RVar (\s -> getRandomBytesFrom s n)
-    getRandomWords n = RVar (\s -> getRandomWordsFrom s n)
+-- | \"Runs\" the monad.
+sampleFromR :: (Lift n m, RandomSource m s) => s -> RVarT n a -> m a
+sampleFromR src x = runReaderT (runRVarT x) src
 
--- some 'fundamental' RVars
+instance MonadRandom (RVarT n) where
+    getRandomBytes n = RVarT (ReaderT $ \s -> getRandomBytesFrom s n)
+    getRandomWords n = RVarT (ReaderT $ \s -> getRandomWordsFrom s n)
+
+-- some 'fundamental' RVarTs
 -- this maybe ought to even be a part of the RandomSource class...
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^(8*n)-1, inclusive.
-nByteInteger :: Int -> RVar Integer
+nByteInteger :: Int -> RVarT m Integer
 nByteInteger n
     | n .&. 7 == 0
     = do
@@ -79,7 +86,7 @@ nByteInteger n
 
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^n-1, inclusive.
-nBitInteger :: Int -> RVar Integer
+nBitInteger :: Int -> RVarT m Integer
 nBitInteger n
     | n .&. 7 == 0
     = nByteInteger (n `shiftR` 3)

@@ -17,21 +17,21 @@ import Data.Random.Distribution.Uniform
 
 import Control.Monad
 
-realFloatBeta :: RealFloat a => a -> a -> RVar a
+realFloatBeta :: RealFloat a => a -> a -> RVarT m a
 realFloatBeta 1 1 = realFloatStdUniform
 realFloatBeta a b = do
     x <- realFloatGamma a 1
     y <- realFloatGamma b 1
     return (x / (x + y))
 
-realFloatBetaFromIntegral :: (Integral a, Integral b, RealFloat c) => a -> b -> RVar c
+realFloatBetaFromIntegral :: (Integral a, Integral b, RealFloat c) => a -> b -> RVarT m c
 realFloatBetaFromIntegral a b =  do
     x <- realFloatErlang a
     y <- realFloatErlang b
     return (x / (x + y))
 
-beta :: Distribution Beta a => a -> a -> RVar a
-beta a b = sample (Beta a b)
+beta :: Distribution Beta a => a -> a -> RVarT m a
+beta a b = rvar (Beta a b)
 
 data Beta a = Beta a a
 
