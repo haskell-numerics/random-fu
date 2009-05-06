@@ -33,4 +33,4 @@ realFloatTriangular a b c
         return (b - ((1 - sqrt x) * (b-d)))
 
 instance RealFloat a => Distribution Triangular a where
-    rvar (Triangular a b c) = realFloatTriangular a b c
+    rvarT (Triangular a b c) = realFloatTriangular a b c

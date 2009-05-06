@@ -48,20 +48,20 @@ integralPoisson mu = psn 0 mu
 
 
 poisson :: (Distribution (Poisson b) a) => b -> RVarT m a
-poisson mu = rvar (Poisson mu)
+poisson mu = rvarT (Poisson mu)
 
 data Poisson b a = Poisson b
 
-instance RealFloat b => Distribution (Poisson b) Int        where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Int8       where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Int16      where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Int32      where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Int64      where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Word8      where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Word16     where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Word32     where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Word64     where rvar (Poisson mu) = integralPoisson mu
-instance RealFloat b => Distribution (Poisson b) Integer    where rvar (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Int        where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Int8       where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Int16      where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Int32      where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Int64      where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Word8      where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Word16     where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Word32     where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Word64     where rvarT (Poisson mu) = integralPoisson mu
+instance RealFloat b => Distribution (Poisson b) Integer    where rvarT (Poisson mu) = integralPoisson mu
 
-instance RealFloat b => Distribution (Poisson b) Float      where rvar (Poisson mu) = liftM fromIntegral (integralPoisson mu)
-instance RealFloat b => Distribution (Poisson b) Double     where rvar (Poisson mu) = liftM fromIntegral (integralPoisson mu)
+instance RealFloat b => Distribution (Poisson b) Float      where rvarT (Poisson mu) = liftM fromIntegral (integralPoisson mu)
+instance RealFloat b => Distribution (Poisson b) Double     where rvarT (Poisson mu) = liftM fromIntegral (integralPoisson mu)

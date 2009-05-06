@@ -58,13 +58,13 @@ data Normal a
     | Normal a a -- mean, sd
 
 instance (Floating a, Distribution Uniform a) => Distribution Normal a where
-    rvar StdNormal = liftM fst normalPair
-    rvar (Normal m s) = do
+    rvarT StdNormal = liftM fst normalPair
+    rvarT (Normal m s) = do
         x <- liftM fst normalPair
         return (x * s + m)
 
 stdNormal :: Distribution Normal a => RVarT m a
-stdNormal = rvar StdNormal
+stdNormal = rvarT StdNormal
 
 normal :: Distribution Normal a => a -> a -> RVarT m a
-normal m s = rvar (Normal m s)
+normal m s = rvarT (Normal m s)

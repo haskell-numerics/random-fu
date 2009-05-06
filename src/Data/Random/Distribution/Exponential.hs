@@ -22,7 +22,7 @@ realFloatExponential lambdaRecip = do
     return (negate (log x) * lambdaRecip)
 
 exponential :: Distribution Exponential a => a -> RVarT m a
-exponential = rvar . Exp
+exponential = rvarT . Exp
 
 instance (RealFloat a) => Distribution Exponential a where
-    rvar (Exp lambdaRecip) = realFloatExponential lambdaRecip
+    rvarT (Exp lambdaRecip) = realFloatExponential lambdaRecip

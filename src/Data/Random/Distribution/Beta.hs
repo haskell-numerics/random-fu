@@ -31,9 +31,9 @@ realFloatBetaFromIntegral a b =  do
     return (x / (x + y))
 
 beta :: Distribution Beta a => a -> a -> RVarT m a
-beta a b = rvar (Beta a b)
+beta a b = rvarT (Beta a b)
 
 data Beta a = Beta a a
 
 instance (RealFloat a) => Distribution Beta a where
-    rvar (Beta a b) = realFloatBeta a b
+    rvarT (Beta a b) = realFloatBeta a b

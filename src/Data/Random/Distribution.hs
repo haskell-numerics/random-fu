@@ -17,17 +17,17 @@ import Data.Word
 -- an 'RVar' can be created, or the distribution can be directly sampled.
 -- 'RVar' in particular is an instance of 'Distribution', and so can be 'sample'd.
 --
--- Minimum instance definition: 'rvar'.
+-- Minimum instance definition: 'rvarT'.
 class Distribution d t where
     -- |Return a random variable with this distribution.
-    rvar :: d t -> RVarT n t
+    rvarT :: d t -> RVarT n t
 
     -- |Directly sample from the distribution, given a source of entropy.
     sampleFrom :: RandomSource m s => s -> d t -> m t
-    sampleFrom src dist = sampleFromR src (rvarI dist)
+    sampleFrom src dist = runRVar (rvar dist) src
     
-rvarI :: (Distribution d t) => d t -> RVar t
-rvarI = rvar
+rvar :: (Distribution d t) => d t -> RVar t
+rvar = rvarT
 
 
 -- |Sample a distribution using the default source of entropy for the

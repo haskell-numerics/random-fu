@@ -21,7 +21,7 @@ import Data.Int
 import Data.Word
 
 bernoulli :: Distribution (Bernoulli b) a => b -> RVarT m a
-bernoulli p = rvar (Bernoulli p)
+bernoulli p = rvarT (Bernoulli p)
 
 boolBernoulli p = do
     x <- realFloatUniform 0 1
@@ -44,4 +44,4 @@ instance (Classification NumericType t EnumType, Enum t) => BernoulliByClassific
 data Bernoulli b a = Bernoulli b
 
 instance (BernoulliByClassification c t, RealFloat b) => Distribution (Bernoulli b) t where
-    rvar (Bernoulli p) = bernoulliByClassification p
+    rvarT (Bernoulli p) = bernoulliByClassification p

@@ -87,10 +87,10 @@ enumUniform a b = do
     return (toEnum x)
 
 uniform :: Distribution Uniform a => a -> a -> RVarT m a
-uniform a b = rvar (Uniform a b)
+uniform a b = rvarT (Uniform a b)
 
 stdUniform :: (Distribution StdUniform a) => RVarT m a
-stdUniform = rvar StdUniform
+stdUniform = rvarT StdUniform
 
 class (Classification NumericType t c) => UniformByClassification c t where
     uniformByClassification :: t -> t -> RVarT m t
@@ -102,10 +102,10 @@ data Uniform t = Uniform !t !t
 data StdUniform t = StdUniform
 
 instance UniformByClassification c t => Distribution Uniform t
-    where rvar (Uniform a b) = uniformByClassification a b
+    where rvarT (Uniform a b) = uniformByClassification a b
 
 instance StdUniformByClassification c t => Distribution StdUniform t
-    where rvar _ = stdUniformByClassification
+    where rvarT _ = stdUniformByClassification
 
 instance (Classification NumericType t IntegralType, Integral t) => UniformByClassification IntegralType t
     where uniformByClassification = integralUniform

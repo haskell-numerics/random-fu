@@ -47,7 +47,7 @@ integralBinomial t p = bin 0 t p
 
 
 binomial :: Distribution (Binomial b) a => a -> b -> RVarT m a
-binomial t p = rvar (Binomial t p)
+binomial t p = rvarT (Binomial t p)
 
 class (Classification NumericType t c) => BinomialByClassification c t where
     binomialByClassification :: RealFloat a => t -> a -> RVarT m t
@@ -58,7 +58,7 @@ instance (Classification NumericType t FractionalType, RealFrac t) => BinomialBy
     where binomialByClassification t p = liftM fromInteger (integralBinomial (truncate t) p)
 
 instance (BinomialByClassification c t, RealFloat b) => Distribution (Binomial b) t where
-    rvar (Binomial t p) = binomialByClassification t p
+    rvarT (Binomial t p) = binomialByClassification t p
 
 data Binomial b a = Binomial a b
 

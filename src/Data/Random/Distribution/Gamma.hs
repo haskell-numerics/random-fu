@@ -63,12 +63,12 @@ realFloatErlang :: (Integral a, RealFloat b) => a -> RVarT m b
 realFloatErlang a = realFloatGamma (fromIntegral a) 1
 
 gamma :: (Distribution Gamma a) => a -> a -> RVarT m a
-gamma a b = rvar (Gamma a b)
+gamma a b = rvarT (Gamma a b)
 
 erlang :: (Distribution Gamma a, Integral b, Num a) => b -> a -> RVarT m a
-erlang a b = rvar (Gamma (fromIntegral a) b)
+erlang a b = rvarT (Gamma (fromIntegral a) b)
 
 data Gamma a = Gamma a a
 
 instance RealFloat a => Distribution Gamma a where
-    rvar (Gamma a b) = realFloatGamma a b
+    rvarT (Gamma a b) = realFloatGamma a b

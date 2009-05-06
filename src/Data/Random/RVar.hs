@@ -14,8 +14,9 @@
 -- 'RVar's.
 module Data.Random.RVar
     ( RVar
+    , runRVar
     , RVarT
-    , sampleFromR
+    , runRVarT
     , nByteInteger
     , nBitInteger
     ) where
@@ -35,9 +36,16 @@ import Control.Monad.Identity
 
 type RVar = RVarT Identity
 
+runRVar :: RandomSource m s => RVar a -> s -> m a
+runRVar = runRVarT
+
 -- |An opaque type containing a \"random variable\" - a value 
 -- which depends on the outcome of some random process.
-newtype RVarT n a = RVarT { runRVarT :: forall m s. (Lift n m, RandomSource m s) => ReaderT s m a }
+newtype RVarT n a = RVarT { unRVarT :: forall m s. (Lift n m, RandomSource m s) => ReaderT s m a }
+
+-- | \"Runs\" the monad.
+runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
+runRVarT = runReaderT . unRVarT
 
 instance Functor (RVarT n) where
     fmap = liftM
@@ -45,7 +53,7 @@ instance Functor (RVarT n) where
 instance Monad (RVarT n) where
     return x = RVarT (return x)
     fail s   = RVarT (fail s)
-    (RVarT x) >>= f = RVarT (x >>= runRVarT . f)
+    (RVarT x) >>= f = RVarT (x >>= unRVarT . f)
 
 instance Applicative (RVarT n) where
     pure  = return
@@ -54,9 +62,6 @@ instance Applicative (RVarT n) where
 instance T.MonadTrans RVarT where
     lift m = RVarT (T.lift . L.lift $ m)
 
--- | \"Runs\" the monad.
-sampleFromR :: (Lift n m, RandomSource m s) => s -> RVarT n a -> m a
-sampleFromR src x = runReaderT (runRVarT x) src
 
 instance MonadRandom (RVarT n) where
     getRandomBytes n = RVarT (ReaderT $ \s -> getRandomBytesFrom s n)
