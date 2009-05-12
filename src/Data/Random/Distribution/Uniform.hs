@@ -37,6 +37,7 @@ import Data.List
 
 import Control.Monad.Loops
 
+integralUniform :: (Integral a) => a -> a -> RVarT m a
 integralUniform a b
     | a > b     = compute b a
     | otherwise = compute a b
@@ -63,14 +64,13 @@ boundedEnumStdUniform = enumUniform minBound maxBound
 
 -- (0,1]
 realFloatStdUniform :: RealFloat a => RVarT m a
-realFloatStdUniform | False     = return one
-                    | otherwise = do
+realFloatStdUniform = do
     let bitsNeeded  = floatDigits one
         (_, e) = decodeFloat one
     
     x <- nBitInteger bitsNeeded
     if x == 0
-        then return 1
+        then return one
         else return (encodeFloat x (e-1))
     
     where one = 1
