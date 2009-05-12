@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.0.0.3
+version:                0.0.1.0
 stability:              experimental
 
 cabal-version:          >= 1.2
