@@ -19,7 +19,8 @@
 -- a couple handy 'RVar's.
 
 module Data.Random
-    ( module Data.Random.Source
+    ( module Data.Random.Sample
+    , module Data.Random.Source
     , module Data.Random.Source.DevRandom
     , module Data.Random.Source.StdGen
     , module Data.Random.Source.PureMT
@@ -39,6 +40,7 @@ module Data.Random
     , module Data.Random.RVar
     ) where
 
+import Data.Random.Sample
 import Data.Random.Source
 import Data.Random.Source.DevRandom
 import Data.Random.Source.StdGen
@@ -55,6 +57,7 @@ import Data.Random.Distribution.Normal
 import Data.Random.Distribution.Poisson
 import Data.Random.Distribution.Triangular
 import Data.Random.Distribution.Uniform
+import Data.Random.Lift ()
 import Data.Random.List
 import Data.Random.RVar
 

@@ -49,7 +49,7 @@ lazyShuffleSeqFrom src s = shuffle (S.length s) s
         shuffle (n+1) s 
             | S.null s = return []
             | otherwise = do
-                i <- sampleFrom src (Uniform 0 n)
+                i <- runRVar (uniform 0 n) src
                 let (x, xs) = extract i s
                 ys <- unsafeInterleaveIO (shuffle n xs)
                 return (x:ys)

@@ -39,6 +39,7 @@ Library
                         Data.Random.List
                         Data.Random.Lift
                         Data.Random.RVar
+                        Data.Random.Sample
                         Data.Random.Source
                         Data.Random.Source.DevRandom
                         Data.Random.Source.StdGen
