@@ -1,6 +1,5 @@
 {-
  -      ``Data/Random/List''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 {-# LANGUAGE 
     FlexibleContexts

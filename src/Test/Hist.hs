@@ -1,6 +1,5 @@
 {-
  -      ``Test/Hist''
- -      (c) 2009 Cook, J. MR  SSD, Inc.
  -}
 
 module Test.Hist where
