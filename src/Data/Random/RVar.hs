@@ -62,6 +62,9 @@ instance Applicative (RVarT n) where
 instance T.MonadTrans RVarT where
     lift m = RVarT (T.lift . L.lift $ m)
 
+instance Lift (RVarT Identity) (RVarT m) where
+    lift (RVarT m) = RVarT m
+    
 
 instance MonadRandom (RVarT n) where
     getRandomBytes n = RVarT (ReaderT $ \s -> getRandomBytesFrom s n)

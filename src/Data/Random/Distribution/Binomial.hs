@@ -24,7 +24,7 @@ import Control.Monad
 
     -- algorithm from Knuth's TAOCP, 3rd ed., p 136
     -- specific choice of cutoff size taken from gsl source
-integralBinomial :: (Integral a, RealFloat b) => a -> b -> RVarT m a
+integralBinomial :: (Integral a, RealFloat b) => a -> b -> RVar a
 integralBinomial t p = bin 0 t p
     where
         bin k t p
@@ -46,11 +46,11 @@ integralBinomial t p = bin 0 t p
 
 
 
-binomial :: Distribution (Binomial b) a => a -> b -> RVarT m a
-binomial t p = rvarT (Binomial t p)
+binomial :: Distribution (Binomial b) a => a -> b -> RVar a
+binomial t p = rvar (Binomial t p)
 
 class (Classification NumericType t c) => BinomialByClassification c t where
-    binomialByClassification :: RealFloat a => t -> a -> RVarT m t
+    binomialByClassification :: RealFloat a => t -> a -> RVar t
 
 instance (Classification NumericType t IntegralType, Integral t) => BinomialByClassification IntegralType t
     where binomialByClassification = integralBinomial
@@ -58,7 +58,7 @@ instance (Classification NumericType t FractionalType, RealFrac t) => BinomialBy
     where binomialByClassification t p = liftM fromInteger (integralBinomial (truncate t) p)
 
 instance (BinomialByClassification c t, RealFloat b) => Distribution (Binomial b) t where
-    rvarT (Binomial t p) = binomialByClassification t p
+    rvar (Binomial t p) = binomialByClassification t p
 
 data Binomial b a = Binomial a b
 

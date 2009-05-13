@@ -18,7 +18,7 @@ data Triangular a = Triangular
     , triUpper  :: a
     } deriving (Eq, Show)
 
-realFloatTriangular :: (RealFloat a) => a -> a -> a -> RVarT m a
+realFloatTriangular :: (RealFloat a) => a -> a -> a -> RVar a
 realFloatTriangular a b c
     | a <= b && b <= c
     = do
@@ -33,4 +33,4 @@ realFloatTriangular a b c
         return (b - ((1 - sqrt x) * (b-d)))
 
 instance RealFloat a => Distribution Triangular a where
-    rvarT (Triangular a b c) = realFloatTriangular a b c
+    rvar (Triangular a b c) = realFloatTriangular a b c

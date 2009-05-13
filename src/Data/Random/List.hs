@@ -15,16 +15,16 @@ import GHC.IOBase
 
 import qualified Data.Sequence as S
 
-randomElement :: [a] -> RVarT m a
+randomElement :: [a] -> RVar a
 randomElement [] = error "randomElement: empty list!"
 randomElement xs = do
     n <- uniform 0 (length xs - 1)
     return (xs !! n)
 
-shuffle :: [a] -> RVarT m [a]
+shuffle :: [a] -> RVar [a]
 shuffle = shuffleSeq . S.fromList
 
-shuffleSeq :: S.Seq a -> RVarT m [a]
+shuffleSeq :: S.Seq a -> RVar [a]
 shuffleSeq s = shuffle (S.length s) s
     where
         shuffle 0 _ = return []

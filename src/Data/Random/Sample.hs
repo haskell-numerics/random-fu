@@ -15,13 +15,13 @@ import Data.Random.RVar
 import Data.Random.Source
 import Data.Random.Source.Std
 
--- |TODO: think of a better name...
+-- |TODO: think of a better name, and document...
 class Sampleable d m t where
-    -- |Directly sample from a distribution or random variable, given a source of entropy.
+    -- |Directly sample from a distribution or random variable, using the given source of entropy.
     sampleFrom :: RandomSource m s => s -> d t -> m t
 
 instance Distribution d t => Sampleable d m t where
-    sampleFrom src d = runRVarT (rvarT d :: RVarT m t) src
+    sampleFrom src d = runRVarT (rvar d) src
 
 -- This instance conflicts with the other, but because RVarT is not a Distribution there is no overlap
 instance Lift m n => Sampleable (RVarT m) n t where

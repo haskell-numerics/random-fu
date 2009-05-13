@@ -28,7 +28,7 @@ import Control.Monad
     -- originally comes from Marsaglia & Tang, "A Simple Method for
     -- generating gamma variables", ACM Transactions on Mathematical
     -- Software, Vol 26, No 3 (2000), p363-372.
-realFloatGamma :: RealFloat a => a -> a -> RVarT m a
+realFloatGamma :: RealFloat a => a -> a -> RVar a
 realFloatGamma a b
     | a < 1 
     = do
@@ -59,16 +59,16 @@ realFloatGamma a b
                             then return (b * d * v)
                             else go
 
-realFloatErlang :: (Integral a, RealFloat b) => a -> RVarT m b
+realFloatErlang :: (Integral a, RealFloat b) => a -> RVar b
 realFloatErlang a = realFloatGamma (fromIntegral a) 1
 
-gamma :: (Distribution Gamma a) => a -> a -> RVarT m a
-gamma a b = rvarT (Gamma a b)
+gamma :: (Distribution Gamma a) => a -> a -> RVar a
+gamma a b = rvar (Gamma a b)
 
-erlang :: (Distribution Gamma a, Integral b, Num a) => b -> a -> RVarT m a
-erlang a b = rvarT (Gamma (fromIntegral a) b)
+erlang :: (Distribution Gamma a, Integral b, Num a) => b -> a -> RVar a
+erlang a b = rvar (Gamma (fromIntegral a) b)
 
 data Gamma a = Gamma a a
 
 instance RealFloat a => Distribution Gamma a where
-    rvarT (Gamma a b) = realFloatGamma a b
+    rvar (Gamma a b) = realFloatGamma a b

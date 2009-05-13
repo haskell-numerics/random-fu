@@ -19,15 +19,15 @@ import Control.Applicative
 import Data.List
 import Data.Function
 
-discrete :: Distribution (Discrete p) a => [(p,a)] -> RVarT m a
-discrete ps = rvarT (Discrete ps)
+discrete :: Distribution (Discrete p) a => [(p,a)] -> RVar a
+discrete ps = rvar (Discrete ps)
 
 newtype Discrete p a = Discrete [(p, a)]
     deriving (Eq, Show)
 
 instance (Num p, Ord p, Distribution Uniform p) => Distribution (Discrete p) a where
-    rvarT (Discrete []) = fail "discrete distribution over empty set cannot be sampled"
-    rvarT (Discrete ds) = do
+    rvar (Discrete []) = fail "discrete distribution over empty set cannot be sampled"
+    rvar (Discrete ds) = do
         let (ps, xs) = unzip ds
             cs = scanl1 (+) ps
         

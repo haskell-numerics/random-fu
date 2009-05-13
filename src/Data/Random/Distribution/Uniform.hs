@@ -37,7 +37,7 @@ import Data.List
 
 import Control.Monad.Loops
 
-integralUniform :: (Integral a) => a -> a -> RVarT m a
+integralUniform :: (Integral a) => a -> a -> RVar a
 integralUniform a b
     | a > b     = compute b a
     | otherwise = compute a b
@@ -56,14 +56,14 @@ bytesNeeded x = case findIndex (> x) powersOf256 of
     Just x -> x
 powersOf256 = iterate (256 *) 1
 
-boundedStdUniform :: (Distribution Uniform a, Bounded a) => RVarT m a
+boundedStdUniform :: (Distribution Uniform a, Bounded a) => RVar a
 boundedStdUniform = uniform minBound maxBound
 
-boundedEnumStdUniform :: (Enum a, Bounded a) => RVarT m a
+boundedEnumStdUniform :: (Enum a, Bounded a) => RVar a
 boundedEnumStdUniform = enumUniform minBound maxBound
 
 -- (0,1]
-realFloatStdUniform :: RealFloat a => RVarT m a
+realFloatStdUniform :: RealFloat a => RVar a
 realFloatStdUniform = do
     let bitsNeeded  = floatDigits one
         (_, e) = decodeFloat one
@@ -75,37 +75,37 @@ realFloatStdUniform = do
     
     where one = 1
 
-realFloatUniform :: RealFloat a => a -> a -> RVarT m a
+realFloatUniform :: RealFloat a => a -> a -> RVar a
 realFloatUniform 0 1 = realFloatStdUniform
 realFloatUniform a b = do
     x <- realFloatStdUniform
     return (a + x * (b - a))
 
-enumUniform :: Enum a => a -> a -> RVarT m a
+enumUniform :: Enum a => a -> a -> RVar a
 enumUniform a b = do
     x <- integralUniform (fromEnum a) (fromEnum b)
     return (toEnum x)
 
-uniform :: Distribution Uniform a => a -> a -> RVarT m a
-uniform a b = rvarT (Uniform a b)
+uniform :: Distribution Uniform a => a -> a -> RVar a
+uniform a b = rvar (Uniform a b)
 
-stdUniform :: (Distribution StdUniform a) => RVarT m a
-stdUniform = rvarT StdUniform
+stdUniform :: (Distribution StdUniform a) => RVar a
+stdUniform = rvar StdUniform
 
 class (Classification NumericType t c) => UniformByClassification c t where
-    uniformByClassification :: t -> t -> RVarT m t
+    uniformByClassification :: t -> t -> RVar t
 
 class (Classification NumericType t c) => StdUniformByClassification c t where
-    stdUniformByClassification :: RVarT m t
+    stdUniformByClassification :: RVar t
 
 data Uniform t = Uniform !t !t
 data StdUniform t = StdUniform
 
 instance UniformByClassification c t => Distribution Uniform t
-    where rvarT (Uniform a b) = uniformByClassification a b
+    where rvar (Uniform a b) = uniformByClassification a b
 
 instance StdUniformByClassification c t => Distribution StdUniform t
-    where rvarT _ = stdUniformByClassification
+    where rvar _ = stdUniformByClassification
 
 instance (Classification NumericType t IntegralType, Integral t) => UniformByClassification IntegralType t
     where uniformByClassification = integralUniform
