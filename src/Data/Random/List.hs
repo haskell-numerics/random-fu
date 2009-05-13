@@ -21,6 +21,13 @@ randomElement xs = do
     n <- uniform 0 (length xs - 1)
     return (xs !! n)
 
+randomSeqElement :: S.Seq a -> RVar a
+randomSeqElement s
+    | S.null s  = error "randomSeqElement: empty list!"
+    | otherwise = do
+        n <- uniform 0 (S.length s - 1)
+        return (s `S.index` n)
+
 shuffle :: [a] -> RVar [a]
 shuffle = shuffleSeq . S.fromList
 
