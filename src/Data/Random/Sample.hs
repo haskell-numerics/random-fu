@@ -4,8 +4,7 @@
 {-# LANGUAGE
         MultiParamTypeClasses,
         FlexibleInstances, FlexibleContexts, 
-        IncoherentInstances,
-        ScopedTypeVariables
+        IncoherentInstances
   #-}
 
 module Data.Random.Sample where
