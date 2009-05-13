@@ -22,6 +22,7 @@ module Data.Random.RVar
     ) where
 
 
+import Data.Random.Internal.Words
 import Data.Random.Source
 import Data.Random.Lift as L
 
@@ -102,13 +103,3 @@ nBitInteger n
     = do
         x <- nByteInteger ((n `shiftR` 3) + 1)
         return $! (x .&. (bit n - 1))
-
-concatBytes :: (Bits a, Num a) => [Word8] -> a
-concatBytes = concatBits fromIntegral
-
-concatWords :: (Bits a, Num a) => [Word64] -> a
-concatWords = concatBits fromIntegral
-
-concatBits :: (Bits a, Bits b, Num b) => (a -> b) -> [a] -> b
-concatBits f [] = 0
-concatBits f (x:xs) = f x .|. (concatBits f xs `shiftL` bitSize x)

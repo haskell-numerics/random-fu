@@ -11,6 +11,7 @@ module Data.Random.Internal.Words where
 import Foreign
 import GHC.IOBase
 
+import Data.Bits
 import Data.Word
 import Control.Monad
 
@@ -34,3 +35,13 @@ bytesToWord :: [Word8] -> Word64
 bytesToWord bs = unsafePerformIO . allocaBytes 8 $ \p -> do
     zipWithM (pokeElemOff p) [0..7] (bs ++ repeat 0)
     peek (castPtr p)
+
+concatBytes :: (Bits a, Num a) => [Word8] -> a
+concatBytes = concatBits fromIntegral
+
+concatWords :: (Bits a, Num a) => [Word64] -> a
+concatWords = concatBits fromIntegral
+
+concatBits :: (Bits a, Bits b, Num b) => (a -> b) -> [a] -> b
+concatBits f [] = 0
+concatBits f (x:xs) = f x .|. (concatBits f xs `shiftL` bitSize x)
