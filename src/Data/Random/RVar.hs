@@ -72,52 +72,36 @@ instance MonadRandom (RVarT n) where
     getRandomWord = RVarT (ReaderT $ \s -> getRandomWordFrom s)
 
 -- some 'fundamental' RVarTs
-getRandomBytes :: Int -> RVarT m [Word8]
-getRandomBytes n = replicateM n getRandomByte
-
-getRandomWords :: Int -> RVarT m [Word64]
-getRandomWords n = replicateM n getRandomWord
-
 -- this maybe ought to even be a part of the RandomSource class...
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^(8*n)-1, inclusive.
+{-# INLINE nByteInteger #-}
 nByteInteger :: Int -> RVarT m Integer
-nByteInteger 1 = fmap toInteger getRandomByte
-nByteInteger 8 = fmap toInteger getRandomWord
-nByteInteger n
-    | n .&. 7 == 0
-    = do
-        xs <- getRandomWords (n `shiftR` 3)
-        return $! concatWords xs
-    | n > 8
-    = do
-        let nWords = n `shiftR` 3
-            nBytes = n .&. 7
-        ws <- getRandomWords nWords
-        bs <- getRandomBytes nBytes
-        return $! ((concatWords ws `shiftL` (nBytes `shiftL` 3)) .|. concatBytes bs)
-    | otherwise
-    = do
-        xs <- getRandomBytes n
-        return $! concatBytes xs
+nByteInteger 1 = do
+    x <- getRandomByte
+    return $! toInteger x
+nByteInteger 8 = do
+    x <- getRandomWord
+    return $! toInteger x
+nByteInteger (n+8) = do
+    x <- getRandomWord
+    y <- nByteInteger n
+    return $! ((toInteger x `shiftL` n) .|. y)
+nByteInteger n = do
+    x <- getRandomWord
+    return $! toInteger (x `shiftR` ((8-n) `shiftL` 3))
 
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^n-1, inclusive.
+{-# INLINE nBitInteger #-}
 nBitInteger :: Int -> RVarT m Integer
-nBitInteger 8  = fmap toInteger getRandomByte
-nBitInteger 64 = fmap toInteger getRandomWord
-nBitInteger n
-    | n .&. 7 == 0
-    = nByteInteger (n `shiftR` 3)
-    | n < 8
-    = do
-        x <- getRandomByte
-        return $! toInteger $! (x .&. (bit n - 1))
-    | n < 64
-    = do
+nBitInteger 8  = do
+    x <- getRandomByte
+    return $! toInteger x
+nBitInteger (n+64) = do
+    x <- getRandomWord
+    y <- nBitInteger n
+    return $! (toInteger x `shiftL` n) .|. y
+nBitInteger n = do
         x <- getRandomWord
-        return $! toInteger $! (x .&. (bit n - 1))
-    | otherwise
-    = do
-        x <- nByteInteger ((n `shiftR` 3) + 1)
-        return $! (x .&. (bit n - 1))
+        return $! toInteger (x `shiftR` (64-n))
