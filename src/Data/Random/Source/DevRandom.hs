@@ -36,3 +36,6 @@ instance RandomSource IO DevRandom where
     getRandomByteFrom src  = allocaBytes 1 $ \buf -> do
         1 <- hGetBuf (dev src) buf  1
         peek buf
+    getRandomWordFrom src  = allocaBytes 8 $ \buf -> do
+        8 <- hGetBuf (dev src) buf  8
+        peek (castPtr buf)
