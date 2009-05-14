@@ -25,7 +25,10 @@ cHist xs ys = tail (scanl (\(_, p1) (x,p2) -> (x, p1+p2)) (undefined, 0) (hist x
 
 -- probability density histogram
 pHist :: Int -> RVar Double -> IO ()
-pHist n x = do
+pHist = pHist_
+
+pHist_ :: (Floating a, Ord a, PrintfArg a) => Int -> RVar a -> IO ()
+pHist_ n x = do
     y <- replicateM n (sampleFrom DevRandom x)
     printHist hist y n
 
@@ -36,11 +39,11 @@ cpHist n x = do
     printHist cHist y n
 
 -- byte-count histogram (random source usage)
-bcHist :: Int -> RVar Double -> IO ()
-bcHist n x = do
-    (src, dx) <- mkByteCounter DevRandom
-    y <- replicateM n (sampleFrom src x >> fmap fromIntegral dx) :: IO [Double]
-    printHist hist y n
+-- bcHist :: Int -> RVar Double -> IO ()
+-- bcHist n x = do
+--     (src, dx) <- mkByteCounter DevRandom
+--     y <- replicateM n (sampleFrom src x >> fmap fromIntegral dx) :: IO [Double]
+--     printHist hist y n
 
 printHist hist ys n = mapM_ (putStrLn . fmt) xs
     where
@@ -59,11 +62,11 @@ printHist hist ys n = mapM_ (putStrLn . fmt) xs
         
         fmt (bin, x) = printf "%+0.3f%9s: " bin (printf "(%0.2f%%)" (100 * fromIntegral x / fromIntegral n :: Float) :: String) ++ replicate (round (fromIntegral x / scale)) '*'
 
-mkByteCounter src = do
-    x <- newDefaultRef 0
-    dx <- mkLapseReader x (-)
-    let src' i = do
-            modifyRef x (+i)
-            getRandomBytesFrom src i
-    return (src', dx) `asTypeOf` (undefined :: m (int -> m [word8], m int))
+-- mkByteCounter src = do
+--     x <- newDefaultRef 0
+--     dx <- mkLapseReader x (-)
+--     let src' i = do
+--             modifyRef x (+i)
+--             getRandomBytesFrom src i
+--     return (src', dx) `asTypeOf` (undefined :: m (int -> m (vector word8), m int))
 
