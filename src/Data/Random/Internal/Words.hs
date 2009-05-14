@@ -30,6 +30,18 @@ bytesToWords = map bytesToWord . chunk 8
         chunk n xs = case splitAt n xs of
             (ys, zs) -> ys : chunk n zs
 
+buildWord :: Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word64
+buildWord b0 b1 b2 b3 b4 b5 b6 b7
+    = unsafePerformIO . allocaBytes 8 $ \p -> do
+        pokeElemOff p 0 b0
+        pokeElemOff p 1 b1
+        pokeElemOff p 2 b2
+        pokeElemOff p 3 b3
+        pokeElemOff p 4 b4
+        pokeElemOff p 5 b5
+        pokeElemOff p 6 b6
+        pokeElemOff p 7 b7
+        peek (castPtr p)
 
 bytesToWord :: [Word8] -> Word64
 bytesToWord bs = unsafePerformIO . allocaBytes 8 $ \p -> do

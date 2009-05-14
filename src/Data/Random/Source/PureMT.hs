@@ -22,34 +22,53 @@ import Control.Monad.State
 -- For example, if @x :: TVar PureMT@, @getRandomWordsFromMTRef x@ can be
 -- used as a 'RandomSource' in 'IO', 'STM', or any monad which is an instance
 -- of 'MonadIO'.
-getRandomWordsFromMTRef :: ModifyRef sr m PureMT => sr -> Int -> m [Word64]
-getRandomWordsFromMTRef ref n = do
-    atomicModifyRef ref (randomWords n [])
+getRandomWordFromMTRef :: ModifyRef sr m PureMT => sr -> m Word64
+getRandomWordFromMTRef ref = do
+    atomicModifyRef ref (swap . randomWord64)
     
     where
         swap (a,b) = (b,a)
-        randomWords    0  ws mt = (mt, ws)
-        randomWords (n+1) ws mt = case randomWord64 mt of
-            (w, mt) -> randomWords n (w:ws) mt
+
+getRandomByteFromMTRef :: ModifyRef sr m PureMT => sr -> m Word8
+getRandomByteFromMTRef ref = do
+    x <- atomicModifyRef ref (swap . randomInt)
+    return (fromIntegral x)
+    
+    where
+        swap (a,b) = (b,a)
 
 -- |Similarly, @getRandomWordsFromMTState x@ can be used in any \"state\"
 -- monad in the mtl sense whose state is a 'PureMT' generator.
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
 -- which do precisely that, allowing an easy conversion of 'RVar's and
 -- other 'Distribution' instances to \"pure\" random variables.
-getRandomWordsFromMTState :: MonadState PureMT m => Int -> m [Word64]
-getRandomWordsFromMTState n = do
+getRandomWordFromMTState :: MonadState PureMT m => m Word64
+getRandomWordFromMTState = do
     mt <- get
-    let randomWords    0  ws mt = (mt, ws)
-        randomWords (n+1) ws mt = case randomWord64 mt of
-            (w, mt) -> randomWords n (w:ws) mt
-        
-        (newMt, ws) = randomWords n [] mt
+    let (ws, newMt) = randomWord64 mt
     put newMt
     return ws
 
+getRandomByteFromMTState :: MonadState PureMT m => m Word8
+getRandomByteFromMTState = do
+    mt <- get
+    let (ws, newMt) = randomInt mt
+    put newMt
+    return (fromIntegral ws)
+
 instance MonadRandom (State PureMT) where
-    getRandomWords = getRandomWordsFromMTState
+    getRandomByte  = getRandomByteFromMTState
+    getRandomWord  = getRandomWordFromMTState
 
 instance Monad m => MonadRandom (StateT PureMT m) where
-    getRandomWords = getRandomWordsFromMTState
+    getRandomByte  = getRandomByteFromMTState
+    getRandomWord  = getRandomWordFromMTState
+
+instance RandomSource IO (IORef PureMT) where
+    getRandomByteFrom  = getRandomByteFromMTRef
+    getRandomWordFrom  = getRandomWordFromMTRef
+
+instance RandomSource (ST s) (STRef s PureMT) where
+    getRandomByteFrom  = getRandomByteFromMTRef
+    getRandomWordFrom  = getRandomWordFromMTRef
+

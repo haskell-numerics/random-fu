@@ -12,8 +12,8 @@ module Data.Random.Source.DevRandom
 import Data.Random.Source
 
 import GHC.IOBase (unsafePerformIO)
-import Data.ByteString (hGet, unpack)
-import System.IO (openBinaryFile, IOMode(..))
+import System.IO (openBinaryFile, hGetBuf, IOMode(..))
+import Foreign
 
 -- |On systems that have it, \/dev\/random is a handy-dandy ready-to-use source
 -- of nonsense.  Keep in mind that on some systems, Linux included, \/dev\/random
@@ -29,6 +29,10 @@ devRandom  = unsafePerformIO (openBinaryFile "/dev/random"  ReadMode)
 {-# NOINLINE devURandom #-}
 devURandom = unsafePerformIO (openBinaryFile "/dev/urandom" ReadMode)
 
+dev DevRandom  = devRandom
+dev DevURandom = devURandom
+
 instance RandomSource IO DevRandom where
-    getRandomBytesFrom DevRandom  n = fmap unpack (hGet devRandom  n)
-    getRandomBytesFrom DevURandom n = fmap unpack (hGet devURandom n)
+    getRandomByteFrom src  = allocaBytes 1 $ \buf -> do
+        1 <- hGetBuf (dev src) buf  1
+        peek buf

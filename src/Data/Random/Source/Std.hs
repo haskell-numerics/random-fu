@@ -16,5 +16,5 @@ import Data.Random.Source
 data StdRandom = StdRandom
 
 instance MonadRandom m => RandomSource m StdRandom where
-    getRandomBytesFrom StdRandom = getRandomBytes
-    getRandomWordsFrom StdRandom = getRandomWords
+    getRandomByteFrom StdRandom = getRandomByte
+    getRandomWordFrom StdRandom = getRandomWord

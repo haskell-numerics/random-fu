@@ -68,14 +68,22 @@ instance Lift (RVarT Identity) (RVarT m) where
     
 
 instance MonadRandom (RVarT n) where
-    getRandomBytes n = RVarT (ReaderT $ \s -> getRandomBytesFrom s n)
-    getRandomWords n = RVarT (ReaderT $ \s -> getRandomWordsFrom s n)
+    getRandomByte = RVarT (ReaderT $ \s -> getRandomByteFrom s)
+    getRandomWord = RVarT (ReaderT $ \s -> getRandomWordFrom s)
 
 -- some 'fundamental' RVarTs
+getRandomBytes :: Int -> RVarT m [Word8]
+getRandomBytes n = replicateM n getRandomByte
+
+getRandomWords :: Int -> RVarT m [Word64]
+getRandomWords n = replicateM n getRandomWord
+
 -- this maybe ought to even be a part of the RandomSource class...
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^(8*n)-1, inclusive.
 nByteInteger :: Int -> RVarT m Integer
+nByteInteger 1 = fmap toInteger getRandomByte
+nByteInteger 8 = fmap toInteger getRandomWord
 nByteInteger n
     | n .&. 7 == 0
     = do
@@ -96,9 +104,19 @@ nByteInteger n
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^n-1, inclusive.
 nBitInteger :: Int -> RVarT m Integer
+nBitInteger 8  = fmap toInteger getRandomByte
+nBitInteger 64 = fmap toInteger getRandomWord
 nBitInteger n
     | n .&. 7 == 0
     = nByteInteger (n `shiftR` 3)
+    | n < 8
+    = do
+        x <- getRandomByte
+        return $! toInteger $! (x .&. (bit n - 1))
+    | n < 64
+    = do
+        x <- getRandomWord
+        return $! toInteger $! (x .&. (bit n - 1))
     | otherwise
     = do
         x <- nByteInteger ((n `shiftR` 3) + 1)

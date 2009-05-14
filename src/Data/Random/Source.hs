@@ -13,6 +13,7 @@ module Data.Random.Source
 import Data.Word
 import Data.Bits
 import Data.List
+import Control.Monad
 
 import Data.Random.Internal.Words
 
@@ -24,52 +25,49 @@ import Data.Random.Internal.Words
 -- 
 -- The minimal definition is either 'getRandomBytes' or 'getRandomWords'.
 class Monad m => MonadRandom m where
-    -- |get the specified number of random (uniformly distributed) bytes
-    getRandomBytes :: Int -> m [Word8]
-    getRandomBytes n
-        | n .&. 7 == 0
-        = do
-            let wc = n `shiftR` 3
-            ws <- getRandomWords wc
-            return (concatMap wordToBytes ws)
-        | otherwise
-        = do
-            let wc = (n `shiftR` 3) + 1
-            ws <- getRandomWords wc
-            return . take n . concatMap wordToBytes $ ws
+    getRandomByte :: m Word8
+    getRandomByte = do
+        word <- getRandomWord
+        return (fromIntegral word)
+    
+    getRandomWord :: m Word64
+    getRandomWord = do
+        b0 <- getRandomByte
+        b1 <- getRandomByte
+        b2 <- getRandomByte
+        b3 <- getRandomByte
+        b4 <- getRandomByte
+        b5 <- getRandomByte
+        b6 <- getRandomByte
+        b7 <- getRandomByte
         
-    -- |alternate basis function, providing access to larger chunks
-    getRandomWords :: Int -> m [Word64]
-    getRandomWords n = do
-        bs <- getRandomBytes (n `shiftL` 3)
-        return (bytesToWords bs)
+        return (buildWord b0 b1 b2 b3 b4 b5 b6 b7)
 
 -- |A source of entropy which can be used in the given monad.
 --
 -- The minimal definition is either 'getRandomBytesFrom' or 'getRandomWordsFrom'
 class Monad m => RandomSource m s where
-    getRandomBytesFrom :: s -> Int -> m [Word8]
-    getRandomBytesFrom src n
-        | n .&. 7 == 0
-        = do
-            let wc = n `shiftR` 3
-            ws <- getRandomWordsFrom src wc
-            return (concatMap wordToBytes ws)
-        | otherwise
-        = do
-            let wc = (n `shiftR` 3) + 1
-            ws <- getRandomWordsFrom src wc
-            return . take n . concatMap wordToBytes $ ws
-        
+    -- TODO: make defaulting situation more comprehensible
+    getRandomByteFrom :: s -> m Word8
+    getRandomByteFrom src = do
+        word <- getRandomWordFrom src
+        return (fromIntegral word)
     
-    getRandomWordsFrom :: s -> Int -> m [Word64]
-    getRandomWordsFrom src n = do
-        bs <- getRandomBytesFrom src (n `shiftL` 3)
-        return (bytesToWords bs)
+    getRandomWordFrom :: s -> m Word64
+    getRandomWordFrom src = do
+        b0 <- getRandomByteFrom src
+        b1 <- getRandomByteFrom src
+        b2 <- getRandomByteFrom src
+        b3 <- getRandomByteFrom src
+        b4 <- getRandomByteFrom src
+        b5 <- getRandomByteFrom src
+        b6 <- getRandomByteFrom src
+        b7 <- getRandomByteFrom src
+        
+        return (buildWord b0 b1 b2 b3 b4 b5 b6 b7)
 
-instance Monad m => RandomSource m (Int -> m [Word8]) where
-    getRandomBytesFrom = id
+instance Monad m => RandomSource m (m Word8) where
+    getRandomByteFrom = id
 
-instance Monad m => RandomSource m (Int -> m [Word64]) where
-    getRandomWordsFrom = id
-
+instance Monad m => RandomSource m (m Word64) where
+    getRandomWordFrom = id
