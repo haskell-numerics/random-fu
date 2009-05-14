@@ -4,7 +4,7 @@
 {-# LANGUAGE
     MultiParamTypeClasses, FunctionalDependencies,
     FlexibleContexts, FlexibleInstances, 
-    UndecidableInstances
+    UndecidableInstances, EmptyDataDecls
   #-}
 
 module Data.Random.Distribution.Uniform
@@ -16,12 +16,18 @@ module Data.Random.Distribution.Uniform
     , StdUniformByClassification(..)
     , stdUniform
     
+    , UniformType
+    
     , integralUniform
     , realFloatUniform
+    , floatUniform
+    , doubleUniform
     
     , boundedStdUniform
     , boundedEnumStdUniform
     , realFloatStdUniform
+    , floatStdUniform
+    , doubleStdUniform
     ) where
 
 import Data.Random.Internal.Classification
@@ -30,6 +36,7 @@ import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.RVar
 
+import Data.Ratio
 import Data.Word
 import Data.Int
 import Data.Bits
@@ -63,6 +70,20 @@ boundedEnumStdUniform :: (Enum a, Bounded a) => RVar a
 boundedEnumStdUniform = enumUniform minBound maxBound
 
 -- (0,1]
+floatStdUniform :: RVar Float
+floatStdUniform = do
+    x <- getRandomWord
+    if x == 0
+        then return 1
+        else return ((encodeFloat $! toInteger (x `shiftR` (64-23))) $ (-23))
+
+doubleStdUniform :: RVar Double
+doubleStdUniform = do
+    x <- getRandomWord
+    if x == 0
+        then return 1
+        else return ((encodeFloat $! toInteger (x `shiftR` (64-52))) $ (-52))
+
 realFloatStdUniform :: RealFloat a => RVar a
 realFloatStdUniform = do
     let bitsNeeded  = floatDigits one
@@ -74,6 +95,18 @@ realFloatStdUniform = do
         else return (encodeFloat x (e-1))
     
     where one = 1
+
+floatUniform :: Float -> Float -> RVar Float
+floatUniform 0 1 = floatStdUniform
+floatUniform a b = do
+    x <- floatStdUniform
+    return (a + x * (b - a))
+
+doubleUniform :: Double -> Double -> RVar Double
+doubleUniform 0 1 = doubleStdUniform
+doubleUniform a b = do
+    x <- doubleStdUniform
+    return (a + x * (b - a))
 
 realFloatUniform :: RealFloat a => a -> a -> RVar a
 realFloatUniform 0 1 = realFloatStdUniform
@@ -92,10 +125,10 @@ uniform a b = rvar (Uniform a b)
 stdUniform :: (Distribution StdUniform a) => RVar a
 stdUniform = rvar StdUniform
 
-class (Classification NumericType t c) => UniformByClassification c t where
+class (Classification UniformType t c) => UniformByClassification c t where
     uniformByClassification :: t -> t -> RVar t
 
-class (Classification NumericType t c) => StdUniformByClassification c t where
+class (Classification UniformType t c) => StdUniformByClassification c t where
     stdUniformByClassification :: RVar t
 
 data Uniform t = Uniform !t !t
@@ -107,16 +140,46 @@ instance UniformByClassification c t => Distribution Uniform t
 instance StdUniformByClassification c t => Distribution StdUniform t
     where rvar _ = stdUniformByClassification
 
-instance (Classification NumericType t IntegralType, Integral t) => UniformByClassification IntegralType t
+instance (Classification UniformType t IntegralType, Integral t) => UniformByClassification IntegralType t
     where uniformByClassification = integralUniform
-instance (Classification NumericType t FractionalType, RealFloat t) => UniformByClassification FractionalType t
+instance UniformByClassification Float Float
+    where uniformByClassification = floatUniform
+instance UniformByClassification Double Double
+    where uniformByClassification = doubleUniform
+instance (Classification UniformType t FractionalType, RealFloat t) => UniformByClassification FractionalType t
     where uniformByClassification = realFloatUniform
-instance (Classification NumericType t EnumType, Enum t) => UniformByClassification EnumType t
+instance (Classification UniformType t EnumType, Enum t) => UniformByClassification EnumType t
     where uniformByClassification = enumUniform
 
-instance (Classification NumericType t IntegralType, Integral t, Bounded t) => StdUniformByClassification IntegralType t
+instance (Classification UniformType t IntegralType, Integral t, Bounded t) => StdUniformByClassification IntegralType t
     where stdUniformByClassification = boundedStdUniform
-instance (Classification NumericType t FractionalType, RealFloat t) => StdUniformByClassification FractionalType t
+instance StdUniformByClassification Float Float
+    where stdUniformByClassification = floatStdUniform
+instance StdUniformByClassification Double Double
+    where stdUniformByClassification = doubleStdUniform
+instance (Classification UniformType t FractionalType, RealFloat t) => StdUniformByClassification FractionalType t
     where stdUniformByClassification = realFloatStdUniform
-instance (Classification NumericType t EnumType, Enum t, Bounded t) => StdUniformByClassification EnumType t
+instance (Classification UniformType t EnumType, Enum t, Bounded t) => StdUniformByClassification EnumType t
     where stdUniformByClassification = boundedStdUniform
+
+data UniformType
+
+instance Classification UniformType Int            IntegralType
+instance Classification UniformType Int8           IntegralType
+instance Classification UniformType Int16          IntegralType
+instance Classification UniformType Int32          IntegralType
+instance Classification UniformType Int64          IntegralType
+instance Classification UniformType Word8          IntegralType
+instance Classification UniformType Word16         IntegralType
+instance Classification UniformType Word32         IntegralType
+instance Classification UniformType Word64         IntegralType
+instance Classification UniformType Integer        IntegralType
+
+instance Classification UniformType Float          Float
+instance Classification UniformType Double         Double
+instance Classification UniformType (Ratio a)      FractionalType
+
+instance Classification UniformType Char           EnumType
+instance Classification UniformType Bool           EnumType
+instance Classification UniformType ()             EnumType
+instance Classification UniformType Ordering       EnumType

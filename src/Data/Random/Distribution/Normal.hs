@@ -53,6 +53,16 @@ realFloatStdNormal = do
     return x
     
 
+doubleStdNormal :: RVar Double
+doubleStdNormal = do
+    u <- doubleStdUniform
+    t <- doubleStdUniform
+    let r = sqrt (-2 * log u)
+        
+        x = r * cos (t * 2 * pi)
+    return x
+    
+
 data Normal a
     = StdNormal
     | Normal a a -- mean, sd
