@@ -4,7 +4,8 @@
 {-# LANGUAGE
     RankNTypes,
     MultiParamTypeClasses,
-    FlexibleInstances
+    FlexibleInstances, 
+    GADTs
   #-}
 
 -- |Random variables.  An 'RVar' is a sampleable random variable.  Because
@@ -37,39 +38,45 @@ import Control.Monad.Identity
 
 type RVar = RVarT Identity
 
+-- | single combined container allowing all the relevant 
+-- dictionaries (plus the RandomSource item itself) to be passed
+-- with one pointer.
+data RVarDict n m where
+    RVarDict :: (Lift n m, Monad m, RandomSource m s) => s -> RVarDict n m
+
 runRVar :: RandomSource m s => RVar a -> s -> m a
 runRVar = runRVarT
 
 -- |An opaque type containing a \"random variable\" - a value 
 -- which depends on the outcome of some random process.
-newtype RVarT n a = RVarT { unRVarT :: forall m s. (Lift n m, RandomSource m s) => ReaderT s m a }
+newtype RVarT n a = RVarT { unRVarT :: forall m. ReaderT (RVarDict n m) m a }
 
 -- | \"Runs\" the monad.
 runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
-runRVarT = runReaderT . unRVarT
+runRVarT (RVarT m) (src) = runReaderT m (RVarDict src)
 
 instance Functor (RVarT n) where
     fmap = liftM
 
 instance Monad (RVarT n) where
-    return x = RVarT (return x)
-    fail s   = RVarT (fail s)
-    (RVarT x) >>= f = RVarT (x >>= unRVarT . f)
+    return x = RVarT (ReaderT (\(RVarDict _) -> return x))
+    fail s   = RVarT (ReaderT (\(RVarDict _) -> fail s))
+    (RVarT x) >>= f = RVarT (ReaderT (\d@(RVarDict _) -> 
+        runReaderT x d >>= (\x -> runReaderT (unRVarT (f x)) d)))
 
 instance Applicative (RVarT n) where
     pure  = return
     (<*>) = ap
 
 instance T.MonadTrans RVarT where
-    lift m = RVarT (T.lift . L.lift $ m)
+    lift m = RVarT (ReaderT (\(RVarDict _) -> L.lift m))
 
 instance Lift (RVarT Identity) (RVarT m) where
-    lift (RVarT m) = RVarT m
-    
+    lift (RVarT m) = RVarT (ReaderT (\(RVarDict src) -> runReaderT m (RVarDict src)))
 
 instance MonadRandom (RVarT n) where
-    getRandomByte = RVarT (ReaderT $ \s -> getRandomByteFrom s)
-    getRandomWord = RVarT (ReaderT $ \s -> getRandomWordFrom s)
+    getRandomByte = RVarT (ReaderT $ \(RVarDict src) -> getRandomByteFrom src)
+    getRandomWord = RVarT (ReaderT $ \(RVarDict src) -> getRandomWordFrom src)
 
 -- some 'fundamental' RVarTs
 -- this maybe ought to even be a part of the RandomSource class...
