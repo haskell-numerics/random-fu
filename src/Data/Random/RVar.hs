@@ -49,34 +49,33 @@ runRVar = runRVarT
 
 -- |An opaque type containing a \"random variable\" - a value 
 -- which depends on the outcome of some random process.
-newtype RVarT n a = RVarT { unRVarT :: forall m. ReaderT (RVarDict n m) m a }
+newtype RVarT n a = RVarT { unRVarT :: forall m r. (a -> m r) -> RVarDict n m -> m r }
 
 -- | \"Runs\" the monad.
 runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
-runRVarT (RVarT m) (src) = runReaderT m (RVarDict src)
+runRVarT (RVarT m) (src) = m return (RVarDict src)
 
 instance Functor (RVarT n) where
     fmap = liftM
 
 instance Monad (RVarT n) where
-    return x = RVarT (ReaderT (\(RVarDict _) -> return x))
-    fail s   = RVarT (ReaderT (\(RVarDict _) -> fail s))
-    (RVarT x) >>= f = RVarT (ReaderT (\d@(RVarDict _) -> 
-        runReaderT x d >>= (\x -> runReaderT (unRVarT (f x)) d)))
+    return x = RVarT $ \k _ -> k x
+    fail s   = RVarT $ \_ (RVarDict _) -> fail s
+    (RVarT m) >>= k = RVarT $ \c s -> m (\a -> unRVarT (k a) c s) s
 
 instance Applicative (RVarT n) where
     pure  = return
     (<*>) = ap
 
 instance T.MonadTrans RVarT where
-    lift m = RVarT (ReaderT (\(RVarDict _) -> L.lift m))
+    lift m = RVarT $ \k r@(RVarDict _) -> L.lift m >>= \a -> k a
 
 instance Lift (RVarT Identity) (RVarT m) where
-    lift (RVarT m) = RVarT (ReaderT (\(RVarDict src) -> runReaderT m (RVarDict src)))
+    lift (RVarT m) = RVarT $ \k (RVarDict src) -> m k (RVarDict src)
 
 instance MonadRandom (RVarT n) where
-    getRandomByte = RVarT (ReaderT $ \(RVarDict src) -> getRandomByteFrom src)
-    getRandomWord = RVarT (ReaderT $ \(RVarDict src) -> getRandomWordFrom src)
+    getRandomByte = RVarT $ \k (RVarDict s) -> getRandomByteFrom s >>= \a -> k a
+    getRandomWord = RVarT $ \k (RVarDict s) -> getRandomWordFrom s >>= \a -> k a
 
 -- some 'fundamental' RVarTs
 -- this maybe ought to even be a part of the RandomSource class...
