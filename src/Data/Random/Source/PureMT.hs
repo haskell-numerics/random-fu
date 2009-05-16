@@ -15,6 +15,7 @@ import Data.StateRef
 import Data.Word
 
 import Control.Monad.State
+import qualified Control.Monad.State.Strict as S
 
 -- |Given a mutable reference to a 'PureMT' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
@@ -60,7 +61,15 @@ instance MonadRandom (State PureMT) where
     getRandomByte  = getRandomByteFromMTState
     getRandomWord  = getRandomWordFromMTState
 
+instance MonadRandom (S.State PureMT) where
+    getRandomByte  = getRandomByteFromMTState
+    getRandomWord  = getRandomWordFromMTState
+
 instance Monad m => MonadRandom (StateT PureMT m) where
+    getRandomByte  = getRandomByteFromMTState
+    getRandomWord  = getRandomWordFromMTState
+
+instance Monad m => MonadRandom (S.StateT PureMT m) where
     getRandomByte  = getRandomByteFromMTState
     getRandomWord  = getRandomWordFromMTState
 

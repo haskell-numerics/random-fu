@@ -11,6 +11,7 @@ import Data.Random.Source
 import System.Random
 import Control.Monad
 import Control.Monad.State
+import qualified Control.Monad.State.Strict as S
 import Data.StateRef
 import Data.Word
 
@@ -81,5 +82,13 @@ instance MonadRandom (State StdGen) where
     getRandomWord  = getRandomWordFromRandomGenState
 
 instance Monad m => MonadRandom (StateT StdGen m) where
+    getRandomByte  = getRandomByteFromRandomGenState
+    getRandomWord  = getRandomWordFromRandomGenState
+
+instance MonadRandom (S.State StdGen) where
+    getRandomByte  = getRandomByteFromRandomGenState
+    getRandomWord  = getRandomWordFromRandomGenState
+
+instance Monad m => MonadRandom (S.StateT StdGen m) where
     getRandomByte  = getRandomByteFromRandomGenState
     getRandomWord  = getRandomWordFromRandomGenState
