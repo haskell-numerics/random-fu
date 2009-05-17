@@ -73,6 +73,9 @@ instance T.MonadTrans RVarT where
 instance Lift (RVarT Identity) (RVarT m) where
     lift (RVarT m) = RVarT $ \k (RVarDict src) -> m k (RVarDict src)
 
+instance MonadIO m => MonadIO (RVarT m) where
+    liftIO = T.lift . liftIO
+
 instance MonadRandom (RVarT n) where
     getRandomByte = RVarT $ \k (RVarDict s) -> getRandomByteFrom s >>= \a -> k a
     getRandomWord = RVarT $ \k (RVarDict s) -> getRandomWordFrom s >>= \a -> k a
