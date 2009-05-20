@@ -17,6 +17,7 @@ import Data.StateRef
 import Data.Word
 
 import Control.Monad.State
+import qualified Control.Monad.ST.Strict as S
 import qualified Control.Monad.State.Strict as S
 
 -- |Given a mutable reference to a 'PureMT' generator, we can make a
@@ -109,6 +110,7 @@ instance (ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) wh
 
 instance (ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) where
     {-# SPECIALIZE instance RandomSource (ST s) (STRef s PureMT) #-}
+    {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s PureMT) #-}
     getRandomByteFrom   = getRandomByteFromMTRef
     getRandomWordFrom   = getRandomWordFromMTRef
     getRandomDoubleFrom = getRandomDoubleFromMTRef
