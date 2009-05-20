@@ -36,19 +36,24 @@ realFloatGamma a b
         x <- realFloatGamma (1 + a) b
         return (x * u ** recip a)
     | otherwise
-    = go Nothing
+    = goNothing
         where
             d = a - (1 / 3)
             c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
             
-            getNorm :: Distribution NormalPair (a,a) => Maybe a -> RVar (a, Maybe a)
-            getNorm Nothing = do
-                (x,y) <- normalPair
-                return (x, Just y)
-            getNorm (Just x) = return (x, Nothing)
+            -- manually unrolled StateT (Maybe Double)
+            -- since the current stdNormal uses a normal pair and
+            -- discards the 2nd, this implementation uses
+            -- the normal pair and stashes one so that every other
+            -- time through the loop it can recycle what
+            -- would be discarded anyway.
+            goNothing = do
+                (x, stashed) <- normalPair
+                step x (goJust stashed)
+                
+            goJust x = step x goNothing
             
-            go stashed = do
-                (x, stashed) <- getNorm stashed
+            step x next = do
                 let cx = c * x
                     v = (1 + cx) ^ 3
                     
@@ -56,33 +61,33 @@ realFloatGamma a b
                     x_4 = x_2 * x_2
                 
                 if cx <= (-1)
-                    then go stashed
+                    then next
                     else do
                         u <- stdUniform
                         
                         if         u < 1 - 0.0331 * x_4
                             || log u < 0.5 * x_2  + d * (1 - v + log v)
                             then return (b * d * v)
-                            else go stashed
+                            else next
+
 
 realFloatErlang :: (Integral a, Floating b, Ord b, Distribution NormalPair (b,b), Distribution StdUniform b) => a -> RVar b
 realFloatErlang a
     | a < 1 
     = fail "realFloatErlang: a < 1"
     | otherwise
-    = go Nothing
+    = goNothing
         where
             d = fromIntegral a - (1 / 3)
             c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
             
-            getNorm :: Distribution NormalPair (a,a) => Maybe a -> RVar (a, Maybe a)
-            getNorm Nothing = do
-                (x,y) <- normalPair
-                return (x, Just y)
-            getNorm (Just x) = return (x, Nothing)
+            goNothing = do
+                (x, stashed) <- normalPair
+                step x (goJust stashed)
+                
+            goJust x = step x goNothing
             
-            go stashed = do
-                (x, stashed) <- getNorm stashed
+            step x next = do
                 let cx = c * x
                     v = (1 + cx) ^ 3
                     
@@ -90,14 +95,14 @@ realFloatErlang a
                     x_4 = x_2 * x_2
                 
                 if cx <= (-1)
-                    then go stashed
+                    then next
                     else do
                         u <- stdUniform
                         
                         if         u < 1 - 0.0331 * x_4
                             || log u < 0.5 * x_2  + d * (1 - v + log v)
                             then return (d * v)
-                            else go stashed
+                            else next
 
 gamma :: (Distribution Gamma a) => a -> a -> RVar a
 gamma a b = rvar (Gamma a b)
