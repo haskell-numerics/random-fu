@@ -7,6 +7,7 @@
 
 module Data.Random.Source.StdGen where
 
+import Data.Random.Internal.Words
 import Data.Random.Source
 import System.Random
 import Control.Monad
@@ -44,8 +45,14 @@ getRandomWordFromStdGenIO = do
     int <- randomRIO (0, 0xffffffffffffffff)
     return (fromInteger int)
 
+-- based on reading the source of the "random" library's implementation, I do
+-- not believe that the randomRIO (0,1) implementation for Double is capable of producing
+-- the value 0.  Therefore, I'm not using it.  If this is an incorrect reading on
+-- my part, or if this changes, then feel free to use the commented version.
+-- Same goes for the other getRandomDouble... functions here.
 getRandomDoubleFromStdGenIO :: IO Double
-getRandomDoubleFromStdGenIO = randomRIO (0, 1)
+getRandomDoubleFromStdGenIO = liftM wordToDouble getRandomWordFromStdGenIO
+-- getRandomDoubleFromStdGenIO = randomRIO (0, 1)
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
@@ -69,8 +76,9 @@ getRandomWordFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,0xfffffff
 
 getRandomDoubleFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
                                   sr -> m Double
-getRandomDoubleFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,1))
-    where swap (a,b) = (b,a)
+getRandomDoubleFromRandomGenRef g = liftM wordToDouble (getRandomWordFromRandomGenRef g)
+-- getRandomDoubleFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,1))
+--     where swap (a,b) = (b,a)
 
 -- |Similarly, @getRandomWordsFromRandomGenState x@ can be used in any \"state\"
 -- monad in the mtl sense whose state is a 'RandomGen' generator.
@@ -94,12 +102,13 @@ getRandomWordFromRandomGenState = do
             return (fromInteger i)
 
 getRandomDoubleFromRandomGenState :: (RandomGen g, MonadState g m) => m Double
-getRandomDoubleFromRandomGenState = do
-    g <- get
-    case randomR (0, 1) g of
-        (x,g) -> do
-            put g
-            return x
+getRandomDoubleFromRandomGenState = liftM wordToDouble getRandomWordFromRandomGenState
+-- getRandomDoubleFromRandomGenState = do
+--     g <- get
+--     case randomR (0, 1) g of
+--         (x,g) -> do
+--             put g
+--             return x
 
 
 instance MonadRandom (State StdGen) where
