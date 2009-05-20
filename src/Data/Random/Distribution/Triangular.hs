@@ -3,7 +3,8 @@
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,
-    FlexibleInstances
+    FlexibleInstances, FlexibleContexts,
+    UndecidableInstances
   #-}
 
 module Data.Random.Distribution.Triangular where
@@ -18,19 +19,19 @@ data Triangular a = Triangular
     , triUpper  :: a
     } deriving (Eq, Show)
 
-realFloatTriangular :: (RealFloat a) => a -> a -> a -> RVar a
+realFloatTriangular :: (Floating a, Ord a, Distribution Uniform a) => a -> a -> a -> RVar a
 realFloatTriangular a b c
     | a <= b && b <= c
     = do
         let p = (c-b)/(c-a)
-        u <- realFloatStdUniform
+        u <- uniform 0 1
         let d   | u >= p    = a
                 | otherwise = c
             x   | u >= p    = (u - p) / (1 - p)
                 | otherwise = u / p
 -- may prefer this: reusing u costs resolution, especially if p or 1-p is small and c-a is large.
---        x <- realFloatStdUniform
+--        x <- uniform 0 1
         return (b - ((1 - sqrt x) * (b-d)))
 
-instance RealFloat a => Distribution Triangular a where
+instance (Floating a, Ord a, Distribution Uniform a) => Distribution Triangular a where
     rvar (Triangular a b c) = realFloatTriangular a b c

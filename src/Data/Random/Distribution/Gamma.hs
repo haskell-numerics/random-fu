@@ -28,21 +28,26 @@ import Control.Monad
     -- originally comes from Marsaglia & Tang, "A Simple Method for
     -- generating gamma variables", ACM Transactions on Mathematical
     -- Software, Vol 26, No 3 (2000), p363-372.
-realFloatGamma :: RealFloat a => a -> a -> RVar a
+realFloatGamma :: (Floating a, Ord a, Distribution Uniform a) => a -> a -> RVar a
 realFloatGamma a b
     | a < 1 
     = do
-        u <- realFloatStdUniform
+        u <- uniform 0 1
         x <- realFloatGamma (1 + a) b
         return (x * u ** recip a)
     | otherwise
-    = go
+    = go Nothing
         where
             d = a - (1 / 3)
             c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
             
-            go = do
-                x <- realFloatStdNormal
+            getNorm Nothing = do
+                (x,y) <- normalPair
+                return (x, Just y)
+            getNorm (Just x) = return (x, Nothing)
+            
+            go stashed = do
+                (x, stashed) <- getNorm stashed
                 let cx = c * x
                     v = (1 + cx) ^ 3
                     
@@ -50,25 +55,59 @@ realFloatGamma a b
                     x_4 = x_2 * x_2
                 
                 if cx <= (-1)
-                    then go
+                    then go stashed
                     else do
-                        u <- realFloatStdUniform
+                        u <- uniform 0 1
                         
                         if         u < 1 - 0.0331 * x_4
                             || log u < 0.5 * x_2  + d * (1 - v + log v)
                             then return (b * d * v)
-                            else go
+                            else go stashed
 
-realFloatErlang :: (Integral a, RealFloat b) => a -> RVar b
-realFloatErlang a = realFloatGamma (fromIntegral a) 1
+realFloatErlang :: (Integral a, Floating b, Ord b, Distribution Uniform b) => a -> RVar b
+realFloatErlang a
+    | a < 1 
+    = fail "realFloatErlang: a < 1"
+    | otherwise
+    = go Nothing
+        where
+            d = fromIntegral a - (1 / 3)
+            c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
+            
+            getNorm Nothing = do
+                (x,y) <- normalPair
+                return (x, Just y)
+            getNorm (Just x) = return (x, Nothing)
+            
+            go stashed = do
+                (x, stashed) <- getNorm stashed
+                let cx = c * x
+                    v = (1 + cx) ^ 3
+                    
+                    x_2 = x * x
+                    x_4 = x_2 * x_2
+                
+                if cx <= (-1)
+                    then go stashed
+                    else do
+                        u <- uniform 0 1
+                        
+                        if         u < 1 - 0.0331 * x_4
+                            || log u < 0.5 * x_2  + d * (1 - v + log v)
+                            then return (d * v)
+                            else go stashed
 
 gamma :: (Distribution Gamma a) => a -> a -> RVar a
 gamma a b = rvar (Gamma a b)
 
-erlang :: (Distribution Gamma a, Integral b, Num a) => b -> a -> RVar a
-erlang a b = rvar (Gamma (fromIntegral a) b)
+erlang :: (Distribution (Erlang a) b) => a -> RVar b
+erlang a = rvar (Erlang a)
 
-data Gamma a = Gamma a a
+data Gamma a    = Gamma a a
+data Erlang a b = Erlang a
 
-instance RealFloat a => Distribution Gamma a where
+instance (Floating a, Ord a, Distribution Uniform a) => Distribution Gamma a where
     rvar (Gamma a b) = realFloatGamma a b
+
+instance (Integral a, Floating b, Ord b, Distribution Uniform b) => Distribution (Erlang a) b where
+    rvar (Erlang a) = realFloatErlang a

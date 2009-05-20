@@ -34,7 +34,6 @@ Library
                         Data.Random.Distribution.Poisson
                         Data.Random.Distribution.Triangular
                         Data.Random.Distribution.Uniform
-                        Data.Random.Internal.Classification
                         Data.Random.Internal.Words
                         Data.Random.List
                         Data.Random.Lift
