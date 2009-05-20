@@ -45,9 +45,11 @@ shuffleSeq s = shuffle (S.length s) s
             (l,r) -> case S.viewl r of
                 x S.:< r  -> (x, l S.>< r)
 
+-- |Shuffle a list using interleaved IO when extracting elements.
 lazyShuffleFrom :: (RandomSource IO s) => s -> [a] -> IO [a]
 lazyShuffleFrom src = lazyShuffleSeqFrom src . S.fromList
 
+-- |Shuffle a 'S.Seq' using interleaved IO when extracting elements.
 lazyShuffleSeqFrom :: (RandomSource IO s) => s -> S.Seq a -> IO [a]
 lazyShuffleSeqFrom src s = shuffle (S.length s) s
     where

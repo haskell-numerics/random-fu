@@ -36,6 +36,8 @@ import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.Identity
 
+-- |An opaque type containing a \"random variable\" - a value 
+-- which depends on the outcome of some random process.
 type RVar = RVarT Identity
 
 -- | single combined container allowing all the relevant 
@@ -47,8 +49,9 @@ data RVarDict n m where
 runRVar :: RandomSource m s => RVar a -> s -> m a
 runRVar = runRVarT
 
--- |An opaque type containing a \"random variable\" - a value 
--- which depends on the outcome of some random process.
+-- |A random variable with access to operations in an underlying monad.  Useful
+-- examples include any form of state for implementing random processes with hysteresis,
+-- or writer monads for implementing tracing of complicated algorithms.
 newtype RVarT n a = RVarT { unRVarT :: forall m r. (a -> m r) -> RVarDict n m -> m r }
 
 -- | \"Runs\" the monad.
@@ -83,9 +86,9 @@ instance MonadRandom (RVarT n) where
 
 -- some 'fundamental' RVarTs
 -- this maybe ought to even be a part of the RandomSource class...
+{-# INLINE nByteInteger #-}
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^(8*n)-1, inclusive.
-{-# INLINE nByteInteger #-}
 nByteInteger :: Int -> RVarT m Integer
 nByteInteger 1 = do
     x <- getRandomByte
@@ -101,9 +104,9 @@ nByteInteger n = do
     x <- getRandomWord
     return $! toInteger (x `shiftR` ((8-n) `shiftL` 3))
 
+{-# INLINE nBitInteger #-}
 -- |A random variable evenly distributed over all unsigned integers from
 -- 0 to 2^n-1, inclusive.
-{-# INLINE nBitInteger #-}
 nBitInteger :: Int -> RVarT m Integer
 nBitInteger 8  = do
     x <- getRandomByte

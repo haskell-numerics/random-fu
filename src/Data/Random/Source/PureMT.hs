@@ -23,9 +23,10 @@ import qualified Control.Monad.State.Strict as S
 -- |Given a mutable reference to a 'PureMT' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
 --
--- For example, if @x :: TVar PureMT@, @getRandomWordsFromMTRef x@ can be
+-- For example, if @x :: TVar PureMT@, @getRandomWordFromMTRef x@ can be
 -- used as a 'RandomSource' in 'IO', 'STM', or any monad which is an instance
--- of 'MonadIO'.
+-- of 'MonadIO'.  These functions can also be used to implement additional
+-- 'RandomSource' instances for mutable references to 'PureMT' states.
 getRandomWordFromMTRef :: ModifyRef sr m PureMT => sr -> m Word64
 getRandomWordFromMTRef ref = do
     atomicModifyRef ref (swap . randomWord64)
@@ -53,11 +54,14 @@ getRandomDoubleFromMTRef src = liftM wordToDouble (getRandomWordFromMTRef src)
 --     where
 --         swap (a,b) = (b,a)
 
--- |Similarly, @getRandomWordsFromMTState x@ can be used in any \"state\"
+-- |Similarly, @getRandomWordFromMTState x@ can be used in any \"state\"
 -- monad in the mtl sense whose state is a 'PureMT' generator.
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
 -- which do precisely that, allowing an easy conversion of 'RVar's and
--- other 'Distribution' instances to \"pure\" random variables.
+-- other 'Distribution' instances to \"pure\" random variables (e.g., by
+-- @runState . sample :: Distribution d t => d t -> PureMT -> (t, PureMT)@.
+-- 'PureMT' in the type there can be replaced by 'StdGen' or anything else 
+-- satisfying @MonadRandom (State s) => s@).
 getRandomWordFromMTState :: MonadState PureMT m => m Word64
 getRandomWordFromMTState = do
     mt <- get

@@ -57,11 +57,13 @@ getRandomDoubleFromStdGenIO = liftM wordToDouble getRandomWordFromStdGenIO
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
 --
--- For example, if @x :: TVar StdGen@, @getRandomBytesFromRandomGenRef x@ can be
+-- For example, if @x :: TVar StdGen@, @getRandomByteFromRandomGenRef x@ can be
 -- used as a 'RandomSource' in 'IO', 'STM', or any monad which is an instance
 -- of 'MonadIO'.  It's generally probably better to use
--- 'getRandomWordsFromRandomGenRef' though, as this one is likely to throw
--- away a lot of perfectly good entropy.
+-- 'getRandomWordFromRandomGenRef' though, as this one is likely to throw
+-- away a lot of perfectly good entropy.  Better still is to use these 3 functions
+-- together to create a 'RandomSource' instance for the reference you're using,
+-- if one does not already exist.
 getRandomByteFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
                                   sr -> m Word8
 getRandomByteFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,255))
@@ -80,7 +82,7 @@ getRandomDoubleFromRandomGenRef g = liftM wordToDouble (getRandomWordFromRandomG
 -- getRandomDoubleFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,1))
 --     where swap (a,b) = (b,a)
 
--- |Similarly, @getRandomWordsFromRandomGenState x@ can be used in any \"state\"
+-- |Similarly, @getRandomWordFromRandomGenState x@ can be used in any \"state\"
 -- monad in the mtl sense whose state is a 'RandomGen' generator.
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
 -- which do precisely that, allowing an easy conversion of 'RVar's and

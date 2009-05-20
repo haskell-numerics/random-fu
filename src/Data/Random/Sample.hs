@@ -15,7 +15,9 @@ import Data.Random.RVar
 import Data.Random.Source
 import Data.Random.Source.Std
 
--- |TODO: think of a better name, and document...
+-- |A typeclass allowing 'Distribution's and 'RVar's to be sampled.  Both may
+-- also be sampled via 'runRVar' or 'runRVarT', but I find it psychologically
+-- pleasing to be able to sample both using this function.
 class Sampleable d m t where
     -- |Directly sample from a distribution or random variable, using the given source of entropy.
     sampleFrom :: RandomSource m s => s -> d t -> m t

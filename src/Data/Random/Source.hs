@@ -23,13 +23,16 @@ import Data.Random.Internal.Words
 -- when directly requesting entropy for a random variable these functions
 -- are used.
 -- 
--- The minimal definition is either 'getRandomBytes' or 'getRandomWords'.
+-- The minimal definition is either 'getRandomByte' or 'getRandomWord'.
+-- 'getRandomDouble' is defaulted in terms of 'getRandomWord'.
 class Monad m => MonadRandom m where
+    -- |Get a random uniformly-distributed byte.
     getRandomByte :: m Word8
     getRandomByte = do
         word <- getRandomWord
         return (fromIntegral word)
     
+    -- |Get a random 'Word64' uniformly-distributed over the full range of the type.
     getRandomWord :: m Word64
     getRandomWord = do
         b0 <- getRandomByte
@@ -43,7 +46,7 @@ class Monad m => MonadRandom m where
         
         return (buildWord b0 b1 b2 b3 b4 b5 b6 b7)
     
-    -- |Get a random @Double@ on the interval [0,1)
+    -- |Get a random 'Double' uniformly-distributed over the interval [0,1)
     getRandomDouble :: m Double
     getRandomDouble = do
         word <- getRandomWord
@@ -51,14 +54,16 @@ class Monad m => MonadRandom m where
 
 -- |A source of entropy which can be used in the given monad.
 --
--- The minimal definition is either 'getRandomBytesFrom' or 'getRandomWordsFrom'
+-- The minimal definition is either 'getRandomByteFrom' or 'getRandomWordFrom'.
+-- 'getRandomDoubleFrom' is defaulted in terms of 'getRandomWordFrom'
 class Monad m => RandomSource m s where
-    -- TODO: make defaulting situation more comprehensible
+    -- |Get a random uniformly-distributed byte.
     getRandomByteFrom :: s -> m Word8
     getRandomByteFrom src = do
         word <- getRandomWordFrom src
         return (fromIntegral word)
     
+    -- |Get a random 'Word64' uniformly-distributed over the full range of the type.
     getRandomWordFrom :: s -> m Word64
     getRandomWordFrom src = do
         b0 <- getRandomByteFrom src
@@ -72,7 +77,7 @@ class Monad m => RandomSource m s where
         
         return (buildWord b0 b1 b2 b3 b4 b5 b6 b7)
     
-    -- |Get a random @Double@ on the interval [0,1)
+    -- |Get a random 'Double' uniformly-distributed over the interval [0,1)
     getRandomDoubleFrom :: s -> m Double
     getRandomDoubleFrom src = do
         word <- getRandomWordFrom src
