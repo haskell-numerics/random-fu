@@ -20,14 +20,21 @@ import Data.Word
 import Data.Ratio
 import Data.Complex
 
+-- |Generate a Bernoulli variate with the given probability.  For @Bool@ results,
+-- @bernoulli p@ will return True (p*100)% of the time and False otherwise.
+-- For numerical types, True is replaced by 1 and False by 0.
 bernoulli :: Distribution (Bernoulli b) a => b -> RVar a
 bernoulli p = rvar (Bernoulli p)
 
+-- |A random variable whose value is 'True' the given fraction of the time
+-- and 'False' the rest.
 boolBernoulli :: (Fractional a, Ord a, Distribution StdUniform a) => a -> RVar Bool
 boolBernoulli p = do
     x <- stdUniform
     return (x <= p)
 
+-- | @generalBernoulli t f p@ generates a random variable whose value is @t@
+-- with probability @p@ and @f@ with probability @1-p@.
 generalBernoulli :: Distribution (Bernoulli b) Bool => a -> a -> b -> RVar a
 generalBernoulli t f p = do
     x <- bernoulli p
