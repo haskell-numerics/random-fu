@@ -19,19 +19,19 @@ data Triangular a = Triangular
     , triUpper  :: a
     } deriving (Eq, Show)
 
-realFloatTriangular :: (Floating a, Ord a, Distribution Uniform a) => a -> a -> a -> RVar a
+realFloatTriangular :: (Floating a, Ord a, Distribution StdUniform a) => a -> a -> a -> RVar a
 realFloatTriangular a b c
     | a <= b && b <= c
     = do
         let p = (c-b)/(c-a)
-        u <- uniform 0 1
+        u <- stdUniform
         let d   | u >= p    = a
                 | otherwise = c
             x   | u >= p    = (u - p) / (1 - p)
                 | otherwise = u / p
 -- may prefer this: reusing u costs resolution, especially if p or 1-p is small and c-a is large.
---        x <- uniform 0 1
+--        x <- stdUniform
         return (b - ((1 - sqrt x) * (b-d)))
 
-instance (Floating a, Ord a, Distribution Uniform a) => Distribution Triangular a where
+instance (Floating a, Ord a, Distribution StdUniform a) => Distribution Triangular a where
     rvar (Triangular a b c) = realFloatTriangular a b c

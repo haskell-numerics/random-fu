@@ -16,13 +16,13 @@ import Data.Random.Distribution.Uniform
 
 data Exponential a = Exp a
 
-floatingExponential :: (Floating a, Distribution Uniform a) => a -> RVar a
+floatingExponential :: (Floating a, Distribution StdUniform a) => a -> RVar a
 floatingExponential lambdaRecip = do
-    x <- uniform 0 1
+    x <- stdUniform
     return (negate (log x) * lambdaRecip)
 
 exponential :: Distribution Exponential a => a -> RVar a
 exponential = rvar . Exp
 
-instance (Floating a, Distribution Uniform a) => Distribution Exponential a where
+instance (Floating a, Distribution StdUniform a) => Distribution Exponential a where
     rvar (Exp lambdaRecip) = floatingExponential lambdaRecip

@@ -17,8 +17,8 @@ import Data.Random.Distribution.Uniform
 
 import Control.Monad
 
-fractionalBeta :: (Fractional a, Distribution Gamma a, Distribution Uniform a) => a -> a -> RVar a
-fractionalBeta 1 1 = uniform 0 1
+fractionalBeta :: (Fractional a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVar a
+fractionalBeta 1 1 = stdUniform
 fractionalBeta a b = do
     x <- gamma a 1
     y <- gamma b 1
@@ -35,5 +35,5 @@ beta a b = rvar (Beta a b)
 
 data Beta a = Beta a a
 
-instance (Fractional a, Distribution Gamma a, Distribution Uniform a) => Distribution Beta a where
+instance (Fractional a, Distribution Gamma a, Distribution StdUniform a) => Distribution Beta a where
     rvar (Beta a b) = fractionalBeta a b

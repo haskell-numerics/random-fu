@@ -23,9 +23,9 @@ import Data.Complex
 bernoulli :: Distribution (Bernoulli b) a => b -> RVar a
 bernoulli p = rvar (Bernoulli p)
 
-boolBernoulli :: (Fractional a, Ord a, Distribution Uniform a) => a -> RVar Bool
+boolBernoulli :: (Fractional a, Ord a, Distribution StdUniform a) => a -> RVar Bool
 boolBernoulli p = do
-    x <- uniform 0 1
+    x <- stdUniform
     return (x <= p)
 
 generalBernoulli :: Distribution (Bernoulli b) Bool => a -> a -> b -> RVar a
@@ -35,7 +35,10 @@ generalBernoulli t f p = do
 
 data Bernoulli b a = Bernoulli b
 
-instance (Fractional b, Ord b, Distribution Uniform b) => Distribution (Bernoulli b) Bool        where rvar (Bernoulli p) = boolBernoulli p
+instance (Fractional b, Ord b, Distribution StdUniform b) 
+       => Distribution (Bernoulli b) Bool
+    where
+        rvar (Bernoulli p) = boolBernoulli p
 
 instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Int         where rvar (Bernoulli p) = generalBernoulli 0 1 p
 instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Int8        where rvar (Bernoulli p) = generalBernoulli 0 1 p

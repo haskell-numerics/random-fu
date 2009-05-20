@@ -18,16 +18,20 @@ import Data.Random.RVar
 
 import Control.Monad
 
+normalPair :: Distribution NormalPair (a, a) => RVar (a,a)
+normalPair = rvar NormalPair
+
 -- Box-Muller method
-{-# INLINE normalPair #-}
-normalPair :: (Floating a, Distribution Uniform a) => RVar (a,a)
-normalPair = do
-    u <- uniform 0 1
-    t <- uniform 0 (2 * pi)
+{-# INLINE boxMullerNormalPair #-}
+boxMullerNormalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
+boxMullerNormalPair = do
+    u <- stdUniform
+    t <- stdUniform
     let r = sqrt (-2 * log u)
+        theta = (2 * pi) * t
         
-        x = r * cos t
-        y = r * sin t
+        x = r * cos theta
+        y = r * sin theta
     return (x,y)
 
 -- slightly slower
@@ -68,11 +72,16 @@ data Normal a
     = StdNormal
     | Normal a a -- mean, sd
 
-instance (Floating a, Distribution Uniform a) => Distribution Normal a where
+data NormalPair a = NormalPair
+
+instance (Floating a, Distribution NormalPair (a,a)) => Distribution Normal a where
     rvar StdNormal = liftM fst normalPair
     rvar (Normal m s) = do
         x <- liftM fst normalPair
         return (x * s + m)
+
+instance (Floating a, Distribution StdUniform a) => Distribution NormalPair (a, a) where
+    rvar _ = boxMullerNormalPair
 
 stdNormal :: Distribution Normal a => RVar a
 stdNormal = rvar StdNormal

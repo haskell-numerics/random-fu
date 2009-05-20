@@ -28,11 +28,11 @@ import Control.Monad
     -- originally comes from Marsaglia & Tang, "A Simple Method for
     -- generating gamma variables", ACM Transactions on Mathematical
     -- Software, Vol 26, No 3 (2000), p363-372.
-realFloatGamma :: (Floating a, Ord a, Distribution Uniform a) => a -> a -> RVar a
+realFloatGamma :: (Floating a, Ord a, Distribution NormalPair (a,a), Distribution StdUniform a) => a -> a -> RVar a
 realFloatGamma a b
     | a < 1 
     = do
-        u <- uniform 0 1
+        u <- stdUniform
         x <- realFloatGamma (1 + a) b
         return (x * u ** recip a)
     | otherwise
@@ -41,6 +41,7 @@ realFloatGamma a b
             d = a - (1 / 3)
             c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
             
+            getNorm :: Distribution NormalPair (a,a) => Maybe a -> RVar (a, Maybe a)
             getNorm Nothing = do
                 (x,y) <- normalPair
                 return (x, Just y)
@@ -57,14 +58,14 @@ realFloatGamma a b
                 if cx <= (-1)
                     then go stashed
                     else do
-                        u <- uniform 0 1
+                        u <- stdUniform
                         
                         if         u < 1 - 0.0331 * x_4
                             || log u < 0.5 * x_2  + d * (1 - v + log v)
                             then return (b * d * v)
                             else go stashed
 
-realFloatErlang :: (Integral a, Floating b, Ord b, Distribution Uniform b) => a -> RVar b
+realFloatErlang :: (Integral a, Floating b, Ord b, Distribution NormalPair (b,b), Distribution StdUniform b) => a -> RVar b
 realFloatErlang a
     | a < 1 
     = fail "realFloatErlang: a < 1"
@@ -74,6 +75,7 @@ realFloatErlang a
             d = fromIntegral a - (1 / 3)
             c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
             
+            getNorm :: Distribution NormalPair (a,a) => Maybe a -> RVar (a, Maybe a)
             getNorm Nothing = do
                 (x,y) <- normalPair
                 return (x, Just y)
@@ -90,7 +92,7 @@ realFloatErlang a
                 if cx <= (-1)
                     then go stashed
                     else do
-                        u <- uniform 0 1
+                        u <- stdUniform
                         
                         if         u < 1 - 0.0331 * x_4
                             || log u < 0.5 * x_2  + d * (1 - v + log v)
@@ -106,8 +108,8 @@ erlang a = rvar (Erlang a)
 data Gamma a    = Gamma a a
 data Erlang a b = Erlang a
 
-instance (Floating a, Ord a, Distribution Uniform a) => Distribution Gamma a where
+instance (Floating a, Ord a, Distribution NormalPair (a,a), Distribution StdUniform a) => Distribution Gamma a where
     rvar (Gamma a b) = realFloatGamma a b
 
-instance (Integral a, Floating b, Ord b, Distribution Uniform b) => Distribution (Erlang a) b where
+instance (Integral a, Floating b, Ord b, Distribution NormalPair (b,b), Distribution StdUniform b) => Distribution (Erlang a) b where
     rvar (Erlang a) = realFloatErlang a

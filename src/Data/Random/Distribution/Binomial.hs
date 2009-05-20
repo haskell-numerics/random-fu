@@ -25,7 +25,7 @@ import Control.Monad
     -- note that although it's fast enough for large (eg, 2^10000) 
     -- @Integer@s, it's not accurate enough when using @Double@ as
     -- the @b@ parameter.
-integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution Uniform b) => a -> b -> RVar a
+integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> b -> RVar a
 integralBinomial t p = bin 0 t p
     where
         -- GHC likes to discharge Beta to the Beta instance's context, which
@@ -37,7 +37,7 @@ integralBinomial t p = bin 0 t p
         -- leave it to the coder who's doing weird stuff to tell the compiler what
         -- he/she wants.
         -- Anyway, this type signature makes GHC happy.
-        bin :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution Uniform b) => a -> a -> b -> RVar a
+        bin :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> a -> b -> RVar a
         bin k t p
             | t > 10    = do
                 let a = 1 + t `div` 2
@@ -52,7 +52,7 @@ integralBinomial t p = bin 0 t p
                 where
                     count k  0    = return k
                     count k (n+1) = do
-                        x <- uniform 0 1
+                        x <- stdUniform
                         (count $! (if x < p then k + 1 else k)) n
 
 -- would it be valid to repeat the above computation using fractional @t@?
@@ -65,16 +65,16 @@ binomial t p = rvar (Binomial t p)
 
 data Binomial b a = Binomial a b
 
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Int        where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Int8       where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Int16      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Int32      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Int64      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Word8      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Word16     where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Word32     where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Word64     where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution Uniform b) => Distribution (Binomial b) Integer    where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int        where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int8       where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int16      where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int32      where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int64      where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word8      where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word16     where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word32     where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word64     where rvar (Binomial t p) = integralBinomial t p
+instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Integer    where rvar (Binomial t p) = integralBinomial t p
 
 instance Distribution (Binomial b) Integer => Distribution (Binomial b) Float  where rvar (Binomial t p) = floatingBinomial t p
 instance Distribution (Binomial b) Integer => Distribution (Binomial b) Double where rvar (Binomial t p) = floatingBinomial t p
