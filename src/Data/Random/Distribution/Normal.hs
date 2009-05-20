@@ -21,7 +21,6 @@ import Control.Monad
 normalPair :: Distribution NormalPair (a, a) => RVar (a,a)
 normalPair = rvar NormalPair
 
--- Box-Muller method
 {-# INLINE boxMullerNormalPair #-}
 boxMullerNormalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
 boxMullerNormalPair = do
@@ -34,7 +33,7 @@ boxMullerNormalPair = do
         y = r * sin theta
     return (x,y)
 
--- slightly slower
+{-# INLINE knuthPolarNormalPair #-}
 knuthPolarNormalPair :: (Floating a, Ord a, Distribution Uniform a) => RVar (a,a)
 knuthPolarNormalPair = do
     v1 <- uniform (-1) 1
@@ -74,10 +73,10 @@ data Normal a
 
 data NormalPair a = NormalPair
 
-instance (Floating a, Distribution NormalPair (a,a)) => Distribution Normal a where
-    rvar StdNormal = liftM fst normalPair
+instance (Floating a, Ord a, Distribution StdUniform a) => Distribution Normal a where
+    rvar StdNormal = liftM fst boxMullerNormalPair
     rvar (Normal m s) = do
-        x <- liftM fst normalPair
+        x <- liftM fst boxMullerNormalPair
         return (x * s + m)
 
 instance (Floating a, Distribution StdUniform a) => Distribution NormalPair (a, a) where
