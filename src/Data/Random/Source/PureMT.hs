@@ -3,11 +3,13 @@
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,
-    FlexibleContexts, FlexibleInstances
+    FlexibleContexts, FlexibleInstances,
+    UndecidableInstances
   #-}
 
 module Data.Random.Source.PureMT where
 
+import Data.Random.Internal.Words
 import Data.Random.Source
 import System.Random.Mersenne.Pure64
 
@@ -38,6 +40,18 @@ getRandomByteFromMTRef ref = do
     where
         swap (a,b) = (b,a)
 
+-- for whatever reason, my simple wordToDouble is faster than whatever
+-- the mersenne random library is using, at least in the version I have.
+-- if this changes, switch to the commented version.
+-- Same thing below, in getRandomDoubleFromMTState.
+getRandomDoubleFromMTRef :: ModifyRef sr m PureMT => sr -> m Double
+getRandomDoubleFromMTRef src = liftM wordToDouble (getRandomWordFromMTRef src)
+-- getRandomDoubleFromMTRef ref = do
+--     atomicModifyRef ref (swap . randomDouble)
+--     
+--     where
+--         swap (a,b) = (b,a)
+
 -- |Similarly, @getRandomWordsFromMTState x@ can be used in any \"state\"
 -- monad in the mtl sense whose state is a 'PureMT' generator.
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
@@ -57,27 +71,52 @@ getRandomByteFromMTState = do
     put newMt
     return (fromIntegral ws)
 
+
+getRandomDoubleFromMTState :: MonadState PureMT m => m Double
+getRandomDoubleFromMTState = liftM wordToDouble getRandomWordFromMTState
+-- getRandomDoubleFromMTState = do
+--     mt <- get
+--     let (x, newMt) = randomDouble mt
+--     put newMt
+--     return x
+
 instance MonadRandom (State PureMT) where
-    getRandomByte  = getRandomByteFromMTState
-    getRandomWord  = getRandomWordFromMTState
+    getRandomByte   = getRandomByteFromMTState
+    getRandomWord   = getRandomWordFromMTState
+    getRandomDouble = getRandomDoubleFromMTState
 
 instance MonadRandom (S.State PureMT) where
-    getRandomByte  = getRandomByteFromMTState
-    getRandomWord  = getRandomWordFromMTState
+    getRandomByte   = getRandomByteFromMTState
+    getRandomWord   = getRandomWordFromMTState
+    getRandomDouble = getRandomDoubleFromMTState
 
 instance Monad m => MonadRandom (StateT PureMT m) where
-    getRandomByte  = getRandomByteFromMTState
-    getRandomWord  = getRandomWordFromMTState
+    getRandomByte   = getRandomByteFromMTState
+    getRandomWord   = getRandomWordFromMTState
+    getRandomDouble = getRandomDoubleFromMTState
 
 instance Monad m => MonadRandom (S.StateT PureMT m) where
-    getRandomByte  = getRandomByteFromMTState
-    getRandomWord  = getRandomWordFromMTState
+    getRandomByte   = getRandomByteFromMTState
+    getRandomWord   = getRandomWordFromMTState
+    getRandomDouble = getRandomDoubleFromMTState
 
-instance RandomSource IO (IORef PureMT) where
-    getRandomByteFrom  = getRandomByteFromMTRef
-    getRandomWordFrom  = getRandomWordFromMTRef
 
-instance RandomSource (ST s) (STRef s PureMT) where
-    getRandomByteFrom  = getRandomByteFromMTRef
-    getRandomWordFrom  = getRandomWordFromMTRef
+instance (ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
+    {-# SPECIALIZE instance RandomSource IO (IORef PureMT)#-}
+    getRandomByteFrom   = getRandomByteFromMTRef
+    getRandomWordFrom   = getRandomWordFromMTRef
+    getRandomDoubleFrom = getRandomDoubleFromMTRef
+
+instance (ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) where
+    {-# SPECIALIZE instance RandomSource (ST s) (STRef s PureMT) #-}
+    getRandomByteFrom   = getRandomByteFromMTRef
+    getRandomWordFrom   = getRandomWordFromMTRef
+    getRandomDoubleFrom = getRandomDoubleFromMTRef
+
+instance (ModifyRef (TVar PureMT) m PureMT) => RandomSource m (TVar PureMT) where
+    {-# SPECIALIZE instance RandomSource IO  (TVar PureMT) #-}
+    {-# SPECIALIZE instance RandomSource STM (TVar PureMT) #-}
+    getRandomByteFrom   = getRandomByteFromMTRef
+    getRandomWordFrom   = getRandomWordFromMTRef
+    getRandomDoubleFrom = getRandomDoubleFromMTRef
 

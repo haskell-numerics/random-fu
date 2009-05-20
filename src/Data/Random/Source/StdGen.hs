@@ -16,14 +16,17 @@ import Data.StateRef
 import Data.Word
 
 instance (ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
-    getRandomByteFrom = getRandomByteFromRandomGenRef
-    getRandomWordFrom = getRandomWordFromRandomGenRef
+    getRandomByteFrom   = getRandomByteFromRandomGenRef
+    getRandomWordFrom   = getRandomWordFromRandomGenRef
+    getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 instance (ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where
-    getRandomByteFrom = getRandomByteFromRandomGenRef
-    getRandomWordFrom = getRandomWordFromRandomGenRef
+    getRandomByteFrom   = getRandomByteFromRandomGenRef
+    getRandomWordFrom   = getRandomWordFromRandomGenRef
+    getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 instance (ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where
-    getRandomByteFrom = getRandomByteFromRandomGenRef
-    getRandomWordFrom = getRandomWordFromRandomGenRef
+    getRandomByteFrom   = getRandomByteFromRandomGenRef
+    getRandomWordFrom   = getRandomWordFromRandomGenRef
+    getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 
 getRandomByteFromStdGenIO :: IO Word8
 getRandomByteFromStdGenIO = do
@@ -34,6 +37,9 @@ getRandomWordFromStdGenIO :: IO Word64
 getRandomWordFromStdGenIO = do
     int <- randomRIO (0, 0xffffffffffffffff)
     return (fromInteger int)
+
+getRandomDoubleFromStdGenIO :: IO Double
+getRandomDoubleFromStdGenIO = randomRIO (0, 1)
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
@@ -54,6 +60,11 @@ getRandomWordFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
                                   sr -> m Word64
 getRandomWordFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,0xffffffffffffffff))
     where swap (a,b) = (b,fromInteger a)
+
+getRandomDoubleFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
+                                  sr -> m Double
+getRandomDoubleFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,1))
+    where swap (a,b) = (b,a)
 
 -- |Similarly, @getRandomWordsFromRandomGenState x@ can be used in any \"state\"
 -- monad in the mtl sense whose state is a 'RandomGen' generator.
@@ -76,19 +87,31 @@ getRandomWordFromRandomGenState = do
             put g
             return (fromInteger i)
 
+getRandomDoubleFromRandomGenState :: (RandomGen g, MonadState g m) => m Double
+getRandomDoubleFromRandomGenState = do
+    g <- get
+    case randomR (0, 1) g of
+        (x,g) -> do
+            put g
+            return x
+
 
 instance MonadRandom (State StdGen) where
-    getRandomByte  = getRandomByteFromRandomGenState
-    getRandomWord  = getRandomWordFromRandomGenState
+    getRandomByte   = getRandomByteFromRandomGenState
+    getRandomWord   = getRandomWordFromRandomGenState
+    getRandomDouble = getRandomDoubleFromRandomGenState
 
 instance Monad m => MonadRandom (StateT StdGen m) where
-    getRandomByte  = getRandomByteFromRandomGenState
-    getRandomWord  = getRandomWordFromRandomGenState
+    getRandomByte   = getRandomByteFromRandomGenState
+    getRandomWord   = getRandomWordFromRandomGenState
+    getRandomDouble = getRandomDoubleFromRandomGenState
 
 instance MonadRandom (S.State StdGen) where
-    getRandomByte  = getRandomByteFromRandomGenState
-    getRandomWord  = getRandomWordFromRandomGenState
+    getRandomByte   = getRandomByteFromRandomGenState
+    getRandomWord   = getRandomWordFromRandomGenState
+    getRandomDouble = getRandomDoubleFromRandomGenState
 
 instance Monad m => MonadRandom (S.StateT StdGen m) where
-    getRandomByte  = getRandomByteFromRandomGenState
-    getRandomWord  = getRandomWordFromRandomGenState
+    getRandomByte   = getRandomByteFromRandomGenState
+    getRandomWord   = getRandomWordFromRandomGenState
+    getRandomDouble = getRandomDoubleFromRandomGenState

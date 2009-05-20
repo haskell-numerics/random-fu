@@ -77,8 +77,9 @@ instance MonadIO m => MonadIO (RVarT m) where
     liftIO = T.lift . liftIO
 
 instance MonadRandom (RVarT n) where
-    getRandomByte = RVarT $ \k (RVarDict s) -> getRandomByteFrom s >>= \a -> k a
-    getRandomWord = RVarT $ \k (RVarDict s) -> getRandomWordFrom s >>= \a -> k a
+    getRandomByte   = RVarT $ \k (RVarDict s) -> getRandomByteFrom   s >>= \a -> k a
+    getRandomWord   = RVarT $ \k (RVarDict s) -> getRandomWordFrom   s >>= \a -> k a
+    getRandomDouble = RVarT $ \k (RVarDict s) -> getRandomDoubleFrom s >>= \a -> k a
 
 -- some 'fundamental' RVarTs
 -- this maybe ought to even be a part of the RandomSource class...

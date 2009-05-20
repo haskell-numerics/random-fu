@@ -73,11 +73,7 @@ floatStdUniform = do
         else return (wordToFloat x)
 
 doubleStdUniform :: RVar Double
-doubleStdUniform = do
-    x <- getRandomWord
-    if x == 0
-        then return 1
-        else return (wordToDouble x)
+doubleStdUniform = getRandomDouble
 
 realFloatStdUniform :: RealFloat a => RVar a
 realFloatStdUniform = do
