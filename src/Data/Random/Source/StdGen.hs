@@ -11,19 +11,25 @@ import Data.Random.Source
 import System.Random
 import Control.Monad
 import Control.Monad.State
+import qualified Control.Monad.ST.Strict as S
 import qualified Control.Monad.State.Strict as S
 import Data.StateRef
 import Data.Word
 
 instance (ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
+    {-# SPECIALIZE instance RandomSource IO (IORef StdGen) #-}
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 instance (ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where
+    {-# SPECIALIZE instance RandomSource IO  (TVar StdGen) #-}
+    {-# SPECIALIZE instance RandomSource STM (TVar StdGen) #-}
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 instance (ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where
+    {-# SPECIALIZE instance RandomSource (ST s) (STRef s StdGen) #-}
+    {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s StdGen) #-}
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
