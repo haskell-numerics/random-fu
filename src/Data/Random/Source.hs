@@ -43,6 +43,7 @@ class Monad m => MonadRandom m where
         
         return (buildWord b0 b1 b2 b3 b4 b5 b6 b7)
     
+    -- |Get a random @Double@ on the interval [0,1)
     getRandomDouble :: m Double
     getRandomDouble = do
         word <- getRandomWord
@@ -71,6 +72,7 @@ class Monad m => RandomSource m s where
         
         return (buildWord b0 b1 b2 b3 b4 b5 b6 b7)
     
+    -- |Get a random @Double@ on the interval [0,1)
     getRandomDoubleFrom :: s -> m Double
     getRandomDoubleFrom src = do
         word <- getRandomWordFrom src

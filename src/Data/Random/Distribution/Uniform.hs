@@ -64,13 +64,10 @@ boundedStdUniform = uniform minBound maxBound
 boundedEnumStdUniform :: (Enum a, Bounded a) => RVar a
 boundedEnumStdUniform = enumUniform minBound maxBound
 
--- (0,1]
 floatStdUniform :: RVar Float
 floatStdUniform = do
     x <- getRandomWord
-    if x == 0
-        then return 1
-        else return (wordToFloat x)
+    return (wordToFloat x)
 
 doubleStdUniform :: RVar Double
 doubleStdUniform = getRandomDouble
@@ -113,8 +110,19 @@ enumUniform a b = do
 uniform :: Distribution Uniform a => a -> a -> RVar a
 uniform a b = rvar (Uniform a b)
 
+-- |Get a \"standard\" uniformly distributed value.
+-- For integral types, this means uniformly distributed over the full range
+-- of the type (and hence there is no support for Integer).  For fractional
+-- types, this means uniformly distributed on the interval [0,1).
 stdUniform :: (Distribution StdUniform a) => RVar a
 stdUniform = rvar StdUniform
+
+stdUniformPos :: (Distribution StdUniform a, Ord a, Num a) => RVar a
+stdUniformPos = do
+    x <- stdUniform
+    if x > 0
+        then return x
+        else stdUniformPos
 
 data Uniform t = Uniform !t !t
 data StdUniform t = StdUniform
