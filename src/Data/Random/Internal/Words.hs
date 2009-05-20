@@ -15,21 +15,7 @@ import Data.Bits
 import Data.Word
 import Control.Monad
 
-wordsToBytes :: [Word64] -> [Word8]
-wordsToBytes = concatMap wordToBytes
-
-wordToBytes :: Word64 -> [Word8]
-wordToBytes x = unsafePerformIO . allocaBytes 8 $ \p -> do
-    poke (castPtr p) x
-    mapM (peekElemOff p) [0..7]
-
-bytesToWords :: [Word8] -> [Word64]
-bytesToWords = map bytesToWord . chunk 8
-    where
-        chunk n [] = []
-        chunk n xs = case splitAt n xs of
-            (ys, zs) -> ys : chunk n zs
-
+{-# INLINE buildWord #-}
 buildWord :: Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word64
 buildWord b0 b1 b2 b3 b4 b5 b6 b7
     = unsafePerformIO . allocaBytes 8 $ \p -> do
@@ -43,17 +29,11 @@ buildWord b0 b1 b2 b3 b4 b5 b6 b7
         pokeElemOff p 7 b7
         peek (castPtr p)
 
-bytesToWord :: [Word8] -> Word64
-bytesToWord bs = unsafePerformIO . allocaBytes 8 $ \p -> do
-    zipWithM (pokeElemOff p) [0..7] (bs ++ repeat 0)
-    peek (castPtr p)
+{-# INLINE wordToFloat #-}
+wordToFloat :: Word64 -> Float
+wordToFloat x = (encodeFloat $! toInteger (x `shiftR` ( 41 {- 64-23 -}))) $ (-23)
 
-concatBytes :: (Bits a, Num a) => [Word8] -> a
-concatBytes = concatBits fromIntegral
+{-# INLINE wordToDouble #-}
+wordToDouble :: Word64 -> Double
+wordToDouble x = (encodeFloat $! toInteger (x `shiftR` ( 12 {- 64-52 -}))) $ (-52)
 
-concatWords :: (Bits a, Num a) => [Word64] -> a
-concatWords = concatBits fromIntegral
-
-concatBits :: (Bits a, Bits b, Num b) => (a -> b) -> [a] -> b
-concatBits f [] = 0
-concatBits f (x:xs) = f x .|. (concatBits f xs `shiftL` bitSize x)

@@ -26,6 +26,7 @@ module Data.Random.Distribution.Uniform
     , doubleStdUniform
     ) where
 
+import Data.Random.Internal.Words
 import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.RVar
@@ -69,14 +70,14 @@ floatStdUniform = do
     x <- getRandomWord
     if x == 0
         then return 1
-        else return ((encodeFloat $! toInteger (x `shiftR` (64-23))) $ (-23))
+        else return (wordToFloat x)
 
 doubleStdUniform :: RVar Double
 doubleStdUniform = do
     x <- getRandomWord
     if x == 0
         then return 1
-        else return ((encodeFloat $! toInteger (x `shiftR` (64-52))) $ (-52))
+        else return (wordToDouble x)
 
 realFloatStdUniform :: RealFloat a => RVar a
 realFloatStdUniform = do
