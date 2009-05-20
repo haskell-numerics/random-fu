@@ -19,6 +19,7 @@ import Data.Random.RVar
 import Control.Monad
 
 -- Box-Muller method
+{-# INLINE normalPair #-}
 normalPair :: (Floating a, Distribution Uniform a) => RVar (a,a)
 normalPair = do
     u <- uniform 0 1
