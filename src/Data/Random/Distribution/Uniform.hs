@@ -4,7 +4,8 @@
 {-# LANGUAGE
     MultiParamTypeClasses, FunctionalDependencies,
     FlexibleContexts, FlexibleInstances, 
-    UndecidableInstances, EmptyDataDecls
+    UndecidableInstances, EmptyDataDecls,
+    TemplateHaskell
   #-}
 
 module Data.Random.Distribution.Uniform
@@ -24,9 +25,14 @@ module Data.Random.Distribution.Uniform
     , realFloatStdUniform
     , floatStdUniform
     , doubleStdUniform
+    
+    , realStdUniformCDF
+    , realUniformCDF
     ) where
 
+import Data.Random.Internal.TH
 import Data.Random.Internal.Words
+
 import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.RVar
@@ -53,6 +59,11 @@ integralUniform a b
             x <- iterateUntil (maxXpossible - maxXpossible `mod` m >) (nByteInteger bytes)
             return (a + fromInteger (x `mod` m))
 
+integralUniformCDF a b x
+    | b < a     = integralUniformCDF b a x
+    | x < a     = 0
+    | x > b     = 1
+    | otherwise = (fromIntegral x - fromIntegral a) / (fromIntegral b - fromIntegral a)
 
 bytesNeeded x = case findIndex (> x) powersOf256 of
     Just x -> x
@@ -61,8 +72,14 @@ powersOf256 = iterate (256 *) 1
 boundedStdUniform :: (Distribution Uniform a, Bounded a) => RVar a
 boundedStdUniform = uniform minBound maxBound
 
+boundedStdUniformCDF :: (CDF Uniform a, Bounded a) => a -> Double
+boundedStdUniformCDF = cdf (Uniform minBound maxBound)
+
 boundedEnumStdUniform :: (Enum a, Bounded a) => RVar a
 boundedEnumStdUniform = enumUniform minBound maxBound
+
+boundedEnumStdUniformCDF :: (Enum a, Bounded a, Ord a) => a -> Double
+boundedEnumStdUniformCDF = enumUniformCDF minBound maxBound
 
 floatStdUniform :: RVar Float
 floatStdUniform = do
@@ -74,15 +91,20 @@ doubleStdUniform = getRandomDouble
 
 realFloatStdUniform :: RealFloat a => RVar a
 realFloatStdUniform = do
-    let bitsNeeded  = floatDigits one
-        (_, e) = decodeFloat one
+    let (b, e) = decodeFloat one
     
-    x <- nBitInteger bitsNeeded
+    x <- uniform 0 (b-1)
     if x == 0
-        then return one
-        else return (encodeFloat x (e-1))
+        then return (0 `asTypeOf` one)
+        else return (encodeFloat x e)
     
     where one = 1
+
+realStdUniformCDF :: Real a => a -> Double
+realStdUniformCDF x
+    | x <= 0    = 0
+    | x >= 1    = 1
+    | otherwise = realToFrac x
 
 floatUniform :: Float -> Float -> RVar Float
 floatUniform 0 1 = floatStdUniform
@@ -102,10 +124,26 @@ realFloatUniform a b = do
     x <- realFloatStdUniform
     return (a + x * (b - a))
 
+realUniformCDF :: Real a => a -> a -> a -> Double
+realUniformCDF a b x
+    | b < a     = realUniformCDF b a x
+    | x <= a    = 0
+    | x >= b    = 1
+    | otherwise = realToFrac (x-a) / realToFrac (b-a)
+
 enumUniform :: Enum a => a -> a -> RVar a
 enumUniform a b = do
     x <- integralUniform (fromEnum a) (fromEnum b)
     return (toEnum x)
+
+enumUniformCDF :: (Enum a, Ord a) => a -> a -> a -> Double
+enumUniformCDF a b x
+    | b < a     = enumUniformCDF b a x
+    | x <= a    = 0
+    | x >= b    = 1
+    | otherwise = (e2f x - e2f a) / (e2f b - e2f a)
+    
+    where e2f = fromIntegral . fromEnum
 
 uniform :: Distribution Uniform a => a -> a -> RVar a
 uniform a b = rvar (Uniform a b)
@@ -127,40 +165,50 @@ stdUniformPos = do
 data Uniform t = Uniform !t !t
 data StdUniform t = StdUniform
 
-instance Distribution Uniform Int           where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int8          where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int16         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int32         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Int64         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word8         where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word16        where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word32        where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Word64        where rvar (Uniform a b) = integralUniform a b
-instance Distribution Uniform Integer       where rvar (Uniform a b) = integralUniform a b
+$( replicateInstances ''Int integralTypes [d|
+        instance Distribution Uniform Int   where rvar (Uniform a b) = integralUniform a b
+        instance CDF Uniform Int            where cdf  (Uniform a b) = integralUniformCDF a b
+    |])
+
+-- Some integral types have specialized StdUniform rvars:
+instance Distribution StdUniform Int8       where rvar StdUniform = fmap fromIntegral getRandomByte
+instance Distribution StdUniform Word8      where rvar StdUniform = getRandomByte
+instance Distribution StdUniform Word64     where rvar StdUniform = getRandomWord
+-- and Integer has none...
+$( replicateInstances ''Int (integralTypes \\ [''Int8, ''Word8, ''Word64, ''Integer]) [d|
+        instance Distribution StdUniform Int    where rvar StdUniform = fmap fromIntegral getRandomWord
+    |])
+
+$( replicateInstances ''Int (integralTypes \\ [''Integer]) [d|
+        instance CDF StdUniform Int         where cdf  StdUniform = boundedStdUniformCDF
+    |])
+
 
 instance Distribution Uniform Float         where rvar (Uniform a b) = floatUniform  a b
 instance Distribution Uniform Double        where rvar (Uniform a b) = doubleUniform a b
-
-instance Distribution Uniform Char          where rvar (Uniform a b) = enumUniform a b
-instance Distribution Uniform Bool          where rvar (Uniform a b) = enumUniform a b
-instance Distribution Uniform ()            where rvar (Uniform a b) = enumUniform a b
-instance Distribution Uniform Ordering      where rvar (Uniform a b) = enumUniform a b
-
-instance Distribution StdUniform Int        where rvar StdUniform = fmap fromIntegral getRandomWord
-instance Distribution StdUniform Int8       where rvar StdUniform = fmap fromIntegral getRandomByte
-instance Distribution StdUniform Int16      where rvar StdUniform = fmap fromIntegral getRandomWord
-instance Distribution StdUniform Int32      where rvar StdUniform = fmap fromIntegral getRandomWord
-instance Distribution StdUniform Int64      where rvar StdUniform = fmap fromIntegral getRandomWord
-instance Distribution StdUniform Word8      where rvar StdUniform = getRandomByte
-instance Distribution StdUniform Word16     where rvar StdUniform = fmap fromIntegral getRandomWord
-instance Distribution StdUniform Word32     where rvar StdUniform = fmap fromIntegral getRandomWord
-instance Distribution StdUniform Word64     where rvar StdUniform = fmap fromIntegral getRandomWord
+instance CDF Uniform Float                  where cdf  (Uniform a b) = realUniformCDF a b
+instance CDF Uniform Double                 where cdf  (Uniform a b) = realUniformCDF a b
 
 instance Distribution StdUniform Float      where rvar StdUniform = floatStdUniform
 instance Distribution StdUniform Double     where rvar StdUniform = doubleStdUniform
+instance CDF StdUniform Float               where cdf  StdUniform = realStdUniformCDF
+instance CDF StdUniform Double              where cdf  StdUniform = realStdUniformCDF
+
+instance Distribution Uniform ()            where rvar (Uniform a b) = return ()
+instance CDF Uniform ()                     where cdf  (Uniform a b) = return 1
+$( replicateInstances ''Char [''Char, ''Bool, ''Ordering] [d|
+        instance Distribution Uniform Char  where rvar (Uniform a b) = enumUniform a b
+        instance CDF Uniform Char           where cdf  (Uniform a b) = enumUniformCDF a b
+
+    |])
+
+instance Distribution StdUniform ()         where rvar StdUniform = return ()
+instance CDF StdUniform ()                  where cdf  StdUniform = return 1
+instance Distribution StdUniform Bool       where rvar StdUniform = fmap even getRandomByte
+instance CDF StdUniform Bool                where cdf  StdUniform = boundedEnumStdUniformCDF
 
 instance Distribution StdUniform Char       where rvar StdUniform = boundedEnumStdUniform
-instance Distribution StdUniform Bool       where rvar StdUniform = fmap even getRandomByte
-instance Distribution StdUniform ()         where rvar StdUniform = return ()
+instance CDF StdUniform Char                where cdf  StdUniform = boundedEnumStdUniformCDF
 instance Distribution StdUniform Ordering   where rvar StdUniform = boundedEnumStdUniform
+instance CDF StdUniform Ordering            where cdf  StdUniform = boundedEnumStdUniformCDF
 
