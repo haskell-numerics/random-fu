@@ -36,7 +36,7 @@ boolBernoulli p = do
 -- | @generalBernoulli t f p@ generates a random variable whose value is @t@
 -- with probability @p@ and @f@ with probability @1-p@.
 generalBernoulli :: Distribution (Bernoulli b) Bool => a -> a -> b -> RVar a
-generalBernoulli t f p = do
+generalBernoulli f t p = do
     x <- bernoulli p
     return (if x then t else f)
 
