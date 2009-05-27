@@ -96,13 +96,7 @@ nByteInteger 1 = do
 nByteInteger 8 = do
     x <- getRandomWord
     return $! toInteger x
-nByteInteger (n+8) = do
-    x <- getRandomWord
-    y <- nByteInteger n
-    return $! ((toInteger x `shiftL` n) .|. y)
-nByteInteger n = do
-    x <- getRandomWord
-    return $! toInteger (x `shiftR` ((8-n) `shiftL` 3))
+nByteInteger n = nBitInteger (n `shiftL` 3)
 
 {-# INLINE nBitInteger #-}
 -- |A random variable evenly distributed over all unsigned integers from
