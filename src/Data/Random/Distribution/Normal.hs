@@ -86,17 +86,24 @@ normalTail r = go
 normalZ ::
   (RealFloat a, Storable a, Distribution Uniform a, Integral b) =>
   (a -> a) -> b -> RVar (Int, a) -> Ziggurat a
-normalZ erf p = mkZigguratRec True f fInv fInt fVol (2^p)
-    where
-        f x
-            | x <= 0    = 1
-            | otherwise = exp ((-0.5) * x*x)
-        fInv y  = sqrt ((-2) * log y)
-        fInt x 
-            | x <= 0    = 0
-            | otherwise = fVol * erf (x * sqrt 0.5)
-        
-        fVol = sqrt (0.5 * pi)
+normalZ erf p = mkZigguratRec True normalF normalFInv (normalFInt erf) normalFVol (2^p)
+
+-- | Ziggurat target function
+normalF :: (Floating a, Ord a) => a -> a
+normalF x
+    | x <= 0    = 1
+    | otherwise = exp ((-0.5) * x*x)
+-- | inverse of 'normalF'
+normalFInv :: Floating a => a -> a
+normalFInv y  = sqrt ((-2) * log y)
+-- | integral of 'normalF', parameterized over 'erf'
+normalFInt :: (Floating a, Ord a) => (a -> a) -> a -> a
+normalFInt erf x 
+    | x <= 0    = 0
+    | otherwise = normalFVol * erf (x * sqrt 0.5)
+-- | volume of 'normalF'
+normalFVol :: Floating a => a
+normalFVol = sqrt (0.5 * pi)
 
 realFloatStdNormal :: (RealFloat a, Storable a, Distribution Uniform a) => RVar a
 realFloatStdNormal = rvar (normalZ erfg p getIU)
@@ -111,23 +118,40 @@ realFloatStdNormal = rvar (normalZ erfg p getIU)
 doubleStdNormal :: RVar Double
 doubleStdNormal = rvar doubleStdNormalZ
 
+-- doubleStdNormalC must not be over 12 if using wordToDoubleWithExcess
+doubleStdNormalC :: Int
+doubleStdNormalC = 512
+doubleStdNormalR, doubleStdNormalV :: Double
+doubleStdNormalR = 3.852046150368388
+doubleStdNormalV = 2.4567663515413507e-3
+
 doubleStdNormalZ :: Ziggurat Double
-doubleStdNormalZ = normalZ erf p getIU
+doubleStdNormalZ = mkZiggurat_ True 
+        normalF normalFInv 
+        doubleStdNormalC doubleStdNormalR doubleStdNormalV 
+        getIU
+        (normalTail doubleStdNormalR)
     where 
-        -- p must not be over 12 if using wordToDoubleWithExcess
-        -- smaller values work well for the lazy recursize ziggurat
-        p = 6
-            
         getIU = do
             w <- getRandomWord
             let (u,i) = wordToDoubleWithExcess w
-            return (fromIntegral i .&. (2^p-1), u+u-1)
+            return (fromIntegral i .&. (doubleStdNormalC-1), u+u-1)
 
 floatStdNormal :: RVar Float
 floatStdNormal = rvar floatStdNormalZ
 
+floatStdNormalC :: Int
+floatStdNormalC = 512
+floatStdNormalR, floatStdNormalV :: Float
+floatStdNormalR = 3.852046150368388
+floatStdNormalV = 2.4567663515413507e-3
+
 floatStdNormalZ :: Ziggurat Float
-floatStdNormalZ = normalZ erff p getIU
+floatStdNormalZ = mkZiggurat_ True 
+        normalF normalFInv 
+        floatStdNormalC floatStdNormalR floatStdNormalV 
+        getIU
+        (normalTail floatStdNormalR)
     where
         -- p must not be over 41 if using wordToFloatWithExcess
         p = 6
@@ -135,7 +159,7 @@ floatStdNormalZ = normalZ erff p getIU
         getIU = do
             w <- getRandomWord
             let (u,i) = wordToFloatWithExcess w
-            return (fromIntegral i .&. (2^p-1), u+u-1)
+            return (fromIntegral i .&. (floatStdNormalC-1), u+u-1)
 
 normalPdf :: Real a => a -> a -> a -> Double
 normalPdf m s x = recip (realToFrac s * sqrt (2*pi)) * exp (-0.5 * (realToFrac x - realToFrac m)^2 / (realToFrac s)^2)
