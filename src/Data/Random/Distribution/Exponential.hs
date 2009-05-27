@@ -21,8 +21,13 @@ floatingExponential lambdaRecip = do
     x <- stdUniform
     return (negate (log x) * lambdaRecip)
 
+floatingExponentialCDF :: Real a => a -> a -> Double
+floatingExponentialCDF lambdaRecip x = 1 - exp (negate (realToFrac x) / realToFrac lambdaRecip)
+
 exponential :: Distribution Exponential a => a -> RVar a
 exponential = rvar . Exp
 
 instance (Floating a, Distribution StdUniform a) => Distribution Exponential a where
     rvar (Exp lambdaRecip) = floatingExponential lambdaRecip
+instance (Real a, Distribution Exponential a) => CDF Exponential a where
+    cdf  (Exp lambdaRecip) = floatingExponentialCDF lambdaRecip
