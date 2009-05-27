@@ -1,10 +1,15 @@
 {-
  -      ``Test/Hist''
+ -  A bunch of ad-hoc stuff I use to test sampling functions.
  -}
+{-# LANGUAGE
+        FlexibleContexts
+  #-}
 
 module Test.Hist where
 
 import Data.Random
+import System.Random.Mersenne.Pure64
 
 -- some convenient testing stuff
 import Data.List
@@ -12,6 +17,7 @@ import Control.Arrow
 import Text.Printf
 import Control.Monad
 import Data.StateRef
+import Control.Exception
 
 hist :: Ord a => [a] -> [a] -> [(a, Int)]
 hist xs ys = map (id *** length) (hist' xs (sort ys))
@@ -23,29 +29,59 @@ hist xs ys = map (id *** length) (hist' xs (sort ys))
 -- cumulative histogram
 cHist xs ys = tail (scanl (\(_, p1) (x,p2) -> (x, p1+p2)) (undefined, 0) (hist xs ys))
 
+-- cumulative diff histogram
+cDiff n cdf xs ys =
+     [ (y, toCount (p - cdf y))
+     | (y, count) <- cHist xs ys
+     , let p = fromIntegral count / fromIntegral n
+     ]
+     
+     where
+         toCount p = round (p * fromIntegral n)
+
 -- probability density histogram
 pHist :: Int -> RVar Double -> IO ()
-pHist = pHist_
+pHist = pHist_ fmtDbl
 
-pHist_ :: (Floating a, Ord a, PrintfArg a) => Int -> RVar a -> IO ()
-pHist_ n x = do
+pHist_ :: (Fractional a, Ord a) => (a -> String) -> Int -> RVar a -> IO ()
+pHist_ fmt n x = do
     y <- replicateM n (sampleFrom DevRandom x)
-    printHist hist y n
+    printHist fmt hist y n
 
 -- cumulative probability histogram
 cpHist :: Int -> RVar Double -> IO ()
 cpHist n x = do
     y <- replicateM n (sampleFrom DevRandom x)
-    printHist cHist y n
+    printHist fmtDbl cHist y n
 
--- byte-count histogram (random source usage)
--- bcHist :: Int -> RVar Double -> IO ()
--- bcHist n x = do
---     (src, dx) <- mkByteCounter DevRandom
---     y <- replicateM n (sampleFrom src x >> fmap fromIntegral dx) :: IO [Double]
---     printHist hist y n
+cpDiff :: CDF d Double => Int -> d Double -> IO ()
+cpDiff = cpDiff_ fmtDbl
 
-printHist hist ys n = mapM_ (putStrLn . fmt) xs
+cpDiff_ :: (CDF d t, Fractional t, Ord t) => (t -> String) -> Int -> d t -> IO ()
+cpDiff_ fmt n x = do
+    mt <- newPureMT
+    mt <- newRef mt :: IO (IORef PureMT)
+    y <- replicateM n (sampleFrom mt x)
+    printHist fmt (cDiff n (cdf x)) y n
+
+--byte-count histogram (random source usage)
+bcHist :: Int -> RVar Double -> IO ()
+bcHist n x = do
+    (src, dx) <- mkByteCounter DevRandom
+    y <- replicateM n (sampleFrom src x >> fmap fromIntegral dx) :: IO [Double]
+    printHist fmtDbl hist y n
+
+fmtDbl :: Double -> String
+fmtDbl = printf "%+0.3f"
+
+printHist :: (Integral a2, Fractional a, Ord a) =>
+             (a1 -> String) ->
+             ([a] -> [a] -> [(a1, Int)]) -> [a] -> a2 -> IO ()
+printHist fmtBin hist ys n = do
+    mapM_ (putStrLn . fmt) xs
+    printf "Sum: %d (%f%%)\n" (sum (map (snd) xs)) (sum ( pcts))
+    printf "Abs Sum: %d (%f%%)\n" (sum (map (abs.snd) xs)) (sum (map abs pcts))
+    printf "RMS: (%f%%)\n\n" (sqrt (sum (map ((*100).(^2).frac.snd) xs) / fromIntegral n) :: Double)
     where
         y0 = minimum ys
         y1 = maximum ys
@@ -57,16 +93,22 @@ printHist hist ys n = mapM_ (putStrLn . fmt) xs
                 ]
         xs = hist steps ys
         
-        maxX = maximum (map snd xs)
+        maxX = maximum (map (abs.snd) xs)
         scale = fromIntegral maxX / cols
         
-        fmt (bin, x) = printf "%+0.3f%9s: " bin (printf "(%0.2f%%)" (100 * fromIntegral x / fromIntegral n :: Float) :: String) ++ replicate (round (fromIntegral x / scale)) '*'
+        frac x = fromIntegral x / fromIntegral n
+        pct x = 100 * frac x
+        pcts = map (pct.snd) xs :: [Float]
+        fmt (bin, x) = printf "%9s%9s: " (fmtBin bin) (printf "(%0.2f%%)" (pct x :: Float) :: String) ++ replicate (abs (round (fromIntegral x / scale))) '*'
 
--- mkByteCounter src = do
---     x <- newDefaultRef 0
---     dx <- mkLapseReader x (-)
---     let src' i = do
---             modifyRef x (+i)
---             getRandomBytesFrom src i
---     return (src', dx) `asTypeOf` (undefined :: m (int -> m (vector word8), m int))
+mkByteCounter src = do
+    x <- newDefaultRef 0
+    dx <- mkLapseReader x (-)
+    let src' = do
+            modifyRef x succ
+            readRef x >>= evaluate
+            getRandomByteFrom src
+    return (src', dx) `asTypeOf` (undefined :: IO (m word8, m int))
 
+uniformize :: CDF d t => d t -> RVar Double
+uniformize dist = fmap (cdf dist) (rvar dist)
