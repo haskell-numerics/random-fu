@@ -4,10 +4,12 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
-    UndecidableInstances
+    UndecidableInstances, TemplateHaskell
   #-}
 
 module Data.Random.Distribution.Binomial where
+
+import Data.Random.Internal.TH
 
 import Data.Random.Source
 import Data.Random.Distribution
@@ -54,27 +56,56 @@ integralBinomial t p = bin 0 t p
                     count k (n+1) = do
                         x <- stdUniform
                         (count $! (if x < p then k + 1 else k)) n
+        
+        -- this gives 'believable' results... but is it really any good?
+        selectA cutoff t = return a
+--             | cutoff >= a   = return a
+--             | otherwise     = generalBernoulli a (a `div` cutoff) p
+--             
+             where
+                 a = 1 + t `div` 2
+--                 p = 0.5 :: Float -- fromIntegral cutoff / fromIntegral a :: Float
+                
+-- TODO: improve performance
+integralBinomialCDF :: (Integral a, Real b) => a -> b -> a -> Double
+integralBinomialCDF n p x = sum
+    [ fromIntegral (n `c` i) * p' ^^ i * (1-p') ^^ (n-i)
+    | i <- [0 .. x]
+    ]
+    
+    where 
+        p' = realToFrac p
+        n `c` k = product [n-k+1..n] `div` product [1..k]
 
 -- would it be valid to repeat the above computation using fractional @t@?
 -- obviously something different would have to be done with @count@ as well...
 floatingBinomial :: (RealFrac a, Distribution (Binomial b) Integer) => a -> b -> RVar a
 floatingBinomial t p = fmap fromInteger (rvar (Binomial (truncate t) p))
 
+floatingBinomialCDF :: (CDF (Binomial b) Integer, RealFrac a) => a -> b -> a -> Double
+floatingBinomialCDF t p x = cdf (Binomial (truncate t :: Integer) p) (floor x)
+
 binomial :: Distribution (Binomial b) a => a -> b -> RVar a
 binomial t p = rvar (Binomial t p)
 
 data Binomial b a = Binomial a b
 
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int        where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int8       where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int16      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int32      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int64      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word8      where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word16     where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word32     where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word64     where rvar (Binomial t p) = integralBinomial t p
-instance (Ord b, Floating b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Integer    where rvar (Binomial t p) = integralBinomial t p
+$( replicateInstances ''Int integralTypes [d|
+        instance ( Floating b, Ord b
+                 , Distribution Beta b
+                 , Distribution StdUniform b
+                 ) => Distribution (Binomial b) Int
+            where rvar (Binomial t p) = integralBinomial t p
+        instance ( Real b , Distribution (Binomial b) Int
+                 ) => CDF (Binomial b) Int
+            where cdf  (Binomial t p) = integralBinomialCDF t p
+    |])
 
-instance Distribution (Binomial b) Integer => Distribution (Binomial b) Float  where rvar (Binomial t p) = floatingBinomial t p
-instance Distribution (Binomial b) Integer => Distribution (Binomial b) Double where rvar (Binomial t p) = floatingBinomial t p
+$( replicateInstances ''Float realFloatTypes [d|
+        instance Distribution (Binomial b) Integer 
+              => Distribution (Binomial b) Float
+              where rvar (Binomial t p) = floatingBinomial t p
+        instance CDF (Binomial b) Integer
+              => CDF (Binomial b) Float
+              where cdf  (Binomial t p) = floatingBinomialCDF t p
+    |])
