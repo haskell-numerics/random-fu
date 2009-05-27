@@ -18,7 +18,7 @@ import Data.Word
 -- 'sampleFrom' or 'sample'.
 class Distribution d t where
     -- |Return a random variable with this distribution.
-    rvar :: (Distribution d t) => d t -> RVar t
+    rvar :: d t -> RVar t
     rvar = rvarT
 
 -- |Return a random variable with the given distribution, pre-lifted to an arbitrary 'RVarT'.
