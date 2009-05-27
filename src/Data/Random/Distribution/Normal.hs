@@ -1,25 +1,43 @@
 {-
  -      ``Data/Random/Distribution/Normal''
- -  
- -  Quick and dirty implementation - eventually something faster probably 
- -  ought to be implemented instead.
  -}
 {-# LANGUAGE
     MultiParamTypeClasses, FlexibleInstances, FlexibleContexts,
-    UndecidableInstances
+    UndecidableInstances, ForeignFunctionInterface
   #-}
 
-module Data.Random.Distribution.Normal where
+module Data.Random.Distribution.Normal
+    ( Normal(..)
+    , normal
+    , stdNormal
+    
+    , doubleStdNormal
+    , floatStdNormal
+    , realFloatStdNormal
+    
+    , normalTail
+    
+    , boxMullerNormalPair
+    , knuthPolarNormalPair
+    ) where
+
+import Data.Random.Internal.Words
+import Data.Bits
 
 import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
+import Data.Random.Distribution.Ziggurat
 import Data.Random.RVar
 
 import Control.Monad
+import Foreign.Storable
 
-normalPair :: Distribution NormalPair (a, a) => RVar (a,a)
-normalPair = rvar NormalPair
+foreign import ccall "math.h erf" erf :: Double -> Double
+foreign import ccall "math.h erfc" erfc :: Double -> Double
+foreign import ccall "math.h erff" erff :: Float -> Float
+erfg :: RealFrac a => a -> a
+erfg = realToFrac . erf . realToFrac
 
 {-# INLINE boxMullerNormalPair #-}
 boxMullerNormalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
@@ -47,40 +65,103 @@ knuthPolarNormalPair = do
             else let scale = sqrt (-2 * log s / s) 
                   in (v1 * scale, v2 * scale)
 
-realFloatStdNormal :: RealFloat a => RVar a
-realFloatStdNormal = do
-    u <- realFloatStdUniform
-    t <- realFloatStdUniform
-    let r = sqrt (-2 * log u)
+-- |Draw from the tail of a normal distribution (the region beyond the provided value), 
+-- returning a negative value if the Bool parameter is True.
+{-# INLINE normalTail #-}
+normalTail :: (Distribution StdUniform a, Floating a, Ord a) =>
+              a -> RVar a
+normalTail r = go
+    where 
+        go = do
+            u <- stdUniform
+            v <- stdUniform
+            let x = log u / r
+                y = log v
+            if x*x + y+y > 0
+                then go
+                else return (r - x)
+
+-- |Construct a 'Ziggurat' for sampling a normal distribution, given
+-- a suitable error function, logBase 2 c, and the 'zGetIU' implementation.
+normalZ ::
+  (RealFloat a, Storable a, Distribution Uniform a, Integral b) =>
+  (a -> a) -> b -> RVar (Int, a) -> Ziggurat a
+normalZ erf p = mkZigguratRec True f fInv fInt fVol (2^p)
+    where
+        f x
+            | x <= 0    = 1
+            | otherwise = exp ((-0.5) * x*x)
+        fInv y  = sqrt ((-2) * log y)
+        fInt x 
+            | x <= 0    = 0
+            | otherwise = fVol * erf (x * sqrt 0.5)
         
-        x = r * cos (t * 2 * pi)
-    return x
-    
+        fVol = sqrt (0.5 * pi)
+
+realFloatStdNormal :: (RealFloat a, Storable a, Distribution Uniform a) => RVar a
+realFloatStdNormal = rvar (normalZ erfg p getIU)
+    where 
+        p = 6
+        
+        getIU = do
+            i <- getRandomByte
+            u <- uniform (-1) 1
+            return (fromIntegral i .&. (2^p-1), u)
 
 doubleStdNormal :: RVar Double
-doubleStdNormal = do
-    u <- doubleStdUniform
-    t <- doubleStdUniform
-    let r = sqrt (-2 * log u)
+doubleStdNormal = rvar doubleStdNormalZ
+
+doubleStdNormalZ :: Ziggurat Double
+doubleStdNormalZ = normalZ erf p getIU
+    where 
+        -- p must not be over 12 if using wordToDoubleWithExcess
+        -- smaller values work well for the lazy recursize ziggurat
+        p = 6
+            
+        getIU = do
+            w <- getRandomWord
+            let (u,i) = wordToDoubleWithExcess w
+            return (fromIntegral i .&. (2^p-1), u+u-1)
+
+floatStdNormal :: RVar Float
+floatStdNormal = rvar floatStdNormalZ
+
+floatStdNormalZ :: Ziggurat Float
+floatStdNormalZ = normalZ erff p getIU
+    where
+        -- p must not be over 41 if using wordToFloatWithExcess
+        p = 6
         
-        x = r * cos (t * 2 * pi)
-    return x
-    
+        getIU = do
+            w <- getRandomWord
+            let (u,i) = wordToFloatWithExcess w
+            return (fromIntegral i .&. (2^p-1), u+u-1)
+
+normalPdf :: Real a => a -> a -> a -> Double
+normalPdf m s x = recip (realToFrac s * sqrt (2*pi)) * exp (-0.5 * (realToFrac x - realToFrac m)^2 / (realToFrac s)^2)
+
+normalCdf :: Real a => a -> a -> a -> Double
+normalCdf m s x = 0.5 * (1 + erf ((realToFrac x - realToFrac m) / (realToFrac s * sqrt 2)))
 
 data Normal a
     = StdNormal
     | Normal a a -- mean, sd
 
-data NormalPair a = NormalPair
-
-instance (Floating a, Ord a, Distribution StdUniform a) => Distribution Normal a where
-    rvar StdNormal = liftM fst boxMullerNormalPair
+instance Distribution Normal Double where
+    rvar StdNormal = doubleStdNormal
     rvar (Normal m s) = do
-        x <- liftM fst boxMullerNormalPair
+        x <- doubleStdNormal
         return (x * s + m)
 
-instance (Floating a, Distribution StdUniform a) => Distribution NormalPair (a, a) where
-    rvar _ = boxMullerNormalPair
+instance Distribution Normal Float where
+    rvar StdNormal = floatStdNormal
+    rvar (Normal m s) = do
+        x <- floatStdNormal
+        return (x * s + m)
+
+instance (Real a, Distribution Normal a) => CDF Normal a where
+    cdf StdNormal    = normalCdf 0 1
+    cdf (Normal m s) = normalCdf m s
 
 stdNormal :: Distribution Normal a => RVar a
 stdNormal = rvar StdNormal

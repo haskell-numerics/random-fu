@@ -30,11 +30,23 @@ buildWord b0 b1 b2 b3 b4 b5 b6 b7
 -- |Pack 23 unspecified bits from a 'Word64' into a 'Float' in the range [0,1).
 -- Used to convert a 'stdUniform' 'Word64' to a 'stdUniform' 'Double'.
 wordToFloat :: Word64 -> Float
-wordToFloat x = (encodeFloat $! toInteger (x `shiftR` ( 41 {- 64-23 -}))) $ (-23)
+wordToFloat x = (encodeFloat $! toInteger (x .&. 0x007fffff {- 2^23-1 -} )) $ (-23)
+
+{-# INLINE wordToFloatWithExcess #-}
+-- |Same as wordToFloat, but also return the unused bits (as the 41
+-- least significant bits of a 'Word64')
+wordToFloatWithExcess :: Word64 -> (Float, Word64)
+wordToFloatWithExcess x = (wordToFloat x, x `shiftR` 23)
 
 {-# INLINE wordToDouble #-}
 -- |Pack 52 unspecified bits from a 'Word64' into a 'Double' in the range [0,1).
 -- Used to convert a 'stdUniform' 'Word64' to a 'stdUniform' 'Double'.
 wordToDouble :: Word64 -> Double
-wordToDouble x = (encodeFloat $! toInteger (x `shiftR` ( 12 {- 64-52 -}))) $ (-52)
+wordToDouble x = (encodeFloat $! toInteger (x .&. 0x000fffffffffffff {- 2^52-1 -})) $ (-52)
+
+{-# INLINE wordToDoubleWithExcess #-}
+-- |Same as wordToDouble, but also return the unused bits (as the 12
+-- least significant bits of a 'Word64')
+wordToDoubleWithExcess :: Word64 -> (Double, Word64)
+wordToDoubleWithExcess x = (wordToDouble x, x `shiftR` 52)
 
