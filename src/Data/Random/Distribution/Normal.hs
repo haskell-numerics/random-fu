@@ -17,6 +17,7 @@ module Data.Random.Distribution.Normal
     
     , normalTail
     
+    , normalPair
     , boxMullerNormalPair
     , knuthPolarNormalPair
     ) where
@@ -38,6 +39,9 @@ foreign import ccall "math.h erfc" erfc :: Double -> Double
 foreign import ccall "math.h erff" erff :: Float -> Float
 erfg :: RealFrac a => a -> a
 erfg = realToFrac . erf . realToFrac
+
+normalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
+normalPair = boxMullerNormalPair
 
 {-# INLINE boxMullerNormalPair #-}
 boxMullerNormalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
