@@ -4,10 +4,13 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
-    UndecidableInstances
+    UndecidableInstances,
+    TemplateHaskell
   #-}
 
 module Data.Random.Distribution.Bernoulli where
+
+import Data.Random.Internal.TH
 
 import Data.Random.Source
 import Data.Random.Distribution
@@ -62,24 +65,41 @@ instance (Distribution (Bernoulli b) Bool, Real b)
     where
         cdf  (Bernoulli p) = boolBernoulliCDF p
 
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Int         where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Int8        where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Int16       where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Int32       where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Int64       where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Word8       where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Word16      where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Word32      where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Word64      where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Integer     where rvar (Bernoulli p) = generalBernoulli 0 1 p
+$( replicateInstances ''Int integralTypes [d|
+        instance Distribution (Bernoulli b) Bool 
+              => Distribution (Bernoulli b) Int
+              where
+                  rvar (Bernoulli p) = generalBernoulli 0 1 p
+        instance CDF (Bernoulli b) Bool
+              => CDF (Bernoulli b) Int
+              where
+                  cdf  (Bernoulli p) = generalBernoulliCDF (>=) 0 1 p
+    |] )
 
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Float       where rvar (Bernoulli p) = generalBernoulli 0 1 p
-instance Distribution (Bernoulli b) Bool => Distribution (Bernoulli b) Double      where rvar (Bernoulli p) = generalBernoulli 0 1 p
+$( replicateInstances ''Float realFloatTypes [d|
+        instance Distribution (Bernoulli b) Bool 
+              => Distribution (Bernoulli b) Float
+              where
+                  rvar (Bernoulli p) = generalBernoulli 0 1 p
+        instance CDF (Bernoulli b) Bool
+              => CDF (Bernoulli b) Float
+              where
+                  cdf  (Bernoulli p) = generalBernoulliCDF (>=) 0 1 p
+    |] )
+
 instance (Distribution (Bernoulli b) Bool, Integral a)
-    => Distribution (Bernoulli b) (Ratio a)   
-    where rvar (Bernoulli p) = generalBernoulli 0 1 p
+       => Distribution (Bernoulli b) (Ratio a)   
+       where
+           rvar (Bernoulli p) = generalBernoulli 0 1 p
+instance (CDF (Bernoulli b) Bool, Integral a)
+       => CDF (Bernoulli b) (Ratio a)   
+       where
+           cdf  (Bernoulli p) = generalBernoulliCDF (>=) 0 1 p
 instance (Distribution (Bernoulli b) Bool, RealFloat a)
-    => Distribution (Bernoulli b) (Complex a)
-    where rvar (Bernoulli p) = generalBernoulli 0 1 p
-
-
+       => Distribution (Bernoulli b) (Complex a)
+       where
+           rvar (Bernoulli p) = generalBernoulli 0 1 p
+instance (CDF (Bernoulli b) Bool, RealFloat a)
+       => CDF (Bernoulli b) (Complex a)
+       where
+           cdf  (Bernoulli p) = generalBernoulliCDF (\x y -> realPart x >= realPart y) 0 1 p
