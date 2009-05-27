@@ -33,5 +33,18 @@ realFloatTriangular a b c
 --        x <- stdUniform
         return (b - ((1 - sqrt x) * (b-d)))
 
-instance (Floating a, Ord a, Distribution StdUniform a) => Distribution Triangular a where
+realFloatTriangularCDF :: RealFrac a => a -> a -> a -> a -> Double
+realFloatTriangularCDF a b c x
+    | x < a
+    = 0
+    | x <= b
+    = realToFrac ((x - a) ^ 2 / ((c - a) * (b - a)))
+    | x <= c
+    = realToFrac (1 - (c - x) ^ 2 / ((c - a) * (c - b)))
+    | otherwise
+    = 1
+    
+instance (RealFloat a, Ord a, Distribution StdUniform a) => Distribution Triangular a where
     rvar (Triangular a b c) = realFloatTriangular a b c
+instance (RealFrac a, Distribution Triangular a) => CDF Triangular a where
+    cdf  (Triangular a b c) = realFloatTriangularCDF a b c
