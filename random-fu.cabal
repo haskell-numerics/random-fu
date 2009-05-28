@@ -58,6 +58,7 @@ Library
     
   build-depends:        array,
                         containers,
+                        erf,
                         mersenne-random-pure64,
                         monad-loops >= 0.3.0.1,
                         mtl,
