@@ -11,8 +11,6 @@ module Data.Random.Source
     ) where
 
 import Data.Word
-import Data.Bits
-import Data.List
 import Control.Monad
 
 import Data.Random.Internal.Words

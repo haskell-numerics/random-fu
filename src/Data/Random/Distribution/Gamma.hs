@@ -16,7 +16,6 @@
 
 module Data.Random.Distribution.Gamma where
 
-import Data.Random.Source
 import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform

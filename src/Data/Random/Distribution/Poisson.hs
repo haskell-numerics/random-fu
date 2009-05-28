@@ -11,17 +11,14 @@ module Data.Random.Distribution.Poisson where
 
 import Data.Random.Internal.TH
 
-import Data.Random.Source
-import Data.Random.Distribution
 import Data.Random.RVar
-
+import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Binomial
 
 import Data.Int
 import Data.Word
-
 import Control.Monad
 
 -- from Knuth, with interpretation help from gsl sources

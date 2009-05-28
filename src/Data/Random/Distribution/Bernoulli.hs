@@ -12,10 +12,8 @@ module Data.Random.Distribution.Bernoulli where
 
 import Data.Random.Internal.TH
 
-import Data.Random.Source
-import Data.Random.Distribution
 import Data.Random.RVar
-
+import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 
 import Data.Int

@@ -11,7 +11,6 @@ module Data.Random.Source.DevRandom
 
 import Data.Random.Source
 
-import GHC.IOBase (unsafePerformIO)
 import System.IO (openBinaryFile, hGetBuf, IOMode(..))
 import Foreign
 

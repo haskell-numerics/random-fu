@@ -10,7 +10,6 @@ module Data.Random.Source.StdGen where
 import Data.Random.Internal.Words
 import Data.Random.Source
 import System.Random
-import Control.Monad
 import Control.Monad.State
 import qualified Control.Monad.ST.Strict as S
 import qualified Control.Monad.State.Strict as S

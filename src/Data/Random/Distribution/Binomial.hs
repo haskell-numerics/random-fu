@@ -11,10 +11,8 @@ module Data.Random.Distribution.Binomial where
 
 import Data.Random.Internal.TH
 
-import Data.Random.Source
-import Data.Random.Distribution
 import Data.Random.RVar
-
+import Data.Random.Distribution
 import Data.Random.Distribution.Beta
 import Data.Random.Distribution.Uniform
 

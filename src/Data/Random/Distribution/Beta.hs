@@ -9,7 +9,6 @@
 
 module Data.Random.Distribution.Beta where
 
-import Data.Random.Source
 import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Gamma

@@ -37,10 +37,8 @@ import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.RVar
 
-import Data.Ratio
 import Data.Word
 import Data.Int
-import Data.Bits
 import Data.List
 
 import Control.Monad.Loops

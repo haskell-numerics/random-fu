@@ -23,16 +23,13 @@ module Data.Random.RVar
     ) where
 
 
-import Data.Random.Internal.Words
 import Data.Random.Source
 import Data.Random.Lift as L
 
-import Data.Word
 import Data.Bits
 
 import qualified Control.Monad.Trans as T
 import Control.Applicative
-import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.Identity
 

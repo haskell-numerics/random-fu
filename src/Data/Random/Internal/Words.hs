@@ -10,7 +10,6 @@ import GHC.IOBase
 
 import Data.Bits
 import Data.Word
-import Control.Monad
 
 {-# INLINE buildWord #-}
 buildWord :: Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word64

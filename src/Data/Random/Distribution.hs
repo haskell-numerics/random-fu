@@ -9,9 +9,6 @@ module Data.Random.Distribution where
 
 import Data.Random.Lift
 import Data.Random.RVar
-import Data.Random.Source
-import Data.Random.Source.Std
-import Data.Word
 
 -- |A definition of a random variable's distribution.  From the distribution
 -- an 'RVar' can be created, or the distribution can be directly sampled using 
