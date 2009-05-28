@@ -34,11 +34,7 @@ import Data.Random.RVar
 import Control.Monad
 import Foreign.Storable
 
-foreign import ccall "math.h erf" erf :: Double -> Double
-foreign import ccall "math.h erfc" erfc :: Double -> Double
-foreign import ccall "math.h erff" erff :: Float -> Float
-erfg :: RealFrac a => a -> a
-erfg = realToFrac . erf . realToFrac
+import Data.Number.Erf
 
 normalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
 normalPair = boxMullerNormalPair
@@ -86,11 +82,11 @@ normalTail r = go
                 else return (r - x)
 
 -- |Construct a 'Ziggurat' for sampling a normal distribution, given
--- a suitable error function, logBase 2 c, and the 'zGetIU' implementation.
+-- logBase 2 c, and the 'zGetIU' implementation.
 normalZ ::
-  (RealFloat a, Storable a, Distribution Uniform a, Integral b) =>
-  (a -> a) -> b -> RVar (Int, a) -> Ziggurat a
-normalZ erf p = mkZigguratRec True normalF normalFInv (normalFInt erf) normalFVol (2^p)
+  (RealFloat a, Erf a, Storable a, Distribution Uniform a, Integral b) =>
+  b -> RVar (Int, a) -> Ziggurat a
+normalZ p = mkZigguratRec True normalF normalFInv normalFInt normalFVol (2^p)
 
 -- | Ziggurat target function
 normalF :: (Floating a, Ord a) => a -> a
@@ -100,17 +96,17 @@ normalF x
 -- | inverse of 'normalF'
 normalFInv :: Floating a => a -> a
 normalFInv y  = sqrt ((-2) * log y)
--- | integral of 'normalF', parameterized over 'erf'
-normalFInt :: (Floating a, Ord a) => (a -> a) -> a -> a
-normalFInt erf x 
+-- | integral of 'normalF'
+normalFInt :: (Floating a, Erf a, Ord a) => a -> a
+normalFInt x 
     | x <= 0    = 0
     | otherwise = normalFVol * erf (x * sqrt 0.5)
 -- | volume of 'normalF'
 normalFVol :: Floating a => a
 normalFVol = sqrt (0.5 * pi)
 
-realFloatStdNormal :: (RealFloat a, Storable a, Distribution Uniform a) => RVar a
-realFloatStdNormal = rvar (normalZ erfg p getIU)
+realFloatStdNormal :: (RealFloat a, Erf a, Storable a, Distribution Uniform a) => RVar a
+realFloatStdNormal = rvar (normalZ p getIU)
     where 
         p = 6
         
@@ -168,8 +164,8 @@ floatStdNormalZ = mkZiggurat_ True
 normalPdf :: Real a => a -> a -> a -> Double
 normalPdf m s x = recip (realToFrac s * sqrt (2*pi)) * exp (-0.5 * (realToFrac x - realToFrac m)^2 / (realToFrac s)^2)
 
-normalCdf :: Real a => a -> a -> a -> Double
-normalCdf m s x = 0.5 * (1 + erf ((realToFrac x - realToFrac m) / (realToFrac s * sqrt 2)))
+normalCdf :: (Real a, Erf a) => a -> a -> a -> Double
+normalCdf m s x = realToFrac (normcdf ((x-m) / s))
 
 data Normal a
     = StdNormal
@@ -187,7 +183,7 @@ instance Distribution Normal Float where
         x <- floatStdNormal
         return (x * s + m)
 
-instance (Real a, Distribution Normal a) => CDF Normal a where
+instance (Real a, Erf a, Distribution Normal a) => CDF Normal a where
     cdf StdNormal    = normalCdf 0 1
     cdf (Normal m s) = normalCdf m s
 
