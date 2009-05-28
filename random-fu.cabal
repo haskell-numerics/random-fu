@@ -63,6 +63,7 @@ Library
                         monad-loops >= 0.3.0.1,
                         mtl,
                         random,
+                        random-shuffle,
                         stateref,
                         storablevector,
                         template-haskell

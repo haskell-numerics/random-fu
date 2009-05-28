@@ -1,19 +1,10 @@
-{-
- -      ``Data/Random/List''
- -}
-{-# LANGUAGE 
-    FlexibleContexts
-  #-}
-
 module Data.Random.List where
 
 import Data.Random.RVar
-import Data.Random.Source
-import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
-import GHC.IOBase
 
-import qualified Data.Sequence as S
+import qualified System.Random.Shuffle as SRS
+import Control.Monad
 
 randomElement :: [a] -> RVar a
 randomElement [] = error "randomElement: empty list!"
@@ -21,47 +12,9 @@ randomElement xs = do
     n <- uniform 0 (length xs - 1)
     return (xs !! n)
 
-randomSeqElement :: S.Seq a -> RVar a
-randomSeqElement s
-    | S.null s  = error "randomSeqElement: empty list!"
-    | otherwise = do
-        n <- uniform 0 (S.length s - 1)
-        return (s `S.index` n)
-
 shuffle :: [a] -> RVar [a]
-shuffle = shuffleSeq . S.fromList
-
-shuffleSeq :: S.Seq a -> RVar [a]
-shuffleSeq s = shuffle (S.length s) s
-    where
-        shuffle 0 _ = return []
-        shuffle (n+1) s = do
-            i <- uniform 0 n
-            let (x, xs) = extract i s
-            ys <- shuffle n xs
-            return (x:ys)
-        
-        extract n s = case S.splitAt n s of
-            (l,r) -> case S.viewl r of
-                x S.:< r  -> (x, l S.>< r)
-
--- |Shuffle a list using interleaved IO when extracting elements.
-lazyShuffleFrom :: (RandomSource IO s) => s -> [a] -> IO [a]
-lazyShuffleFrom src = lazyShuffleSeqFrom src . S.fromList
-
--- |Shuffle a 'S.Seq' using interleaved IO when extracting elements.
-lazyShuffleSeqFrom :: (RandomSource IO s) => s -> S.Seq a -> IO [a]
-lazyShuffleSeqFrom src s = shuffle (S.length s) s
-    where
-        shuffle 0     _  = return []
-        shuffle (n+1) s 
-            | S.null s = return []
-            | otherwise = do
-                i <- runRVar (uniform 0 n) src
-                let (x, xs) = extract i s
-                ys <- unsafeInterleaveIO (shuffle n xs)
-                return (x:ys)
-        
-        extract n s = case S.splitAt n s of
-            (l,r) -> case S.viewl r of
-                x S.:< r  -> (x, l S.>< r)
+shuffle [] = return []
+shuffle xs = do
+    is <- zipWithM (\_ i -> uniform 0 i) (tail xs) [1..]
+    
+    return (SRS.shuffle xs (reverse is))
