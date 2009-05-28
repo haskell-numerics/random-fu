@@ -172,12 +172,14 @@ data Normal a
     | Normal a a -- mean, sd
 
 instance Distribution Normal Double where
+    {-# SPECIALIZE instance Distribution Normal Double #-}
     rvar StdNormal = doubleStdNormal
     rvar (Normal m s) = do
         x <- doubleStdNormal
         return (x * s + m)
 
 instance Distribution Normal Float where
+    {-# SPECIALIZE instance Distribution Normal Float #-}
     rvar StdNormal = floatStdNormal
     rvar (Normal m s) = do
         x <- floatStdNormal
@@ -187,6 +189,8 @@ instance (Real a, Erf a, Distribution Normal a) => CDF Normal a where
     cdf StdNormal    = normalCdf 0 1
     cdf (Normal m s) = normalCdf m s
 
+{-# SPECIALIZE stdNormal :: RVar Double #-}
+{-# SPECIALIZE stdNormal :: RVar Float #-}
 stdNormal :: Distribution Normal a => RVar a
 stdNormal = rvar StdNormal
 
