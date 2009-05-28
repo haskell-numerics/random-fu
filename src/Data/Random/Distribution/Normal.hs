@@ -106,7 +106,7 @@ normalFVol :: Floating a => a
 normalFVol = sqrt (0.5 * pi)
 
 realFloatStdNormal :: (RealFloat a, Erf a, Storable a, Distribution Uniform a) => RVar a
-realFloatStdNormal = rvar (normalZ p getIU)
+realFloatStdNormal = runZiggurat (normalZ p getIU)
     where 
         p = 6
         
@@ -116,7 +116,7 @@ realFloatStdNormal = rvar (normalZ p getIU)
             return (fromIntegral i .&. (2^p-1), u)
 
 doubleStdNormal :: RVar Double
-doubleStdNormal = rvar doubleStdNormalZ
+doubleStdNormal = runZiggurat doubleStdNormalZ
 
 -- doubleStdNormalC must not be over 12 if using wordToDoubleWithExcess
 doubleStdNormalC :: Int
@@ -138,7 +138,7 @@ doubleStdNormalZ = mkZiggurat_ True
             return (fromIntegral i .&. (doubleStdNormalC-1), u+u-1)
 
 floatStdNormal :: RVar Float
-floatStdNormal = rvar floatStdNormalZ
+floatStdNormal = runZiggurat floatStdNormalZ
 
 floatStdNormalC :: Int
 floatStdNormalC = 512
