@@ -47,28 +47,34 @@ instance (Num p, Ord p, Distribution Uniform p) => Distribution (Discrete p) a w
 instance Functor (Discrete p) where
     fmap f (Discrete ds) = Discrete [(p, f x) | (p, x) <- ds]
 
--- TODO - check out whether this is valid when not requiring normalization...
 -- We want each subset of cases in fx derived from a given case 
--- in x to have the same total probability as the set in x from whence they came.
+-- in x to have the same total weight as the set in x from whence they came.
 --
 -- thus, w(f x) == w (x) is sufficient (although not necessary), where w() is
 -- the weight.
+--
+-- TODO: consider establishing normalization invariant?
+-- TODO: Consider what should happen when f x returns multiple events with zero weight
 instance (Fractional p, Ord p) => Monad (Discrete p) where
     return x = Discrete [(1, x)]
     (Discrete x) >>= f = Discrete $ do
         (p, x) <- x
         
         let Discrete fx = f x
-        let qx = [ (q, x)
-                 | (q, x) <- fx
-                 , q > 0    -- should this be done?  Consider case where all results have 0 weight...
-                 ]
-            qs = map fst qx     -- either (qx == []) or (sum qs > 0)
-            scale = recip (sum qs)
+        let qx = fx
+            -- TODO - check out whether this is valid when not requiring normalization...
+            -- qx = [ (q, x)
+            --      | (q, x) <- fx
+            --      , q > 0    -- should this be done?  Consider case where all results have 0 weight...
+            --      ]
+            qs = sum (map fst qx)     -- either (qx == []) or (sum qs > 0)
+            scale 
+                | qs > 0
+                = recip qs
+                | otherwise
+                = recip (fromIntegral (length qx))
         
         (q, x) <- qx
-        -- now (qx /= []), because ((q,x) `elem` qx)
-        -- therefore sum qs > 0, therefore 0 < scale < ∞.
         
         return (p * q * scale, x)
 
