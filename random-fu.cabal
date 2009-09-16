@@ -16,9 +16,7 @@ description:            Random number generation based on orthogonal typeclasses
                         for entropy sources and random variable distributions, all
                         served up on a monadic platter.  Aspires to be useful
                         in an idiomatic way in both \"pure\" and \"impure\" styles,
-                        as well as reasonably fast.  May not yet meet the latter
-                        goal, but I think the former is starting to shape up
-                        nicely.
+                        as well as reasonably fast.
 
 Flag base4
 

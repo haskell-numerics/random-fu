@@ -20,7 +20,7 @@ class Distribution d t where
 
 class Distribution d t => CDF d t where
     -- |Return the cumulative distribution function of this distribution.
-    -- That is, a function taking 'x :: t' to the probability that the next
+    -- That is, a function taking @x :: t@ to the probability that the next
     -- sample will return a value less than or equal to x, according to some
     -- order or partial order (not necessarily an obvious one).
     --
@@ -28,7 +28,7 @@ class Distribution d t => CDF d t where
     -- to the CDF with respect to that order.
     -- 
     -- In other cases, 'cdf' is only required to satisfy the following law:
-    -- > fmap (cdf d) (rvar d)
+    -- @fmap (cdf d) (rvar d)@
     -- must be uniformly distributed over (0,1).  Inclusion of either endpoint is optional,
     -- though the preferred range is (0,1].
     -- 
