@@ -162,8 +162,8 @@ floatStdNormalZ = mkZiggurat_ True
 normalPdf :: Real a => a -> a -> a -> Double
 normalPdf m s x = recip (realToFrac s * sqrt (2*pi)) * exp (-0.5 * (realToFrac x - realToFrac m)^2 / (realToFrac s)^2)
 
-normalCdf :: (Real a, Erf a) => a -> a -> a -> Double
-normalCdf m s x = realToFrac (normcdf ((x-m) / s))
+normalCdf :: (Real a) => a -> a -> a -> Double
+normalCdf m s x = normcdf ((realToFrac x - realToFrac m) / realToFrac s)
 
 data Normal a
     = StdNormal
@@ -183,7 +183,7 @@ instance Distribution Normal Float where
         x <- floatStdNormal
         return (x * s + m)
 
-instance (Real a, Erf a, Distribution Normal a) => CDF Normal a where
+instance (Real a, Distribution Normal a) => CDF Normal a where
     cdf StdNormal    = normalCdf 0 1
     cdf (Normal m s) = normalCdf m s
 
