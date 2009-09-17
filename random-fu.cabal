@@ -27,27 +27,27 @@ Library
                         Data.Random.Distribution.Bernoulli
                         Data.Random.Distribution.Beta
                         Data.Random.Distribution.Binomial
-                        Data.Random.Distribution.Exponential
                         Data.Random.Distribution.Discrete
+                        Data.Random.Distribution.Exponential
                         Data.Random.Distribution.Gamma
                         Data.Random.Distribution.Normal
-                        Data.Random.Distribution.Ziggurat
                         Data.Random.Distribution.Poisson
                         Data.Random.Distribution.Rayleigh
                         Data.Random.Distribution.Triangular
                         Data.Random.Distribution.Uniform
+                        Data.Random.Distribution.Ziggurat
                         Data.Random.Internal.Find
                         Data.Random.Internal.TH
                         Data.Random.Internal.Words
-                        Data.Random.List
                         Data.Random.Lift
+                        Data.Random.List
                         Data.Random.RVar
                         Data.Random.Sample
                         Data.Random.Source
                         Data.Random.Source.DevRandom
-                        Data.Random.Source.StdGen
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
+                        Data.Random.Source.StdGen
   if flag(base4)
     build-depends:      base >= 4 && <5,
                         syb
