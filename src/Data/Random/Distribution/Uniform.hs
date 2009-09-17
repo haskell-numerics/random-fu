@@ -19,10 +19,12 @@ module Data.Random.Distribution.Uniform
     , realFloatUniform
     , floatUniform
     , doubleUniform
+    , fixedUniform
     
     , boundedStdUniform
     , boundedEnumStdUniform
     , realFloatStdUniform
+    , fixedStdUniform
     , floatStdUniform
     , doubleStdUniform
     
@@ -32,11 +34,13 @@ module Data.Random.Distribution.Uniform
 
 import Data.Random.Internal.TH
 import Data.Random.Internal.Words
+import Data.Random.Internal.Fixed
 
 import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.RVar
 
+import Data.Fixed
 import Data.Word
 import Data.Int
 import Data.List
@@ -98,6 +102,14 @@ realFloatStdUniform = do
     
     where one = 1
 
+fixedStdUniform :: HasResolution r => RVar (Fixed r)
+fixedStdUniform = x
+    where
+        res = resolutionOf2 x
+        x = do
+            u <- uniform 0 (res)
+            return (mkFixed u)
+
 realStdUniformCDF :: Real a => a -> Double
 realStdUniformCDF x
     | x <= 0    = 0
@@ -121,6 +133,11 @@ realFloatUniform 0 1 = realFloatStdUniform
 realFloatUniform a b = do
     x <- realFloatStdUniform
     return (a + x * (b - a))
+
+fixedUniform :: HasResolution r => Fixed r -> Fixed r -> RVar (Fixed r)
+fixedUniform a b = do
+    u <- integralUniform (unMkFixed a) (unMkFixed b)
+    return (mkFixed u)
 
 realUniformCDF :: Real a => a -> a -> a -> Double
 realUniformCDF a b x
@@ -191,6 +208,15 @@ instance Distribution StdUniform Float      where rvar ~StdUniform = floatStdUni
 instance Distribution StdUniform Double     where rvar ~StdUniform = doubleStdUniform
 instance CDF StdUniform Float               where cdf  ~StdUniform = realStdUniformCDF
 instance CDF StdUniform Double              where cdf  ~StdUniform = realStdUniformCDF
+
+instance HasResolution r => 
+         Distribution Uniform (Fixed r)     where rvar (Uniform a b) = fixedUniform  a b
+instance HasResolution r => 
+         CDF Uniform (Fixed r)              where cdf  (Uniform a b) = realUniformCDF a b
+instance HasResolution r =>
+         Distribution StdUniform (Fixed r)  where rvar ~StdUniform = fixedStdUniform
+instance HasResolution r => 
+         CDF StdUniform (Fixed r)           where cdf  ~StdUniform = realStdUniformCDF
 
 instance Distribution Uniform ()            where rvar (Uniform a b) = return ()
 instance CDF Uniform ()                     where cdf  (Uniform a b) = return 1

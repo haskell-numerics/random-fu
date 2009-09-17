@@ -37,6 +37,7 @@ Library
                         Data.Random.Distribution.Uniform
                         Data.Random.Distribution.Ziggurat
                         Data.Random.Internal.Find
+                        Data.Random.Internal.Fixed
                         Data.Random.Internal.TH
                         Data.Random.Internal.Words
                         Data.Random.Lift
