@@ -169,16 +169,16 @@ $( replicateInstances ''Int integralTypes [d|
     |])
 
 -- Some integral types have specialized StdUniform rvars:
-instance Distribution StdUniform Int8       where rvar StdUniform = fmap fromIntegral getRandomByte
-instance Distribution StdUniform Word8      where rvar StdUniform = getRandomByte
-instance Distribution StdUniform Word64     where rvar StdUniform = getRandomWord
+instance Distribution StdUniform Int8       where rvar ~StdUniform = fmap fromIntegral getRandomByte
+instance Distribution StdUniform Word8      where rvar ~StdUniform = getRandomByte
+instance Distribution StdUniform Word64     where rvar ~StdUniform = getRandomWord
 -- and Integer has none...
 $( replicateInstances ''Int (integralTypes \\ [''Int8, ''Word8, ''Word64, ''Integer]) [d|
-        instance Distribution StdUniform Int    where rvar StdUniform = fmap fromIntegral getRandomWord
+        instance Distribution StdUniform Int    where rvar ~StdUniform = fmap fromIntegral getRandomWord
     |])
 
 $( replicateInstances ''Int (integralTypes \\ [''Integer]) [d|
-        instance CDF StdUniform Int         where cdf  StdUniform = boundedStdUniformCDF
+        instance CDF StdUniform Int         where cdf  ~StdUniform = boundedStdUniformCDF
     |])
 
 
@@ -187,10 +187,10 @@ instance Distribution Uniform Double        where rvar (Uniform a b) = doubleUni
 instance CDF Uniform Float                  where cdf  (Uniform a b) = realUniformCDF a b
 instance CDF Uniform Double                 where cdf  (Uniform a b) = realUniformCDF a b
 
-instance Distribution StdUniform Float      where rvar StdUniform = floatStdUniform
-instance Distribution StdUniform Double     where rvar StdUniform = doubleStdUniform
-instance CDF StdUniform Float               where cdf  StdUniform = realStdUniformCDF
-instance CDF StdUniform Double              where cdf  StdUniform = realStdUniformCDF
+instance Distribution StdUniform Float      where rvar ~StdUniform = floatStdUniform
+instance Distribution StdUniform Double     where rvar ~StdUniform = doubleStdUniform
+instance CDF StdUniform Float               where cdf  ~StdUniform = realStdUniformCDF
+instance CDF StdUniform Double              where cdf  ~StdUniform = realStdUniformCDF
 
 instance Distribution Uniform ()            where rvar (Uniform a b) = return ()
 instance CDF Uniform ()                     where cdf  (Uniform a b) = return 1
@@ -200,13 +200,13 @@ $( replicateInstances ''Char [''Char, ''Bool, ''Ordering] [d|
 
     |])
 
-instance Distribution StdUniform ()         where rvar StdUniform = return ()
-instance CDF StdUniform ()                  where cdf  StdUniform = return 1
-instance Distribution StdUniform Bool       where rvar StdUniform = fmap even getRandomByte
-instance CDF StdUniform Bool                where cdf  StdUniform = boundedEnumStdUniformCDF
+instance Distribution StdUniform ()         where rvar ~StdUniform = return ()
+instance CDF StdUniform ()                  where cdf  ~StdUniform = return 1
+instance Distribution StdUniform Bool       where rvar ~StdUniform = fmap even getRandomByte
+instance CDF StdUniform Bool                where cdf  ~StdUniform = boundedEnumStdUniformCDF
 
-instance Distribution StdUniform Char       where rvar StdUniform = boundedEnumStdUniform
-instance CDF StdUniform Char                where cdf  StdUniform = boundedEnumStdUniformCDF
-instance Distribution StdUniform Ordering   where rvar StdUniform = boundedEnumStdUniform
-instance CDF StdUniform Ordering            where cdf  StdUniform = boundedEnumStdUniformCDF
+instance Distribution StdUniform Char       where rvar ~StdUniform = boundedEnumStdUniform
+instance CDF StdUniform Char                where cdf  ~StdUniform = boundedEnumStdUniformCDF
+instance Distribution StdUniform Ordering   where rvar ~StdUniform = boundedEnumStdUniform
+instance CDF StdUniform Ordering            where cdf  ~StdUniform = boundedEnumStdUniformCDF
 
