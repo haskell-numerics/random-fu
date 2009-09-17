@@ -118,7 +118,7 @@ realFloatStdNormal = runZiggurat (normalZ p getIU)
 doubleStdNormal :: RVar Double
 doubleStdNormal = runZiggurat doubleStdNormalZ
 
--- doubleStdNormalC must not be over 12 if using wordToDoubleWithExcess
+-- doubleStdNormalC must not be over 2^12 if using wordToDoubleWithExcess
 doubleStdNormalC :: Int
 doubleStdNormalC = 512
 doubleStdNormalR, doubleStdNormalV :: Double
@@ -140,6 +140,7 @@ doubleStdNormalZ = mkZiggurat_ True
 floatStdNormal :: RVar Float
 floatStdNormal = runZiggurat floatStdNormalZ
 
+-- floatStdNormalC must not be over 2^41 if using wordToFloatWithExcess
 floatStdNormalC :: Int
 floatStdNormalC = 512
 floatStdNormalR, floatStdNormalV :: Float
@@ -153,9 +154,6 @@ floatStdNormalZ = mkZiggurat_ True
         getIU
         (normalTail floatStdNormalR)
     where
-        -- p must not be over 41 if using wordToFloatWithExcess
-        p = 6
-        
         getIU = do
             w <- getRandomWord
             let (u,i) = wordToFloatWithExcess w
