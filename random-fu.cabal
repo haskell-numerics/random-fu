@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.0.2.2
+version:                0.0.3
 stability:              experimental
 
 cabal-version:          >= 1.2
@@ -63,6 +63,6 @@ Library
                         mtl,
                         random,
                         random-shuffle,
-                        stateref,
+                        stateref >= 0.3,
                         storablevector,
                         template-haskell

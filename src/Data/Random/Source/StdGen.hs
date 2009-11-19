@@ -16,18 +16,18 @@ import qualified Control.Monad.State.Strict as S
 import Data.StateRef
 import Data.Word
 
-instance (ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
+instance (Monad m, ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
     {-# SPECIALIZE instance RandomSource IO (IORef StdGen) #-}
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
-instance (ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where
+instance (Monad m, ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where
     {-# SPECIALIZE instance RandomSource IO  (TVar StdGen) #-}
     {-# SPECIALIZE instance RandomSource STM (TVar StdGen) #-}
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
-instance (ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where
+instance (Monad m, ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where
     {-# SPECIALIZE instance RandomSource (ST s) (STRef s StdGen) #-}
     {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s StdGen) #-}
     getRandomByteFrom   = getRandomByteFromRandomGenRef
@@ -63,19 +63,19 @@ getRandomDoubleFromStdGenIO = liftM wordToDouble getRandomWordFromStdGenIO
 -- away a lot of perfectly good entropy.  Better still is to use these 3 functions
 -- together to create a 'RandomSource' instance for the reference you're using,
 -- if one does not already exist.
-getRandomByteFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
+getRandomByteFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> m Word8
-getRandomByteFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,255))
+getRandomByteFromRandomGenRef g = atomicModifyReference g (swap . randomR (0,255))
     where 
         swap :: (Int, a) -> (a, Word8)
         swap (a,b) = (b,fromIntegral a)
 
-getRandomWordFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
+getRandomWordFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> m Word64
-getRandomWordFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,0xffffffffffffffff))
+getRandomWordFromRandomGenRef g = atomicModifyReference g (swap . randomR (0,0xffffffffffffffff))
     where swap (a,b) = (b,fromInteger a)
 
-getRandomDoubleFromRandomGenRef :: (ModifyRef sr m g, RandomGen g) =>
+getRandomDoubleFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> m Double
 getRandomDoubleFromRandomGenRef g = liftM wordToDouble (getRandomWordFromRandomGenRef g)
 -- getRandomDoubleFromRandomGenRef g = atomicModifyRef g (swap . randomR (0,1))

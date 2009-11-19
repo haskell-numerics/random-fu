@@ -29,14 +29,14 @@ import qualified Control.Monad.State.Strict as S
 -- 'RandomSource' instances for mutable references to 'PureMT' states.
 getRandomWordFromMTRef :: ModifyRef sr m PureMT => sr -> m Word64
 getRandomWordFromMTRef ref = do
-    atomicModifyRef ref (swap . randomWord64)
+    atomicModifyReference ref (swap . randomWord64)
     
     where
         swap (a,b) = (b,a)
 
-getRandomByteFromMTRef :: ModifyRef sr m PureMT => sr -> m Word8
+getRandomByteFromMTRef :: (Monad m, ModifyRef sr m PureMT) => sr -> m Word8
 getRandomByteFromMTRef ref = do
-    x <- atomicModifyRef ref (swap . randomInt)
+    x <- atomicModifyReference ref (swap . randomInt)
     return (fromIntegral x)
     
     where
@@ -46,10 +46,10 @@ getRandomByteFromMTRef ref = do
 -- the mersenne random library is using, at least in the version I have.
 -- if this changes, switch to the commented version.
 -- Same thing below, in getRandomDoubleFromMTState.
-getRandomDoubleFromMTRef :: ModifyRef sr m PureMT => sr -> m Double
+getRandomDoubleFromMTRef :: (Monad m, ModifyRef sr m PureMT) => sr -> m Double
 getRandomDoubleFromMTRef src = liftM wordToDouble (getRandomWordFromMTRef src)
 -- getRandomDoubleFromMTRef ref = do
---     atomicModifyRef ref (swap . randomDouble)
+--     atomicModifyReference ref (swap . randomDouble)
 --     
 --     where
 --         swap (a,b) = (b,a)
@@ -106,20 +106,20 @@ instance Monad m => MonadRandom (S.StateT PureMT m) where
     getRandomDouble = getRandomDoubleFromMTState
 
 
-instance (ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
+instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
     {-# SPECIALIZE instance RandomSource IO (IORef PureMT)#-}
     getRandomByteFrom   = getRandomByteFromMTRef
     getRandomWordFrom   = getRandomWordFromMTRef
     getRandomDoubleFrom = getRandomDoubleFromMTRef
 
-instance (ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) where
+instance (Monad m, ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) where
     {-# SPECIALIZE instance RandomSource (ST s) (STRef s PureMT) #-}
     {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s PureMT) #-}
     getRandomByteFrom   = getRandomByteFromMTRef
     getRandomWordFrom   = getRandomWordFromMTRef
     getRandomDoubleFrom = getRandomDoubleFromMTRef
 
-instance (ModifyRef (TVar PureMT) m PureMT) => RandomSource m (TVar PureMT) where
+instance (Monad m, ModifyRef (TVar PureMT) m PureMT) => RandomSource m (TVar PureMT) where
     {-# SPECIALIZE instance RandomSource IO  (TVar PureMT) #-}
     {-# SPECIALIZE instance RandomSource STM (TVar PureMT) #-}
     getRandomByteFrom   = getRandomByteFromMTRef
