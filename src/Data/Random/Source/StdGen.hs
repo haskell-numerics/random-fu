@@ -16,6 +16,11 @@ import qualified Control.Monad.State.Strict as S
 import Data.StateRef
 import Data.Word
 
+instance (Monad m1, ModifyRef (Ref m2 StdGen) m1 StdGen) => RandomSource m1 (Ref m2 StdGen) where
+    getRandomByteFrom   = getRandomByteFromRandomGenRef
+    getRandomWordFrom   = getRandomWordFromRandomGenRef
+    getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
+
 instance (Monad m, ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
     {-# SPECIALIZE instance RandomSource IO (IORef StdGen) #-}
     getRandomByteFrom   = getRandomByteFromRandomGenRef

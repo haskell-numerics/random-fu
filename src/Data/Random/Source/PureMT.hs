@@ -95,6 +95,11 @@ instance MonadRandom (S.State PureMT) where
     getRandomWord   = getRandomWordFromMTState
     getRandomDouble = getRandomDoubleFromMTState
 
+instance (Monad m1, ModifyRef (Ref m2 PureMT) m1 PureMT) => RandomSource m1 (Ref m2 PureMT) where
+    getRandomByteFrom   = getRandomByteFromMTRef
+    getRandomWordFrom   = getRandomWordFromMTRef
+    getRandomDoubleFrom = getRandomDoubleFromMTRef
+
 instance Monad m => MonadRandom (StateT PureMT m) where
     getRandomByte   = getRandomByteFromMTState
     getRandomWord   = getRandomWordFromMTState
@@ -104,7 +109,6 @@ instance Monad m => MonadRandom (S.StateT PureMT m) where
     getRandomByte   = getRandomByteFromMTState
     getRandomWord   = getRandomWordFromMTState
     getRandomDouble = getRandomDoubleFromMTState
-
 
 instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
     {-# SPECIALIZE instance RandomSource IO (IORef PureMT)#-}
