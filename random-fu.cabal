@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.0.3
+version:                0.0.3.1
 stability:              experimental
 
 cabal-version:          >= 1.2
@@ -19,6 +19,8 @@ description:            Random number generation based on orthogonal typeclasses
                         as well as reasonably fast.
 
 Flag base4
+Flag base4_2
+    Description:        base-4.2 has an incompatible change in Data.Fixed (HasResolution)
 
 Library
   hs-source-dirs:       src
@@ -50,8 +52,13 @@ Library
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
   if flag(base4)
-    build-depends:      base >= 4 && <5,
-                        syb
+    build-depends:      syb
+    
+    if flag(base4_2)
+      build-depends:    base >= 4 && <4.2
+    else
+      cpp-options:      -Dbase_4_2
+      build-depends:    base >= 4.2 && <5
   else
     build-depends:      base >= 3 && < 4
     
