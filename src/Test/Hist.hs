@@ -60,7 +60,7 @@ cpDiff = cpDiff_ fmtDbl
 cpDiff_ :: (CDF d t, Fractional t, Ord t) => (t -> String) -> Int -> d t -> IO ()
 cpDiff_ fmt n x = do
     mt <- newPureMT
-    mt <- newRef mt :: IO (IORef PureMT)
+    mt <- newRef mt
     y <- replicateM n (sampleFrom mt x)
     printHist fmt (cDiff n (cdf x)) y n
 
@@ -102,7 +102,7 @@ printHist fmtBin hist ys n = do
         fmt (bin, x) = printf "%9s%9s: " (fmtBin bin) (printf "(%0.2f%%)" (pct x :: Float) :: String) ++ replicate (abs (round (fromIntegral x / scale))) '*'
 
 mkByteCounter src = do
-    x <- newDefaultRef 0
+    x <- newRef 0
     dx <- mkLapseReader x (-)
     let src' = do
             modifyRef x succ
