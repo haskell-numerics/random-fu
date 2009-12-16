@@ -1,7 +1,7 @@
 {-
  -      ``Data/Random/Internal/Find''
  -  Utilities for searching fractional domains.  Needs cleanup, testing,
- -  and such.
+ -  and such.  Used for constructing generic ziggurats.
  -}
 
 module Data.Random.Internal.Find where

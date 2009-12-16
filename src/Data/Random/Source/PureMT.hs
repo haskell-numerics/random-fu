@@ -1,12 +1,14 @@
-{-
- -      ``Data/Random/Source/PureMT''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleContexts, FlexibleInstances,
     UndecidableInstances
   #-}
 
+-- |This module provides functions useful for implementing new 'MonadRandom'
+-- and 'RandomSource' instances for state-abstractions containing 'PureMT'
+-- values (the pure pseudorandom generator provided by the
+-- mersenne-random-pure64 package), as well as instances for some common
+-- cases.
 module Data.Random.Source.PureMT where
 
 import Data.Random.Internal.Words

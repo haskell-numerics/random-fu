@@ -82,13 +82,13 @@ normalTail r = go
                 else return (r - x)
 
 -- |Construct a 'Ziggurat' for sampling a normal distribution, given
--- logBase 2 c, and the 'zGetIU' implementation.
+-- @logBase 2 c@ and the 'zGetIU' implementation.
 normalZ ::
   (RealFloat a, Erf a, Storable a, Distribution Uniform a, Integral b) =>
   b -> RVar (Int, a) -> Ziggurat a
 normalZ p = mkZigguratRec True normalF normalFInv normalFInt normalFVol (2^p)
 
--- | Ziggurat target function
+-- | Ziggurat target function (upper half of a non-normalized gaussian PDF)
 normalF :: (Floating a, Ord a) => a -> a
 normalF x
     | x <= 0    = 1

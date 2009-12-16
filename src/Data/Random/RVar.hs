@@ -81,6 +81,17 @@ instance MonadRandom (RVarT n) where
     getRandomWord   = RVarT $ \k (RVarDict s) -> getRandomWordFrom   s >>= \a -> k a
     getRandomDouble = RVarT $ \k (RVarDict s) -> getRandomDoubleFrom s >>= \a -> k a
 
+-- I would really like to be able to do this, but I can't because of the
+-- blasted Eq and Show in Num's class context...
+-- instance (Applicative m, Num a) => Num (RVarT m a) where
+--     (+) = liftA2 (+)
+--     (-) = liftA2 (-)
+--     (*) = liftA2 (*)
+--     negate = liftA negate
+--     signum = liftA signum
+--     abs = liftA abs
+--     fromInteger = pure . fromInteger
+
 -- some 'fundamental' RVarTs
 -- this maybe ought to even be a part of the RandomSource class...
 {-# INLINE nByteInteger #-}

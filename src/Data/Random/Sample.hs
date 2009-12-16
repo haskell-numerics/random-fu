@@ -25,7 +25,7 @@ class Sampleable d m t where
 instance Distribution d t => Sampleable d m t where
     sampleFrom src d = runRVarT (rvar d) src
 
--- This instance conflicts with the other, but because RVarT is not a Distribution there is no conflict.
+-- This instance overlaps with the other, but because RVarT is not a Distribution there is no conflict.
 instance Lift m n => Sampleable (RVarT m) n t where
     sampleFrom src x = runRVarT x src
 

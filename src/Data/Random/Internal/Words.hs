@@ -12,6 +12,11 @@ import Data.Bits
 import Data.Word
 
 {-# INLINE buildWord #-}
+-- |Build a word out of 8 bytes.  No promises are made regarding the order
+-- in which the bytes are stuffed.  Note that this means that a 'RandomSource'
+-- or 'MonadRandom' making use of the default definition of 'getRandomWord', etc.,
+-- may return different random values on different platforms when started 
+-- with the same seed, depending on the platform's endianness.
 buildWord :: Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word8 -> Word64
 buildWord b0 b1 b2 b3 b4 b5 b6 b7
     = unsafePerformIO . allocaBytes 8 $ \p -> do
@@ -26,7 +31,7 @@ buildWord b0 b1 b2 b3 b4 b5 b6 b7
         peek (castPtr p)
 
 {-# INLINE wordToFloat #-}
--- |Pack 23 unspecified bits from a 'Word64' into a 'Float' in the range [0,1).
+-- |Pack the low 23 bits from a 'Word64' into a 'Float' in the range [0,1).
 -- Used to convert a 'stdUniform' 'Word64' to a 'stdUniform' 'Double'.
 wordToFloat :: Word64 -> Float
 wordToFloat x = (encodeFloat $! toInteger (x .&. 0x007fffff {- 2^23-1 -} )) $ (-23)
@@ -38,7 +43,7 @@ wordToFloatWithExcess :: Word64 -> (Float, Word64)
 wordToFloatWithExcess x = (wordToFloat x, x `shiftR` 23)
 
 {-# INLINE wordToDouble #-}
--- |Pack 52 unspecified bits from a 'Word64' into a 'Double' in the range [0,1).
+-- |Pack the low 52 bits from a 'Word64' into a 'Double' in the range [0,1).
 -- Used to convert a 'stdUniform' 'Word64' to a 'stdUniform' 'Double'.
 wordToDouble :: Word64 -> Double
 wordToDouble x = (encodeFloat $! toInteger (x .&. 0x000fffffffffffff {- 2^52-1 -})) $ (-52)

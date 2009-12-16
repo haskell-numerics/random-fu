@@ -33,7 +33,9 @@ class Distribution d t => CDF d t where
     -- 
     -- Thus, 'cdf' for a product type should not be a joint CDF as commonly 
     -- defined, as that definition violates both conditions.
-    -- Instead, it should be a univariate CDF over the product type.
+    -- Instead, it should be a univariate CDF over the product type.  That is,
+    -- it should represent the CDF with respect to the lexicographic order
+    -- of the tuple.
     cdf :: d t -> t -> Double
 
 -- |Return a random variable with the given distribution, pre-lifted to an arbitrary 'RVarT'.

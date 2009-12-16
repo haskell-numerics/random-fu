@@ -49,6 +49,7 @@ import Data.List
 
 import Control.Monad.Loops
 
+-- |Compute a random 'Integral' value between the 2 values provided (inclusive).
 integralUniform :: (Integral a) => a -> a -> RVar a
 integralUniform a b
     | a > b     = compute b a
@@ -73,26 +74,33 @@ bytesNeeded x = case findIndex (> x) powersOf256 of
     Just x -> x
 powersOf256 = iterate (256 *) 1
 
+-- |Compute a random value for a 'Bounded' type, between 'minBound' and 'maxBound'
+-- (inclusive for 'Integral' or 'Enum' types, in ['minBound', 'maxBound') for Fractional types.)
 boundedStdUniform :: (Distribution Uniform a, Bounded a) => RVar a
 boundedStdUniform = uniform minBound maxBound
 
 boundedStdUniformCDF :: (CDF Uniform a, Bounded a) => a -> Double
 boundedStdUniformCDF = cdf (Uniform minBound maxBound)
 
+-- |Compute a random value for a 'Bounded' 'Enum' type, between 'minBound' and
+-- 'maxBound' (inclusive)
 boundedEnumStdUniform :: (Enum a, Bounded a) => RVar a
 boundedEnumStdUniform = enumUniform minBound maxBound
 
 boundedEnumStdUniformCDF :: (Enum a, Bounded a, Ord a) => a -> Double
 boundedEnumStdUniformCDF = enumUniformCDF minBound maxBound
 
+-- |Compute a uniform random 'Float' value in the range [0,1)
 floatStdUniform :: RVar Float
 floatStdUniform = do
     x <- getRandomWord
     return (wordToFloat x)
 
+-- |Compute a uniform random 'Double' value in the range [0,1)
 doubleStdUniform :: RVar Double
 doubleStdUniform = getRandomDouble
 
+-- |Compute a uniform random value in the range [0,1) for any 'RealFloat' type 
 realFloatStdUniform :: RealFloat a => RVar a
 realFloatStdUniform = do
     let (b, e) = decodeFloat one
@@ -104,6 +112,8 @@ realFloatStdUniform = do
     
     where one = 1
 
+-- |Compute a uniform random 'Fixed' value in the range [0,1), with any
+-- desired precision.
 fixedStdUniform :: HasResolution r => RVar (Fixed r)
 fixedStdUniform = x
     where
@@ -112,42 +122,52 @@ fixedStdUniform = x
             u <- uniform 0 (res)
             return (mkFixed u)
 
+-- |The CDF of the random variable 'realFloatStdUniform'.
 realStdUniformCDF :: Real a => a -> Double
 realStdUniformCDF x
     | x <= 0    = 0
     | x >= 1    = 1
     | otherwise = realToFrac x
 
+-- |@floatUniform a b@ computes a uniform random 'Float' value in the range [a,b)
 floatUniform :: Float -> Float -> RVar Float
 floatUniform 0 1 = floatStdUniform
 floatUniform a b = do
     x <- floatStdUniform
     return (a + x * (b - a))
 
+-- |@doubleUniform a b@ computes a uniform random 'Double' value in the range [a,b)
 doubleUniform :: Double -> Double -> RVar Double
 doubleUniform 0 1 = doubleStdUniform
 doubleUniform a b = do
     x <- doubleStdUniform
     return (a + x * (b - a))
 
+-- |@realFloatUniform a b@ computes a uniform random value in the range [a,b) for
+-- any 'RealFloat' type
 realFloatUniform :: RealFloat a => a -> a -> RVar a
 realFloatUniform 0 1 = realFloatStdUniform
 realFloatUniform a b = do
     x <- realFloatStdUniform
     return (a + x * (b - a))
 
+-- |@fixedUniform a b@ computes a uniform random 'Fixed' value in the range 
+-- [a,b), with any desired precision.
 fixedUniform :: HasResolution r => Fixed r -> Fixed r -> RVar (Fixed r)
 fixedUniform a b = do
     u <- integralUniform (unMkFixed a) (unMkFixed b)
     return (mkFixed u)
 
-realUniformCDF :: Real a => a -> a -> a -> Double
+-- |@realUniformCDF a b@ is the CDF of the random variable @realFloatUniform a b@.
+realUniformCDF :: RealFrac a => a -> a -> a -> Double
 realUniformCDF a b x
     | b < a     = realUniformCDF b a x
     | x <= a    = 0
     | x >= b    = 1
-    | otherwise = realToFrac (x-a) / realToFrac (b-a)
+    | otherwise = realToFrac ((x-a) / (b-a))
 
+-- |@realFloatUniform a b@ computes a uniform random value in the range [a,b) for
+-- any 'Enum' type
 enumUniform :: Enum a => a -> a -> RVar a
 enumUniform a b = do
     x <- integralUniform (fromEnum a) (fromEnum b)
@@ -162,6 +182,9 @@ enumUniformCDF a b x
     
     where e2f = fromIntegral . fromEnum
 
+-- @uniform a b@ computes a uniformly distributed random value in the range
+-- [a,b] for 'Integral' or 'Enum' types and in the range [a,b) for 'Fractional'
+-- types.  Requires a @Distribution Uniform@ instance for the type.
 uniform :: Distribution Uniform a => a -> a -> RVar a
 uniform a b = rvar (Uniform a b)
 
@@ -172,9 +195,11 @@ uniform a b = rvar (Uniform a b)
 stdUniform :: (Distribution StdUniform a) => RVar a
 stdUniform = rvar StdUniform
 
+-- |Like 'stdUniform', but uses 'abs' to return only positive or zero values.
 stdUniformNonneg :: (Distribution StdUniform a, Num a) => RVar a
 stdUniformNonneg = abs `fmap` stdUniform
 
+-- |Like 'stdUniform' but only returns positive values.
 stdUniformPos :: (Distribution StdUniform a, Num a) => RVar a
 stdUniformPos = do
     x <- stdUniformNonneg
@@ -182,7 +207,21 @@ stdUniformPos = do
         then return x
         else stdUniformPos
 
-data Uniform t = Uniform !t !t
+-- |A definition of a uniform distribution over the type @t@.  See also 'uniform'.
+data Uniform t = 
+    -- |A uniform distribution defined by a lower and upper range bound.
+    -- For 'Integral' and 'Enum' types, the range is inclusive.  For 'Fractional'
+    -- types the range includes the lower bound but not the upper.
+    Uniform !t !t
+
+-- |A name for the \"standard\" uniform distribution over the type @t@,
+-- if one exists.  See also 'stdUniform'.
+--
+-- For 'Integral' and 'Enum' types that are also 'Bounded', this is
+-- the uniform distribution over the full range of the type.
+-- For un-'Bounded' 'Integral' types this is not defined.
+-- For 'Fractional' types this is a random variable in the range [0,1)
+-- (that is, 0 to 1 including 0 but not including 1).
 data StdUniform t = StdUniform
 
 $( replicateInstances ''Int integralTypes [d|

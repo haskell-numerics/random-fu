@@ -7,14 +7,14 @@
 
 -- |Random numbers and stuff...
 -- 
--- Data.Random.Source exports the typeclasses for entropy sources, and
+-- "Data.Random.Source" exports the typeclasses for entropy sources, and
 -- Data.Random.Source.* export various instances and/or functions with which
 -- instances can be defined.
 -- 
--- Data.Random.Distribution exports the typeclasses for sampling distributions,
+-- "Data.Random.Distribution" exports the typeclasses for sampling distributions,
 -- and Data.Random.Distribution.* export various specific distributions.
 --
--- Data.Random.RVar exports the 'RVar' type, which is a probability distribution
+-- "Data.Random.RVar" exports the 'RVar' type, which is a probability distribution
 -- monad that allows for concise definitions of random variables, as well as
 -- a couple handy 'RVar's.
 

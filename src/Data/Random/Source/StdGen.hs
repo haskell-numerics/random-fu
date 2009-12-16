@@ -5,6 +5,11 @@
     MultiParamTypeClasses, FlexibleInstances, UndecidableInstances
   #-}
 
+-- |This module provides functions useful for implementing new 'MonadRandom'
+-- and 'RandomSource' instances for state-abstractions containing 'StdGen'
+-- values (the pure pseudorandom generator provided by the System.Random
+-- module in the \"random\" package), as well as instances for some common
+-- cases.
 module Data.Random.Source.StdGen where
 
 import Data.Random.Internal.Words
