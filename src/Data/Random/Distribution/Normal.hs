@@ -36,9 +36,17 @@ import Foreign.Storable
 
 import Data.Number.Erf
 
+-- |A random variable that produces a pair of independent
+-- normally-distributed values.
 normalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
 normalPair = boxMullerNormalPair
 
+-- |A random variable that produces a pair of independent
+-- normally-distributed values, computed using the Box-Muller method.
+-- This algorithm is slightly slower than Knuth's method but using a 
+-- constant amount of entropy (Knuth's method is a rejection method).
+-- It is also slightly more general (Knuth's method require an 'Ord'
+-- instance).
 {-# INLINE boxMullerNormalPair #-}
 boxMullerNormalPair :: (Floating a, Distribution StdUniform a) => RVar (a,a)
 boxMullerNormalPair = do
@@ -51,6 +59,10 @@ boxMullerNormalPair = do
         y = r * sin theta
     return (x,y)
 
+-- |A random variable that produces a pair of independent
+-- normally-distributed values, computed using Knuth's polar method.
+-- Slightly faster than 'boxMullerNormalPair' when it accepts on the 
+-- first try, but does not always do so.
 {-# INLINE knuthPolarNormalPair #-}
 knuthPolarNormalPair :: (Floating a, Ord a, Distribution Uniform a) => RVar (a,a)
 knuthPolarNormalPair = do
@@ -65,8 +77,7 @@ knuthPolarNormalPair = do
             else let scale = sqrt (-2 * log s / s) 
                   in (v1 * scale, v2 * scale)
 
--- |Draw from the tail of a normal distribution (the region beyond the provided value), 
--- returning a negative value if the Bool parameter is True.
+-- |Draw from the tail of a normal distribution (the region beyond the provided value)
 {-# INLINE normalTail #-}
 normalTail :: (Distribution StdUniform a, Floating a, Ord a) =>
               a -> RVar a
@@ -105,6 +116,22 @@ normalFInt x
 normalFVol :: Floating a => a
 normalFVol = sqrt (0.5 * pi)
 
+-- |A random variable sampling from the standard normal distribution
+-- over any 'RealFloat' type (subject to the rest of the constraints -
+-- it builds and uses a 'Ziggurat' internally, which requires the 'Erf'
+-- and 'Storable' classes).  
+-- 
+-- Because it computes a 'Ziggurat', it is very expensive to use for
+-- just one evaluation, or even for multiple evaluations if not used and
+-- reused monomorphically (to enable the ziggurat table to be let-floated
+-- out).  If you don't know whether your use case fits this description
+-- then you're probably better off using a different algorithm, such as
+-- 'boxMullerNormalPair' or 'knuthPolarNormalPair'.  And of course if
+-- you don't need the full generality of this definition then you're much
+-- better off using 'doubleStdNormal' or 'floatStdNormal'.
+--
+-- As far as I know, this should be safe to use in any monomorphic
+-- @Distribution Normal@ instance declaration.
 realFloatStdNormal :: (RealFloat a, Erf a, Storable a, Distribution Uniform a) => RVar a
 realFloatStdNormal = runZiggurat (normalZ p getIU)
     where 
@@ -115,6 +142,8 @@ realFloatStdNormal = runZiggurat (normalZ p getIU)
             u <- uniform (-1) 1
             return (fromIntegral i .&. (2^p-1), u)
 
+-- |A random variable sampling from the standard normal distribution
+-- over the 'Double' type.
 doubleStdNormal :: RVar Double
 doubleStdNormal = runZiggurat doubleStdNormalZ
 
@@ -137,6 +166,8 @@ doubleStdNormalZ = mkZiggurat_ True
             let (u,i) = wordToDoubleWithExcess w
             return (fromIntegral i .&. (doubleStdNormalC-1), u+u-1)
 
+-- |A random variable sampling from the standard normal distribution
+-- over the 'Float' type.
 floatStdNormal :: RVar Float
 floatStdNormal = runZiggurat floatStdNormalZ
 
@@ -165,8 +196,11 @@ normalPdf m s x = recip (realToFrac s * sqrt (2*pi)) * exp (-0.5 * (realToFrac x
 normalCdf :: (Real a) => a -> a -> a -> Double
 normalCdf m s x = normcdf ((realToFrac x - realToFrac m) / realToFrac s)
 
+-- |A specification of a normal distribution over the type 'a'.
 data Normal a
+    -- |The \"standard\" normal distribution - mean 0, stddev 1
     = StdNormal
+    -- |@Normal m s@ is a normal distribution with mean @m@ and stddev @s@.
     | Normal a a -- mean, sd
 
 instance Distribution Normal Double where
@@ -189,8 +223,10 @@ instance (Real a, Distribution Normal a) => CDF Normal a where
 
 {-# SPECIALIZE stdNormal :: RVar Double #-}
 {-# SPECIALIZE stdNormal :: RVar Float #-}
+-- |'stdNormal' is a normal variable with distribution 'StdNormal'.
 stdNormal :: Distribution Normal a => RVar a
 stdNormal = rvar StdNormal
 
+-- |@normal m s@ is a random variable with distribution @'Normal' m s@.
 normal :: Distribution Normal a => a -> a -> RVar a
 normal m s = rvar (Normal m s)
