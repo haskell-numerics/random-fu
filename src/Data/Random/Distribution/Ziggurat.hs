@@ -1,24 +1,22 @@
-{-
- -      ``Data/Random/Distribution/Ziggurat''
- -      A generic \"ziggurat algorithm\" implementation.  Fairly rough right
- -      now.
- -      
- -      There is a lot of room for improvement in 'findBin0' especially.
- -      It needs a fair amount of cleanup and elimination of redundant
- -      calculation, as well as either a justification for using the simple
- -      'findMinFrom' or a proper root-finding algorithm. 
- -      
- -      It would also be nice to add (preferably via its own library)
- -      support for numerical integration and differentiation, so that
- -      tables can be derived from only a PDF (if the end user is
- -      willing to take the performance hit for the convenience).
- -}
 {-# LANGUAGE
         MultiParamTypeClasses,
         FlexibleInstances, FlexibleContexts,
         RecordWildCards
   #-}
 
+-- |A generic \"ziggurat algorithm\" implementation.  Fairly rough right
+--  now.
+--  
+--  There is a lot of room for improvement in 'findBin0' especially.
+--  It needs a fair amount of cleanup and elimination of redundant
+--  calculation, as well as either a justification for using the simple
+--  'findMinFrom' or a proper root-finding algorithm. 
+--  
+--  It would also be nice to add (preferably by pulling in an 
+--  external package) support for numerical integration and 
+--  differentiation, so that tables can be derived from only a 
+--  PDF (if the end user is willing to take the performance and 
+--  accuracy hit for the convenience).
 module Data.Random.Distribution.Ziggurat
     ( Ziggurat(..)
     , mkZigguratRec
@@ -106,8 +104,9 @@ runZiggurat :: (Num a, Ord a, Storable a) =>
 runZiggurat Ziggurat{..} = go
     where
         go = do
-            -- select a bin and a uniform value from 0 to 1.
-            -- let X be that value scaled to the size of the selected bin.
+            -- Select a bin (I) and a uniform value (U) from -1 to 1
+            -- (or 0 to 1 if not mirroring the distribution).
+            -- Let X be U scaled to the size of the selected bin.
             (i,u) <- zGetIU
             let x = u * zTable_xs ! i
             
@@ -122,7 +121,7 @@ runZiggurat Ziggurat{..} = go
                     else sampleGreyArea i x
         
         -- when the sample falls in the "grey area" (the area between
-        -- the Y value of the selected bin and the bin after that one),
+        -- the Y values of the selected bin and the bin after that one),
         -- use an accept/reject method based on the target PDF.
         sampleGreyArea i x = do
             v <- zUniform (zTable_ys ! (i+1)) (zTable_ys ! i)
@@ -131,7 +130,8 @@ runZiggurat Ziggurat{..} = go
                 else go
         
         -- if the selected bin is the "infinite" one, call it quits and
-        -- defer to the tail distribution (mirroring if needed)
+        -- defer to the tail distribution (mirroring if needed to ensure
+        -- the result has the sign already selected by zGetIU)
         sampleTail x
             | x < 0     = fmap negate zTailDist
             | otherwise = zTailDist
@@ -186,7 +186,7 @@ mkZiggurat_ m f fInv c r v getIU tailDist = z
 -- Marsaglia & Tang, attempting to automatically compute the R and V
 -- values.
 -- 
--- Arguments are the same as for |mkZigguratRec|, with an additional
+-- Arguments are the same as for 'mkZigguratRec', with an additional
 -- argument for the tail distribution as a function of the selected
 -- R value.
 mkZiggurat :: (RealFloat t, Storable t,
@@ -291,7 +291,7 @@ precomputeRatios zTable_xs = sample (c-1) $ \i -> zTable_xs!(i+1) / zTable_xs!i
 -- 
 --  * Number of bins
 --
---  * function (one-sided antitone PDF, not necessarily normalized
+--  * target function (one-sided antitone PDF, not necessarily normalized)
 --
 --  * function inverse
 --
