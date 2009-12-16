@@ -16,7 +16,6 @@ import Data.Random.RVar
 class Distribution d t where
     -- |Return a random variable with this distribution.
     rvar :: d t -> RVar t
-    rvar = rvarT
 
 class Distribution d t => CDF d t where
     -- |Return the cumulative distribution function of this distribution.
