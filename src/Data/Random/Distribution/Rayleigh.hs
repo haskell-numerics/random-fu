@@ -17,13 +17,6 @@ floatingRayleigh :: (Floating a, Distribution StdUniform a) => a -> RVar a
 floatingRayleigh s = do
     u <- stdUniformPos
     return (s * sqrt (-2 * log u))
-    
-    where 
-        stdUniformPos = do
-            u <- stdUniform
-            if u == 0
-                then stdUniformPos
-                else return u
 
 newtype Rayleigh a = Rayleigh a
 

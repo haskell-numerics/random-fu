@@ -14,6 +14,8 @@ module Data.Random.Distribution.Uniform
 	
     , StdUniform(..)
     , stdUniform
+    , stdUniformNonneg
+    , stdUniformPos
     
     , integralUniform
     , realFloatUniform
@@ -170,10 +172,13 @@ uniform a b = rvar (Uniform a b)
 stdUniform :: (Distribution StdUniform a) => RVar a
 stdUniform = rvar StdUniform
 
-stdUniformPos :: (Distribution StdUniform a, Ord a, Num a) => RVar a
+stdUniformNonneg :: (Distribution StdUniform a, Num a) => RVar a
+stdUniformNonneg = abs `fmap` stdUniform
+
+stdUniformPos :: (Distribution StdUniform a, Num a) => RVar a
 stdUniformPos = do
-    x <- stdUniform
-    if x > 0
+    x <- stdUniformNonneg
+    if x /= 0
         then return x
         else stdUniformPos
 
