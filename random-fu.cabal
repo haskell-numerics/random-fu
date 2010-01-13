@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.0.3.2
+version:                0.0.3.3
 stability:              experimental
 
 cabal-version:          >= 1.2
@@ -48,6 +48,7 @@ Library
                         Data.Random.Sample
                         Data.Random.Source
                         Data.Random.Source.DevRandom
+                        Data.Random.Source.MWC
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
@@ -67,6 +68,7 @@ Library
                         erf,
                         mersenne-random-pure64,
                         monad-loops >= 0.3.0.1,
+                        mwc-random,
                         mtl,
                         random,
                         random-shuffle,

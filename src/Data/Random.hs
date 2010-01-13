@@ -45,6 +45,7 @@ module Data.Random
 import Data.Random.Sample
 import Data.Random.Source
 import Data.Random.Source.DevRandom
+import Data.Random.Source.MWC ()
 import Data.Random.Source.StdGen
 import Data.Random.Source.PureMT
 import Data.Random.Source.Std
