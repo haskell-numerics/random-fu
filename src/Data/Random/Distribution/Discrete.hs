@@ -40,7 +40,7 @@ instance (Num p, Ord p, Distribution Uniform p) => Distribution (Discrete p) a w
         let (ps, xs) = unzip ds
             cs = scanl1 (+) ps
         
-        when (any (<0) ps) $ fail "negative probability in discrete distribution"
+        when (not (all (>=0) ps)) $ fail "invalid probability in discrete distribution"
         
         let totalWeight = last cs
         if  totalWeight <= 0
@@ -130,6 +130,7 @@ collectDiscreteEventsBy compareE sumWeights mergeEvents (Discrete ds) =
         
         weight (p,x)
             | p < 0     = error "negative probability in discrete distribution"
+            | isNaN p   = error "NaN probability in discrete distribution"
             | otherwise = p
         event ((p,x):_) = x
         
