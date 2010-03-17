@@ -1,12 +1,12 @@
 {-
- -      ``Data/Random/Distribution/Discrete''
+ -      ``Data/Random/Distribution/Categorical''
  -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts
   #-}
 
-module Data.Random.Distribution.Discrete where
+module Data.Random.Distribution.Categorical where
 
 import Data.Random.RVar
 import Data.Random.Distribution
@@ -22,25 +22,25 @@ import Data.Traversable (Traversable(traverse, sequenceA))
 import Data.List
 import Data.Function
 
-discrete :: Distribution (Discrete p) a => [(p,a)] -> RVar a
-discrete ps = rvar (Discrete ps)
+categorical :: Distribution (Categorical p) a => [(p,a)] -> RVar a
+categorical ps = rvar (Categorical ps)
 
-empirical :: (Num p, Ord a) => [a] -> Discrete p a
-empirical xs = Discrete bins
+empirical :: (Num p, Ord a) => [a] -> Categorical p a
+empirical xs = Categorical bins
     where bins = [ (genericLength bin, x)
                  | bin@(x:_) <- group (sort xs)
                  ]
 
-newtype Discrete p a = Discrete [(p, a)]
+newtype Categorical p a = Categorical [(p, a)]
     deriving (Eq, Show)
 
-instance (Num p, Ord p, Distribution Uniform p) => Distribution (Discrete p) a where
-    rvar (Discrete []) = fail "discrete distribution over empty set cannot be sampled"
-    rvar (Discrete ds) = do
+instance (Num p, Ord p, Distribution Uniform p) => Distribution (Categorical p) a where
+    rvar (Categorical []) = fail "categorical distribution over empty set cannot be sampled"
+    rvar (Categorical ds) = do
         let (ps, xs) = unzip ds
             cs = scanl1 (+) ps
         
-        when (not (all (>=0) ps)) $ fail "invalid probability in discrete distribution"
+        when (not (all (>=0) ps)) $ fail "invalid probability in categorical distribution"
         
         let totalWeight = last cs
         if  totalWeight <= 0
@@ -63,74 +63,75 @@ instance (Num p, Ord p, Distribution Uniform p) => Distribution (Discrete p) a w
                     , c >= u
                     ]
 
-instance Functor (Discrete p) where
-    fmap f (Discrete ds) = Discrete [(p, f x) | (p, x) <- ds]
+instance Functor (Categorical p) where
+    fmap f (Categorical ds) = Categorical [(p, f x) | (p, x) <- ds]
 
-instance Foldable (Discrete p) where
-    foldMap f (Discrete ds) = foldMap (f . snd) ds
+instance Foldable (Categorical p) where
+    foldMap f (Categorical ds) = foldMap (f . snd) ds
 
-instance Traversable (Discrete p) where
-    traverse f (Discrete ds) = Discrete <$> traverse (\(p,e) -> (\e -> (p,e)) <$> f e) ds
-    sequenceA  (Discrete ds) = Discrete <$> traverse (\(p,e) -> (\e -> (p,e)) <$>   e) ds
+instance Traversable (Categorical p) where
+    traverse f (Categorical ds) = Categorical <$> traverse (\(p,e) -> (\e -> (p,e)) <$> f e) ds
+    sequenceA  (Categorical ds) = Categorical <$> traverse (\(p,e) -> (\e -> (p,e)) <$>   e) ds
 
 -- We want each subset of cases in fx derived from a given case 
 -- in x to have the same relative weight as the set in x from whence they came.
-instance Num p => Monad (Discrete p) where
-    return x = Discrete [(1, x)]
-    (Discrete x) >>= f = Discrete $ do
+instance Num p => Monad (Categorical p) where
+    return x = Categorical [(1, x)]
+    (Categorical x) >>= f = Categorical $ do
         (p, x) <- x
         
-        let Discrete fx = f x
+        let Categorical fx = f x
         (q, x) <- fx
         
         return (p * q, x)
 
-instance Num p => Applicative (Discrete p) where
+instance Num p => Applicative (Categorical p) where
     pure = return
     (<*>) = ap
 
--- |Like 'fmap', but for the weights of a discrete distribution.
-mapDiscreteWeights :: (p -> q) -> Discrete p e -> Discrete q e
-mapDiscreteWeights f (Discrete ds) = Discrete [(f p, x) | (p, x) <- ds]
+-- |Like 'fmap', but for the weights of a categorical distribution.
+mapDiscreteWeights :: (p -> q) -> Categorical p e -> Categorical q e
+mapDiscreteWeights f (Categorical ds) = Categorical [(f p, x) | (p, x) <- ds]
 
--- |Adjust all the weights of a discrete distribution so that they 
+-- |Adjust all the weights of a categorical distribution so that they 
 -- sum to unity.  If not possible, returns the original distribution 
 -- unchanged.
-normalizeDiscreteWeights :: (Fractional p) => Discrete p e -> Discrete p e
-normalizeDiscreteWeights orig@(Discrete ds) = 
+normalizeDiscreteWeights :: (Fractional p) => Categorical p e -> Categorical p e
+normalizeDiscreteWeights orig@(Categorical ds) = 
     -- For practical purposes the scale factor is strict anyway,
-    -- so check if it's 0 or 1 and, if so, skip the actual scaling part.
-    if ws `elem` [0,1]
+    -- so check if the total weight is 0 or 1 and, if so, skip 
+    -- the actual scaling part.
+    if null ds || ws `elem` [0,1]
         then orig
-        else Discrete
+        else Categorical
                 [ (w * scale, e)
                 | (w, e) <- ds
                 ] 
     where
-        ws = sum (map fst ds)
+        ws = foldl1' (+) (map fst ds)
         scale = recip ws
 
--- |Simplify a discrete distribution by combining equivalent events (the new
--- event will have a weight equal to the sum of all the originals).
-collectDiscreteEvents :: (Ord e, Num p, Ord p) => Discrete p e -> Discrete p e
+-- |Simplify a categorical distribution by combining equivalent categories (the new
+-- category will have a weight equal to the sum of all the originals).
+collectDiscreteEvents :: (Ord e, Num p, Ord p) => Categorical p e -> Categorical p e
 collectDiscreteEvents = collectDiscreteEventsBy compare sum head
         
--- |Simplify a discrete distribution by combining equivalent events (the new
+-- |Simplify a categorical distribution by combining equivalent events (the new
 -- event will have a weight equal to the sum of all the originals).
 -- The comparator function is used to identify events to combine.  Once chosen,
 -- the events and their weights are combined (independently) by the provided
 -- weight and event aggregation functions.
-collectDiscreteEventsBy :: (e -> e -> Ordering) -> ([p] -> p) -> ([e] -> e)-> Discrete p e -> Discrete p e
-collectDiscreteEventsBy compareE sumWeights mergeEvents (Discrete ds) = 
-    Discrete . map ((sumWeights *** mergeEvents) . unzip) . groupEvents . sortEvents $ ds
+collectDiscreteEventsBy :: (e -> e -> Ordering) -> ([p] -> p) -> ([e] -> e)-> Categorical p e -> Categorical p e
+collectDiscreteEventsBy compareE sumWeights mergeEvents (Categorical ds) = 
+    Categorical . map ((sumWeights *** mergeEvents) . unzip) . groupEvents . sortEvents $ ds
     
     where
         groupEvents = groupBy (\x y -> snd x `compareE` snd y == EQ)
         sortEvents  = sortBy (compareE `on` snd)
         
         weight (p,x)
-            | p < 0     = error "negative probability in discrete distribution"
-            | isNaN p   = error "NaN probability in discrete distribution"
+            | p < 0     = error "negative probability in categorical distribution"
+            | isNaN p   = error "NaN probability in categorical distribution"
             | otherwise = p
         event ((p,x):_) = x
         

@@ -29,7 +29,7 @@ Library
                         Data.Random.Distribution.Bernoulli
                         Data.Random.Distribution.Beta
                         Data.Random.Distribution.Binomial
-                        Data.Random.Distribution.Discrete
+                        Data.Random.Distribution.Categorical
                         Data.Random.Distribution.Exponential
                         Data.Random.Distribution.Gamma
                         Data.Random.Distribution.Normal
