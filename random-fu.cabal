@@ -65,7 +65,6 @@ Library
     
   build-depends:        array,
                         containers,
-                        erf,
                         mersenne-random-pure64,
                         monad-loops >= 0.3.0.1,
                         mwc-random,
@@ -75,3 +74,8 @@ Library
                         stateref >= 0.3 && < 0.4,
                         storablevector,
                         template-haskell
+
+  if os(Windows)
+    build-depends:      erf-native
+  else
+    build-depends:      erf
