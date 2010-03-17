@@ -11,7 +11,7 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
-    UndecidableInstances
+    UndecidableInstances, BangPatterns
   #-}
 
 module Data.Random.Distribution.Gamma where
@@ -22,72 +22,39 @@ import Data.Random.Distribution.Uniform
 import Data.Random.Distribution.Normal
 
 import Control.Monad
+import Data.Ratio
 
-    -- translated from gsl source - seems to be best I've found by far.
-    -- originally comes from Marsaglia & Tang, "A Simple Method for
-    -- generating gamma variables", ACM Transactions on Mathematical
-    -- Software, Vol 26, No 3 (2000), p363-372.
-realFloatGamma :: (Floating a, Ord a, Distribution Normal a, Distribution StdUniform a) => a -> a -> RVar a
-realFloatGamma a b
-    | a < 1 
-    = do
-        u <- stdUniform
-        x <- realFloatGamma (1 + a) b
-        return (x * u ** recip a)
-    | otherwise
-    = go
-        where
-            d = a - (1 / 3)
-            c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
+-- derived from  Marsaglia & Tang, "A Simple Method for generating gamma
+-- variables", ACM Transactions on Mathematical Software, Vol 26, No 3 (2000), p363-372.
+-- 'd' and 'c' are promoted from locally-computed constants to parameters of the
+-- distribution.
+{-# SPECIALIZE mtGamma :: Double -> Double -> RVar Double #-}
+{-# SPECIALIZE mtGamma :: Float -> Float -> RVar Float #-}
+mtGamma
+    :: (Floating a, Ord a,
+        Distribution StdUniform a, 
+        Distribution Normal a)
+    => a -> a -> RVar a
+mtGamma a b = go
+    where
+        !d = a - fromRational (1%3)
+        !c = recip (sqrt (9*d))
+        
+        go = do
+            x <- stdNormal
+            let !v  = (1 + c*x)^3
             
-            go = do
-                x <- stdNormal
-                
-                let cx = c * x
-                    v = (1 + cx) ^ 3
-                    
-                    x_2 = x * x
-                    x_4 = x_2 * x_2
-                
-                if cx <= (-1)
-                    then go
-                    else do
-                        u <- stdUniform
-                        
-                        if         u < 1 - 0.0331 * x_4
-                            || log u < 0.5 * x_2  + d * (1 - v + log v)
-                            then return (b * d * v)
-                            else go
+            if v <= 0
+                then go
+                else do
+                    u  <- stdUniform
+                    let !x_2 = x*x; !x_4 = x_2*x_2
+                        dv = d * v
+                    if      u < 1 - 0.0331*x_4
+                     || log u < 0.5 * x_2 + d - dv + d*log v
+                        then return (b*dv)
+                        else go
 
-
-realFloatErlang :: (Integral a, Floating b, Ord b, Distribution Normal b, Distribution StdUniform b) => a -> RVar b
-realFloatErlang a
-    | a < 1 
-    = fail "realFloatErlang: a < 1"
-    | otherwise
-    = go
-        where
-            d = fromIntegral a - (1 / 3)
-            c = recip (3 * sqrt d) -- (1 / 3) / sqrt d
-            
-            go = do
-                x <- stdNormal
-                
-                let cx = c * x
-                    v = (1 + cx) ^ 3
-                    
-                    x_2 = x * x
-                    x_4 = x_2 * x_2
-                
-                if cx <= (-1)
-                    then go
-                    else do
-                        u <- stdUniform
-                        
-                        if         u < 1 - 0.0331 * x_4
-                            || log u < 0.5 * x_2  + d * (1 - v + log v)
-                            then return (d * v)
-                            else go
 
 gamma :: (Distribution Gamma a) => a -> a -> RVar a
 gamma a b = rvar (Gamma a b)
@@ -99,7 +66,9 @@ data Gamma a    = Gamma a a
 data Erlang a b = Erlang a
 
 instance (Floating a, Ord a, Distribution Normal a, Distribution StdUniform a) => Distribution Gamma a where
-    rvar (Gamma a b) = realFloatGamma a b
+    {-# SPECIALIZE instance Distribution Gamma Double #-}
+    {-# SPECIALIZE instance Distribution Gamma Float #-}
+    rvar (Gamma a b) = mtGamma a b
 
 instance (Integral a, Floating b, Ord b, Distribution Normal b, Distribution StdUniform b) => Distribution (Erlang a) b where
-    rvar (Erlang a) = realFloatErlang a
+    rvar (Erlang a) = mtGamma (fromIntegral a) 1
