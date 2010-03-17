@@ -31,10 +31,8 @@ import Data.Random.Internal.Find
 import Data.Random.Distribution.Uniform
 import Data.Random.Distribution
 import Data.Random.RVar
-import Data.StorableVector as Vec
+import Data.Vector.Generic as Vec
 import Foreign.Storable
-
-vec ! i = index vec i
 
 -- |A data structure containing all the data that is needed
 -- to implement Marsaglia & Tang's \"ziggurat\" algorithm for
@@ -45,7 +43,7 @@ vec ! i = index vec i
 -- be.  There are several helper functions that will build 'Ziggurat's.
 -- The pathologically curious may wish to read the 'runZiggurat' source.
 -- That is the ultimate specification of the semantics of all these fields.
-data Ziggurat t = Ziggurat {
+data Ziggurat v t = Ziggurat {
         -- |The X locations of each bin in the distribution.  Bin 0 is the
         -- 'infinite' one.
         -- 
@@ -55,11 +53,11 @@ data Ziggurat t = Ziggurat {
         -- faster by not needing to specially-handle bin 0 quite as often.
         -- If you really need to know why it works, see the 'runZiggurat'
         -- source or \"the literature\" - it's a fairly standard setup.
-        zTable_xs         :: Vector t,
+        zTable_xs         :: v t,
         -- |The ratio of each bin's Y value to the next bin's Y value
-        zTable_x_ratios   :: Vector t,
+        zTable_x_ratios   :: v t,
         -- |The Y value (zFunc x) of each bin
-        zTable_ys         :: Vector t,
+        zTable_ys         :: v t,
         -- |An RVar providing a random tuple consisting of:
         --
         --  * a bin index, uniform over [0,c) :: Int (where @c@ is the
@@ -99,8 +97,8 @@ data Ziggurat t = Ziggurat {
 
 -- |Sample from the distribution encoded in a 'Ziggurat' data structure.
 {-# INLINE runZiggurat #-}
-runZiggurat :: (Num a, Ord a, Storable a) =>
-               Ziggurat a -> RVar a
+runZiggurat :: (Num a, Ord a, Vector v a) =>
+               Ziggurat v a -> RVar a
 runZiggurat Ziggurat{..} = go
     where
         go = do
@@ -159,7 +157,7 @@ runZiggurat Ziggurat{..} = go
 -- 
 --  * an RVar sampling from the tail (the region where x > R)
 -- 
-mkZiggurat_ :: (RealFloat t, Storable t,
+mkZiggurat_ :: (RealFloat t, Vector v t,
                Distribution Uniform t) =>
               Bool
               -> (t -> t)
@@ -169,7 +167,7 @@ mkZiggurat_ :: (RealFloat t, Storable t,
               -> t
               -> RVar (Int, t)
               -> RVar t
-              -> Ziggurat t
+              -> Ziggurat v t
 mkZiggurat_ m f fInv c r v getIU tailDist = z
     where z = Ziggurat
             { zTable_xs         = zigguratTable f fInv c r v
@@ -189,7 +187,7 @@ mkZiggurat_ m f fInv c r v getIU tailDist = z
 -- Arguments are the same as for 'mkZigguratRec', with an additional
 -- argument for the tail distribution as a function of the selected
 -- R value.
-mkZiggurat :: (RealFloat t, Storable t,
+mkZiggurat :: (RealFloat t, Vector v t,
                Distribution Uniform t) =>
               Bool
               -> (t -> t)
@@ -199,7 +197,7 @@ mkZiggurat :: (RealFloat t, Storable t,
               -> Int
               -> RVar (Int, t)
               -> (t -> RVar t)
-              -> Ziggurat t
+              -> Ziggurat v t
 mkZiggurat m f fInv fInt fVol c getIU tailDist =
     mkZiggurat_ m f fInv c r v getIU (tailDist r) 
         where
@@ -226,7 +224,7 @@ mkZiggurat m f fInv fInt fVol c getIU tailDist =
 --  * an RVar providing the 'zGetIU' random tuple
 --
 mkZigguratRec ::
-  (RealFloat t, Storable t,
+  (RealFloat t, Vector v t,
    Distribution Uniform t) =>
   Bool
   -> (t -> t)
@@ -235,14 +233,14 @@ mkZigguratRec ::
   -> t
   -> Int
   -> RVar (Int, t)
-  -> Ziggurat t
-mkZigguratRec m f fInv fInt fVol c getIU = 
-    mkZiggurat m f fInv fInt fVol c getIU (fix (mkTail m f fInv fInt fVol c getIU))
+  -> Ziggurat v t
+mkZigguratRec m f fInv fInt fVol c getIU = z
         where
+            z = mkZiggurat m f fInv fInt fVol c getIU (fix (mkTail m f fInv fInt fVol c getIU z))
             fix f = f (fix f)
 
-mkTail m f fInv fInt fVol c getIU nextTail r = do
-     x <- rvar (mkZiggurat m f' fInv' fInt' fVol' c getIU nextTail)
+mkTail m f fInv fInt fVol c getIU typeRep nextTail r = do
+     x <- rvar (mkZiggurat m f' fInv' fInt' fVol' c getIU nextTail `asTypeOf` typeRep)
      return (x + r * signum x)
         where
             fIntR = fInt r
@@ -256,10 +254,10 @@ mkTail m f fInv fInt fVol c getIU nextTail r = do
             fVol' = fVol - fIntR
         
 
-zigguratTable :: (Fractional a, Storable a, Ord a) =>
-                 (a -> a) -> (a -> a) -> Int -> a -> a -> Vector a
+zigguratTable :: (Fractional a, Vector v a, Ord a) =>
+                 (a -> a) -> (a -> a) -> Int -> a -> a -> v a
 zigguratTable f fInv c r v = case zigguratXs f fInv c r v of
-    (xs, excess) -> pack xs
+    (xs, excess) -> fromList xs
     where epsilon = 1e-3*v
 
 zigguratExcess f fInv c r v = snd (zigguratXs f fInv c r v)
@@ -280,7 +278,7 @@ zigguratXs f fInv c r v = (xs, excess)
         excess = xs!!(c-1) * (f 0 - ys !! (c-1)) - v 
 
 
-precomputeRatios zTable_xs = sample (c-1) $ \i -> zTable_xs!(i+1) / zTable_xs!i
+precomputeRatios zTable_xs = generate (c-1) $ \i -> zTable_xs!(i+1) / zTable_xs!i
     where
         c = Vec.length zTable_xs
 
@@ -316,5 +314,5 @@ findBin0 cInt f fInv fInt fVol = (r,v r)
         
         exc x = zigguratExcess f fInv cInt x (v x)
 
-instance (Num t, Ord t, Storable t) => Distribution Ziggurat t where
+instance (Num t, Ord t, Vector v t) => Distribution (Ziggurat v) t where
     rvar = runZiggurat

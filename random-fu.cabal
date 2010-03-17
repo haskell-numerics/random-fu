@@ -72,8 +72,8 @@ Library
                         random,
                         random-shuffle,
                         stateref >= 0.3 && < 0.4,
-                        storablevector,
-                        template-haskell
+                        template-haskell,
+                        vector
 
   if os(Windows)
     build-depends:      erf-native

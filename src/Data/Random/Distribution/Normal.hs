@@ -32,7 +32,9 @@ import Data.Random.Distribution.Ziggurat
 import Data.Random.RVar
 
 import Control.Monad
-import Foreign.Storable
+import Data.Vector.Generic (Vector)
+import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as UV
 
 import Data.Number.Erf
 
@@ -95,8 +97,8 @@ normalTail r = go
 -- |Construct a 'Ziggurat' for sampling a normal distribution, given
 -- @logBase 2 c@ and the 'zGetIU' implementation.
 normalZ ::
-  (RealFloat a, Erf a, Storable a, Distribution Uniform a, Integral b) =>
-  b -> RVar (Int, a) -> Ziggurat a
+  (RealFloat a, Erf a, Vector v a, Distribution Uniform a, Integral b) =>
+  b -> RVar (Int, a) -> Ziggurat v a
 normalZ p = mkZigguratRec True normalF normalFInv normalFInt normalFVol (2^p)
 
 -- | Ziggurat target function (upper half of a non-normalized gaussian PDF)
@@ -119,7 +121,7 @@ normalFVol = sqrt (0.5 * pi)
 -- |A random variable sampling from the standard normal distribution
 -- over any 'RealFloat' type (subject to the rest of the constraints -
 -- it builds and uses a 'Ziggurat' internally, which requires the 'Erf'
--- and 'Storable' classes).  
+-- class).  
 -- 
 -- Because it computes a 'Ziggurat', it is very expensive to use for
 -- just one evaluation, or even for multiple evaluations if not used and
@@ -132,8 +134,8 @@ normalFVol = sqrt (0.5 * pi)
 --
 -- As far as I know, this should be safe to use in any monomorphic
 -- @Distribution Normal@ instance declaration.
-realFloatStdNormal :: (RealFloat a, Erf a, Storable a, Distribution Uniform a) => RVar a
-realFloatStdNormal = runZiggurat (normalZ p getIU)
+realFloatStdNormal :: (RealFloat a, Erf a, Distribution Uniform a) => RVar a
+realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggurat V.Vector a))
     where 
         p = 6
         
@@ -154,7 +156,7 @@ doubleStdNormalR, doubleStdNormalV :: Double
 doubleStdNormalR = 3.852046150368388
 doubleStdNormalV = 2.4567663515413507e-3
 
-doubleStdNormalZ :: Ziggurat Double
+doubleStdNormalZ :: Ziggurat UV.Vector Double
 doubleStdNormalZ = mkZiggurat_ True 
         normalF normalFInv 
         doubleStdNormalC doubleStdNormalR doubleStdNormalV 
@@ -178,7 +180,7 @@ floatStdNormalR, floatStdNormalV :: Float
 floatStdNormalR = 3.852046150368388
 floatStdNormalV = 2.4567663515413507e-3
 
-floatStdNormalZ :: Ziggurat Float
+floatStdNormalZ :: Ziggurat UV.Vector Float
 floatStdNormalZ = mkZiggurat_ True 
         normalF normalFInv 
         floatStdNormalC floatStdNormalR floatStdNormalV 
