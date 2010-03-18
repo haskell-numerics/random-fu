@@ -22,13 +22,21 @@ import Data.Traversable (Traversable(traverse, sequenceA))
 import Data.List
 import Data.Function
 
+-- |Construct a 'Categorical' distribution from a list of probabilities
+-- and categories, where the probabilities all sum to 1.
 categorical :: Distribution (Categorical p) a => [(p,a)] -> RVar a
 categorical ps = rvar (Categorical ps)
 
+-- | Construct a 'Categorical' distribution from a list of weighted categories,
+-- where the weights do not necessarily sum to 1.
 {-# INLINE weightedCategorical #-}
 weightedCategorical :: (Fractional p) => [(p,a)] -> Categorical p a
 weightedCategorical = normalizeCategoricalPs . Categorical
 
+-- |Construct a 'Categorical' distribution from a list of observed outcomes.
+-- Equivalent events will be grouped and counted, and the probabilities of each
+-- event in the returned distribution will be proportional to the number of 
+-- occurrences of that event.
 empirical :: (Fractional p, Ord a) => [a] -> Categorical p a
 empirical xs = normalizeCategoricalPs (Categorical bins)
     where bins = [ (genericLength bin, x)
