@@ -16,6 +16,10 @@ import Data.Random.Source
 data StdRandom = StdRandom
 
 instance MonadRandom m => RandomSource m StdRandom where
+    {-SPECIALIZE instance MonadRandom m => RandomSource m StdRandom -}
+    supportedPrimsFrom w = supportedPrims (w >> return ())
+    
+    getRandomPrimFrom   StdRandom = getRandomPrim
     getRandomByteFrom   StdRandom = getRandomByte
     getRandomWordFrom   StdRandom = getRandomWord
     getRandomDoubleFrom StdRandom = getRandomDouble

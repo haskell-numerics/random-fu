@@ -2,7 +2,7 @@
  -      ``Data/Random/Source/StdGen''
  -}
 {-# LANGUAGE
-    MultiParamTypeClasses, FlexibleInstances, UndecidableInstances
+    MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs
   #-}
 
 -- |This module provides functions useful for implementing new 'MonadRandom'
@@ -13,6 +13,7 @@
 module Data.Random.Source.StdGen where
 
 import Data.Random.Internal.Words
+import Data.Random.Internal.Primitives
 import Data.Random.Source
 import System.Random
 import Control.Monad.State
@@ -22,24 +23,44 @@ import Data.StateRef
 import Data.Word
 
 instance (Monad m1, ModifyRef (Ref m2 StdGen) m1 StdGen) => RandomSource m1 (Ref m2 StdGen) where
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 
 instance (Monad m, ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
     {-# SPECIALIZE instance RandomSource IO (IORef StdGen) #-}
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 instance (Monad m, ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where
     {-# SPECIALIZE instance RandomSource IO  (TVar StdGen) #-}
     {-# SPECIALIZE instance RandomSource STM (TVar StdGen) #-}
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
 instance (Monad m, ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where
     {-# SPECIALIZE instance RandomSource (ST s) (STRef s StdGen) #-}
     {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s StdGen) #-}
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromRandomGenRef
     getRandomWordFrom   = getRandomWordFromRandomGenRef
     getRandomDoubleFrom = getRandomDoubleFromRandomGenRef
@@ -123,21 +144,41 @@ getRandomDoubleFromRandomGenState = liftM wordToDouble getRandomWordFromRandomGe
 
 
 instance MonadRandom (State StdGen) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromRandomGenState
     getRandomWord   = getRandomWordFromRandomGenState
     getRandomDouble = getRandomDoubleFromRandomGenState
 
 instance Monad m => MonadRandom (StateT StdGen m) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromRandomGenState
     getRandomWord   = getRandomWordFromRandomGenState
     getRandomDouble = getRandomDoubleFromRandomGenState
 
 instance MonadRandom (S.State StdGen) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromRandomGenState
     getRandomWord   = getRandomWordFromRandomGenState
     getRandomDouble = getRandomDoubleFromRandomGenState
 
 instance Monad m => MonadRandom (S.StateT StdGen m) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromRandomGenState
     getRandomWord   = getRandomWordFromRandomGenState
     getRandomDouble = getRandomDoubleFromRandomGenState

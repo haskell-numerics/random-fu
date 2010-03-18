@@ -23,25 +23,21 @@ module Data.Random.RVar
     ) where
 
 
+import Data.Random.Internal.Primitives
 import Data.Random.Source
+import Data.Random.Source.Std
 import Data.Random.Lift as L
 
 import Data.Bits
 
 import qualified Control.Monad.Trans as T
 import Control.Applicative
-import Control.Monad.Reader
 import Control.Monad.Identity
+import Control.Monad.Prompt (PromptT, runPromptT, prompt)
 
 -- |An opaque type containing a \"random variable\" - a value 
 -- which depends on the outcome of some random process.
 type RVar = RVarT Identity
-
--- | single combined container allowing all the relevant 
--- dictionaries (plus the RandomSource item itself) to be passed
--- with one pointer.
-data RVarDict n m where
-    RVarDict :: (Lift n m, Monad m, RandomSource m s) => s -> RVarDict n m
 
 runRVar :: RandomSource m s => RVar a -> s -> m a
 runRVar = runRVarT
@@ -49,37 +45,46 @@ runRVar = runRVarT
 -- |A random variable with access to operations in an underlying monad.  Useful
 -- examples include any form of state for implementing random processes with hysteresis,
 -- or writer monads for implementing tracing of complicated algorithms.
-newtype RVarT n a = RVarT { unRVarT :: forall m r. (a -> m r) -> RVarDict n m -> m r }
+newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 
 -- | \"Runs\" the monad.
+{-# INLINE runRVarT #-}
 runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
-runRVarT (RVarT m) (src) = m return (RVarDict src)
+runRVarT (RVarT m) src = runPromptT return bindP bindN m
+    where
+        bindP prim cont = getRandomPrimFrom src prim >>= cont
+        bindN nExp cont = lift nExp >>= cont
 
 instance Functor (RVarT n) where
     fmap = liftM
 
 instance Monad (RVarT n) where
-    return x = RVarT $ \k _ -> k x
-    fail s   = RVarT $ \_ (RVarDict _) -> fail s
-    (RVarT m) >>= k = RVarT $ \c s -> m (\a -> unRVarT (k a) c s) s
+    return x = RVarT (return x)
+    fail s   = RVarT (fail s)
+    (RVarT m) >>= k = RVarT (m >>= unRVarT.k)
 
 instance Applicative (RVarT n) where
     pure  = return
     (<*>) = ap
 
 instance T.MonadTrans RVarT where
-    lift m = RVarT $ \k r@(RVarDict _) -> L.lift m >>= \a -> k a
+    lift m = RVarT (T.lift m)
 
 instance Lift (RVarT Identity) (RVarT m) where
-    lift (RVarT m) = RVarT $ \k (RVarDict src) -> m k (RVarDict src)
+    lift (RVarT m) = RVarT (runPromptT return bindP bindN m)
+        where
+            bindP prim  cont = prompt prim >>= cont
+            bindN idExp cont = cont (runIdentity idExp)
 
-instance MonadIO m => MonadIO (RVarT m) where
-    liftIO = T.lift . liftIO
+instance T.MonadIO m => T.MonadIO (RVarT m) where
+    liftIO = T.lift . T.liftIO
 
 instance MonadRandom (RVarT n) where
-    getRandomByte   = RVarT $ \k (RVarDict s) -> getRandomByteFrom   s >>= \a -> k a
-    getRandomWord   = RVarT $ \k (RVarDict s) -> getRandomWordFrom   s >>= \a -> k a
-    getRandomDouble = RVarT $ \k (RVarDict s) -> getRandomDoubleFrom s >>= \a -> k a
+    supportedPrims _ p  = True
+    getRandomPrim p     = RVarT (prompt p)
+    getRandomByte       = RVarT (prompt PrimWord8)
+    getRandomWord       = RVarT (prompt PrimWord64)
+    getRandomDouble     = RVarT (prompt PrimDouble)
 
 -- I would really like to be able to do this, but I can't because of the
 -- blasted Eq and Show in Num's class context...

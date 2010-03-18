@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.0.4.0
+version:                0.1.0.0
 stability:              experimental
 
 cabal-version:          >= 1.2
@@ -40,6 +40,7 @@ Library
                         Data.Random.Distribution.Ziggurat
                         Data.Random.Internal.Find
                         Data.Random.Internal.Fixed
+                        Data.Random.Internal.Primitives
                         Data.Random.Internal.TH
                         Data.Random.Internal.Words
                         Data.Random.Lift
@@ -67,6 +68,7 @@ Library
                         containers,
                         mersenne-random-pure64,
                         monad-loops >= 0.3.0.1,
+                        MonadPrompt,
                         mwc-random,
                         mtl,
                         random,

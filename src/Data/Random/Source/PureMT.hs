@@ -1,7 +1,8 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleContexts, FlexibleInstances,
-    UndecidableInstances
+    UndecidableInstances,
+    GADTs
   #-}
 
 -- |This module provides functions useful for implementing new 'MonadRandom'
@@ -12,6 +13,7 @@
 module Data.Random.Source.PureMT where
 
 import Data.Random.Internal.Words
+import Data.Random.Internal.Primitives
 import Data.Random.Source
 import System.Random.Mersenne.Pure64
 
@@ -88,32 +90,62 @@ getRandomDoubleFromMTState = liftM wordToDouble getRandomWordFromMTState
 --     return x
 
 instance MonadRandom (State PureMT) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromMTState
     getRandomWord   = getRandomWordFromMTState
     getRandomDouble = getRandomDoubleFromMTState
 
 instance MonadRandom (S.State PureMT) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromMTState
     getRandomWord   = getRandomWordFromMTState
     getRandomDouble = getRandomDoubleFromMTState
 
 instance (Monad m1, ModifyRef (Ref m2 PureMT) m1 PureMT) => RandomSource m1 (Ref m2 PureMT) where
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromMTRef
     getRandomWordFrom   = getRandomWordFromMTRef
     getRandomDoubleFrom = getRandomDoubleFromMTRef
 
 instance Monad m => MonadRandom (StateT PureMT m) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromMTState
     getRandomWord   = getRandomWordFromMTState
     getRandomDouble = getRandomDoubleFromMTState
 
 instance Monad m => MonadRandom (S.StateT PureMT m) where
+    supportedPrims _ PrimWord8  = True
+    supportedPrims _ PrimWord64 = True
+    supportedPrims _ PrimDouble = True
+    supportedPrims _ _ = False
+    
     getRandomByte   = getRandomByteFromMTState
     getRandomWord   = getRandomWordFromMTState
     getRandomDouble = getRandomDoubleFromMTState
 
 instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
     {-# SPECIALIZE instance RandomSource IO (IORef PureMT)#-}
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromMTRef
     getRandomWordFrom   = getRandomWordFromMTRef
     getRandomDoubleFrom = getRandomDoubleFromMTRef
@@ -121,6 +153,11 @@ instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef P
 instance (Monad m, ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) where
     {-# SPECIALIZE instance RandomSource (ST s) (STRef s PureMT) #-}
     {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s PureMT) #-}
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromMTRef
     getRandomWordFrom   = getRandomWordFromMTRef
     getRandomDoubleFrom = getRandomDoubleFromMTRef
@@ -128,6 +165,11 @@ instance (Monad m, ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef
 instance (Monad m, ModifyRef (TVar PureMT) m PureMT) => RandomSource m (TVar PureMT) where
     {-# SPECIALIZE instance RandomSource IO  (TVar PureMT) #-}
     {-# SPECIALIZE instance RandomSource STM (TVar PureMT) #-}
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimDouble = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom   = getRandomByteFromMTRef
     getRandomWordFrom   = getRandomWordFromMTRef
     getRandomDoubleFrom = getRandomDoubleFromMTRef

@@ -2,7 +2,7 @@
  -      ``Data/Random/Source/DevRandom''
  -}
 {-# LANGUAGE
-    MultiParamTypeClasses
+    MultiParamTypeClasses, GADTs
   #-}
 
 module Data.Random.Source.DevRandom 
@@ -10,6 +10,7 @@ module Data.Random.Source.DevRandom
     ) where
 
 import Data.Random.Source
+import Data.Random.Internal.Primitives
 
 import System.IO (openBinaryFile, hGetBuf, IOMode(..))
 import Foreign
@@ -32,6 +33,10 @@ dev DevRandom  = devRandom
 dev DevURandom = devURandom
 
 instance RandomSource IO DevRandom where
+    supportedPrimsFrom _ PrimWord8  = True
+    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ _ = False
+    
     getRandomByteFrom src  = allocaBytes 1 $ \buf -> do
         1 <- hGetBuf (dev src) buf  1
         peek buf
