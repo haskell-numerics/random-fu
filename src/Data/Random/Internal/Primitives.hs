@@ -19,27 +19,29 @@ import Data.Typeable
 import Control.Monad.Prompt
 
 data Prim a where
-    -- An unsigned byte, uniformly distributed from 0 to 255
+    -- An unsigned byte, uniformly distributed from 0 to 0xff
     PrimWord8           :: Prim Word8
-    -- An unsigned 32-bit word, uniformly distributed from 0 to 2^32-1
+    -- An unsigned 16-bit word, uniformly distributed from 0 to 0xffff
+    PrimWord16          :: Prim Word16
+    -- An unsigned 32-bit word, uniformly distributed from 0 to 0xffffffff
     PrimWord32          :: Prim Word32
-    -- An unsigned 64-bit word, uniformly distributed from 0 to 2^64-1
+    -- An unsigned 64-bit word, uniformly distributed from 0 to 0xffffffffffffffff
     PrimWord64          :: Prim Word64
     -- A double-precision float U, uniformly distributed 0 <= U < 1
     PrimDouble          :: Prim Double
     -- A uniformly distributed 'Integer' 0 <= U < 2^(8*n)
-    PrimNByteInteger    :: Int -> Prim Integer
-  
+    PrimNByteInteger    :: !Int -> Prim Integer
+    
 -- Some suggested future additions  
 --    PrimFloat :: Prim Float
---    PrimWord16 :: Prim Word16
 --    PrimInt :: Prim Int
 --    PrimPair :: Prim a -> Prim b -> Prim (a :*: b)
---    PrimVec :: Vector v a => Int -> Prim a -> Prim v a
+--    PrimNormal :: Prim Double
     deriving (Typeable)
 
 instance Show (Prim a) where
     showsPrec p PrimWord8               = showString "PrimWord8"
+    showsPrec p PrimWord16              = showString "PrimWord16"
     showsPrec p PrimWord32              = showString "PrimWord32"
     showsPrec p PrimWord64              = showString "PrimWord64"
     showsPrec p PrimDouble              = showString "PrimDouble"
@@ -69,6 +71,9 @@ decomposePrimWhere supported requested = decomp requested
         -- 'decomp's referring to other primitives in a well-founded way
         
         decomp PrimWord8
+            | supported PrimWord16 = do
+                w <- prompt PrimWord16
+                return (fromIntegral w)
             | supported PrimWord32 = do
                 w <- prompt PrimWord32
                 return (fromIntegral w)
@@ -82,7 +87,30 @@ decomposePrimWhere supported requested = decomp requested
                 i <- prompt (PrimNByteInteger 1)
                 return (fromInteger i)
         
+        decomp PrimWord16
+            | supported PrimWord8 = do
+                b0 <- prompt PrimWord8
+                b1 <- prompt PrimWord8
+                return (buildWord16 b0 b1)
+            | supported PrimWord32 = do
+                w <- prompt PrimWord32
+                return (fromIntegral w)
+            | supported PrimWord64 = do
+                w <- prompt PrimWord64
+                return (fromIntegral w)
+            | supported PrimDouble = do
+                d <- prompt PrimDouble
+                return (truncate (d * 65536))
+            | supported (PrimNByteInteger 2) = do
+                i <- prompt (PrimNByteInteger 2)
+                return (fromInteger i)
+        
         decomp PrimWord32
+            | supported PrimWord16 = do
+                w0 <- prompt PrimWord16
+                w1 <- prompt PrimWord16
+                
+                return (buildWord32' w0 w1)
             | supported PrimWord8 = do
                 b0 <- prompt PrimWord8
                 b1 <- prompt PrimWord8
@@ -106,6 +134,13 @@ decomposePrimWhere supported requested = decomp requested
                 w1 <- prompt PrimWord32
                 
                 return (buildWord64'' w0 w1)
+            | supported PrimWord16 = do
+                w0 <- prompt PrimWord16
+                w1 <- prompt PrimWord16
+                w2 <- prompt PrimWord16
+                w3 <- prompt PrimWord16
+                
+                return (buildWord64' w0 w1 w2 w3)
             | supported PrimWord8 = do
                 b0 <- prompt PrimWord8
                 b1 <- prompt PrimWord8
@@ -118,6 +153,8 @@ decomposePrimWhere supported requested = decomp requested
                 
                 return (buildWord64 b0 b1 b2 b3 b4 b5 b6 b7)
             | supported PrimDouble = do
+                -- Need 2 doubles, because a uniform [0,1) double only has
+                -- about 52 bits of reliable entropy
                 d0 <- prompt PrimDouble
                 d1 <- prompt PrimDouble
                 
@@ -136,6 +173,9 @@ decomposePrimWhere supported requested = decomp requested
         decomp (PrimNByteInteger 1) = do
             x <- decomp PrimWord8
             return $! toInteger x
+        decomp (PrimNByteInteger 2) = do
+            x <- decomp PrimWord16
+            return $! toInteger x
         decomp (PrimNByteInteger 4) = do
             x <- decomp PrimWord32
             return $! toInteger x
@@ -150,11 +190,15 @@ decomposePrimWhere supported requested = decomp requested
             x <- decomp PrimWord32
             y <- decomp (PrimNByteInteger n)
             return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
-        decomp (PrimNByteInteger (n+1))  = do
-            x <- decomp PrimWord8
+        decomp (PrimNByteInteger (n+2))  = do
+            x <- decomp PrimWord16
             y <- decomp (PrimNByteInteger n)
             return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+-- REDUNDANT CASE
+--        decomp (PrimNByteInteger (n+1))  = do
+--            x <- decomp PrimWord8
+--            y <- decomp (PrimNByteInteger n)
+--            return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
         decomp (PrimNByteInteger _) = return 0
-                
         
         decomp _ = error ("decomposePrimWhere: no supported primitive to satisfy " ++ show requested)

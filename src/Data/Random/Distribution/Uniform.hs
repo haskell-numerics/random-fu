@@ -226,12 +226,12 @@ $( replicateInstances ''Int integralTypes [d|
     |])
 
 instance Distribution StdUniform Word8      where rvar ~StdUniform = getRandomPrim PrimWord8
-instance Distribution StdUniform Word16     where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord32
+instance Distribution StdUniform Word16     where rvar ~StdUniform = getRandomPrim PrimWord16
 instance Distribution StdUniform Word32     where rvar ~StdUniform = getRandomPrim PrimWord32
 instance Distribution StdUniform Word64     where rvar ~StdUniform = getRandomPrim PrimWord64
 
 instance Distribution StdUniform Int8       where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord8
-instance Distribution StdUniform Int16      where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord32
+instance Distribution StdUniform Int16      where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord16
 instance Distribution StdUniform Int32      where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord32
 instance Distribution StdUniform Int64      where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord64
 
