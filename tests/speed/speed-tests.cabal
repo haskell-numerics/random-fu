@@ -1,0 +1,17 @@
+name:                   speed-tests
+version:                0.0.0.1
+stability:              experimental
+
+cabal-version:          >= 1.2
+build-type:             Simple
+
+author:                 James Cook <james.cook@usma.edu>
+maintainer:             James Cook <james.cook@usma.edu>
+
+description:            Various benchmarks for the random-fu library.
+
+Executable random-fu-bench
+  main-is:              Bench.hs
+  build-depends:        base >= 4, criterion, random-fu, mtl,
+                        stateref, mersenne-random-pure64, mwc-random,
+                        vector
