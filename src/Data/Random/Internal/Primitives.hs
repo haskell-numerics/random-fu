@@ -78,6 +78,9 @@ decomposePrimWhere supported requested = decomp requested
             | supported PrimDouble = do
                 d <- prompt PrimDouble
                 return (truncate (d * 256))
+            | supported (PrimNByteInteger 1) = do
+                i <- prompt (PrimNByteInteger 1)
+                return (fromInteger i)
         
         decomp PrimWord32
             | supported PrimWord8 = do
@@ -93,6 +96,9 @@ decomposePrimWhere supported requested = decomp requested
             | supported PrimDouble = do
                 d <- prompt PrimDouble
                 return (truncate (d * 4294967296))
+            | supported (PrimNByteInteger 4) = do
+                i <- prompt (PrimNByteInteger 4)
+                return (fromInteger i)
         
         decomp PrimWord64
             | supported PrimWord32 = do
@@ -119,6 +125,9 @@ decomposePrimWhere supported requested = decomp requested
                     w1 = truncate (d1 * 4294967296)
                 
                 return (w0 .|. (w1 `shiftL` 32))
+            | supported (PrimNByteInteger 8) = do
+                i <- prompt (PrimNByteInteger 8)
+                return (fromInteger i)
         
         decomp PrimDouble = do
             word <- decomp PrimWord64
