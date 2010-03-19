@@ -1,8 +1,6 @@
-{-
- -      ``Data/Random/Source/StdGen''
- -}
 {-# LANGUAGE
-    MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs
+    MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs,
+    BangPatterns
   #-}
 
 -- |This module provides functions useful for implementing new 'MonadRandom'
@@ -54,6 +52,10 @@ getRandomPrimFromStdGenIO PrimWord8 = do
     int <- randomRIO (0, 255) :: IO Int
     return (fromIntegral int)
 
+getRandomPrimFromStdGenIO PrimWord32 = do
+    int <- randomRIO (0, 0xffffffff)
+    return (fromInteger int)
+
 getRandomPrimFromStdGenIO PrimWord64 = do
     int <- randomRIO (0, 0xffffffffffffffff)
     return (fromInteger int)
@@ -68,8 +70,10 @@ getRandomPrimFromStdGenIO PrimDouble = liftM wordToDouble (getRandomPrimFromStdG
 
 getRandomPrimFromStdGenIO other = runPromptM getRandomPrimFromStdGenIO (decomposePrimWhere supported other)
     where 
+        {-# INLINE supported #-}
         supported :: Prim a -> Bool
         supported PrimWord8  = True
+        supported PrimWord32 = True
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
@@ -78,13 +82,20 @@ getRandomPrimFromStdGenIO other = runPromptM getRandomPrimFromStdGenIO (decompos
 -- 'RandomSource' usable in any monad in which the reference can be modified.
 getRandomPrimFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> Prim a -> m a
-getRandomPrimFromRandomGenRef g PrimWord8 = atomicModifyReference g (swap . randomR (0,255))
+getRandomPrimFromRandomGenRef g PrimWord8
+    = atomicModifyReference g $ \(!gen) -> case randomR (0,0xff) gen of
+        (!w, !gen) -> (gen, fromIntegral (w :: Int))
     where 
         swap :: (Int, a) -> (a, Word8)
         swap (a,b) = (b,fromIntegral a)
 
-getRandomPrimFromRandomGenRef g PrimWord64 = atomicModifyReference g (swap . randomR (0,0xffffffffffffffff))
-    where swap (a,b) = (b,fromInteger a)
+getRandomPrimFromRandomGenRef g PrimWord32
+    = atomicModifyReference g $ \(!gen) -> case randomR (0,0xffffffff) gen of
+        (!w, !gen) -> (gen, fromInteger w)
+
+getRandomPrimFromRandomGenRef g PrimWord64
+    = atomicModifyReference g $ \(!gen) -> case randomR (0,0xffffffffffffffff) gen of
+        (!w, !gen) -> (gen, fromInteger w)
 
 getRandomPrimFromRandomGenRef g PrimDouble = liftM wordToDouble (getRandomPrimFromRandomGenRef g PrimWord64)
 -- getRandomPrimFromRandomGenRef g PrimDouble = atomicModifyRef g (swap . randomR (0,1))
@@ -92,8 +103,10 @@ getRandomPrimFromRandomGenRef g PrimDouble = liftM wordToDouble (getRandomPrimFr
 
 getRandomPrimFromRandomGenRef g other = runPromptM (getRandomPrimFromRandomGenRef g) (decomposePrimWhere supported other)
     where 
+        {-# INLINE supported #-}
         supported :: Prim a -> Bool
         supported PrimWord8  = True
+        supported PrimWord32  = True
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
