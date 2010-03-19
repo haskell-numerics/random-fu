@@ -30,6 +30,7 @@ module Data.Random
     , module Data.Random.Distribution.Beta
     , module Data.Random.Distribution.Binomial
     , module Data.Random.Distribution.Categorical
+    , module Data.Random.Distribution.Dirichlet
     , module Data.Random.Distribution.Gamma
     , module Data.Random.Distribution.Exponential
     , module Data.Random.Distribution.Normal
@@ -54,6 +55,7 @@ import Data.Random.Distribution.Bernoulli
 import Data.Random.Distribution.Beta
 import Data.Random.Distribution.Binomial
 import Data.Random.Distribution.Categorical
+import Data.Random.Distribution.Dirichlet
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Exponential
 import Data.Random.Distribution.Normal

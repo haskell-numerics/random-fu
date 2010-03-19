@@ -30,6 +30,7 @@ Library
                         Data.Random.Distribution.Beta
                         Data.Random.Distribution.Binomial
                         Data.Random.Distribution.Categorical
+                        Data.Random.Distribution.Dirichlet
                         Data.Random.Distribution.Exponential
                         Data.Random.Distribution.Gamma
                         Data.Random.Distribution.Normal
