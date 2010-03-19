@@ -18,8 +18,6 @@ module Data.Random.RVar
     , runRVar
     , RVarT
     , runRVarT
-    , nByteInteger
-    , nBitInteger
     ) where
 
 
@@ -80,11 +78,11 @@ instance T.MonadIO m => T.MonadIO (RVarT m) where
     liftIO = T.lift . T.liftIO
 
 instance MonadRandom (RVarT n) where
-    supportedPrims _ p  = True
-    getRandomPrim p     = RVarT (prompt p)
-    getRandomByte       = RVarT (prompt PrimWord8)
-    getRandomWord       = RVarT (prompt PrimWord64)
-    getRandomDouble     = RVarT (prompt PrimDouble)
+    supportedPrims _ _ = True
+    {-# INLINE getSupportedRandomPrim #-}
+    getSupportedRandomPrim p    = RVarT (prompt p)
+    {-# INLINE getRandomPrim #-}
+    getRandomPrim p = RVarT (prompt p)
 
 -- I would really like to be able to do this, but I can't because of the
 -- blasted Eq and Show in Num's class context...
@@ -96,32 +94,3 @@ instance MonadRandom (RVarT n) where
 --     signum = liftA signum
 --     abs = liftA abs
 --     fromInteger = pure . fromInteger
-
--- some 'fundamental' RVarTs
--- this maybe ought to even be a part of the RandomSource class...
-{-# INLINE nByteInteger #-}
--- |A random variable evenly distributed over all unsigned integers from
--- 0 to 2^(8*n)-1, inclusive.
-nByteInteger :: Int -> RVarT m Integer
-nByteInteger 1 = do
-    x <- getRandomByte
-    return $! toInteger x
-nByteInteger 8 = do
-    x <- getRandomWord
-    return $! toInteger x
-nByteInteger n = nBitInteger (n `shiftL` 3)
-
-{-# INLINE nBitInteger #-}
--- |A random variable evenly distributed over all unsigned integers from
--- 0 to 2^n-1, inclusive.
-nBitInteger :: Int -> RVarT m Integer
-nBitInteger 8  = do
-    x <- getRandomByte
-    return $! toInteger x
-nBitInteger (n+64) = do
-    x <- getRandomWord
-    y <- nBitInteger n
-    return $! (toInteger x `shiftL` n) .|. y
-nBitInteger n = do
-        x <- getRandomWord
-        return $! toInteger (x `shiftR` (64-n))

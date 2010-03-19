@@ -74,6 +74,7 @@ Library
                         random,
                         random-shuffle,
                         stateref >= 0.3 && < 0.4,
+                        tagged,
                         template-haskell,
                         vector
 

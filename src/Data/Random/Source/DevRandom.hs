@@ -33,13 +33,17 @@ dev DevRandom  = devRandom
 dev DevURandom = devURandom
 
 instance RandomSource IO DevRandom where
-    supportedPrimsFrom _ PrimWord8  = True
-    supportedPrimsFrom _ PrimWord64 = True
+    supportedPrimsFrom _ PrimWord8          = True
+    supportedPrimsFrom _ PrimWord32         = True
+    supportedPrimsFrom _ PrimWord64         = True
     supportedPrimsFrom _ _ = False
     
-    getRandomByteFrom src  = allocaBytes 1 $ \buf -> do
+    getSupportedRandomPrimFrom src PrimWord8  = allocaBytes 1 $ \buf -> do
         1 <- hGetBuf (dev src) buf  1
         peek buf
-    getRandomWordFrom src  = allocaBytes 8 $ \buf -> do
+    getSupportedRandomPrimFrom src PrimWord32  = allocaBytes 1 $ \buf -> do
+        4 <- hGetBuf (dev src) buf  4
+        peek (castPtr buf)
+    getSupportedRandomPrimFrom src PrimWord64  = allocaBytes 8 $ \buf -> do
         8 <- hGetBuf (dev src) buf  8
         peek (castPtr buf)

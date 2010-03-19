@@ -61,7 +61,7 @@ integralUniform a b
             let bytes = bytesNeeded m
                 maxXpossible = (powersOf256 !! bytes) - 1
             
-            x <- iterateUntil (maxXpossible - maxXpossible `mod` m >) (nByteInteger bytes)
+            x <- iterateUntil (maxXpossible - maxXpossible `mod` m >) (getRandomPrim (PrimNByteInteger bytes))
             return (a + fromInteger (x `mod` m))
 
 integralUniformCDF a b x
@@ -93,12 +93,12 @@ boundedEnumStdUniformCDF = enumUniformCDF minBound maxBound
 -- |Compute a uniform random 'Float' value in the range [0,1)
 floatStdUniform :: RVar Float
 floatStdUniform = do
-    x <- getRandomWord
-    return (wordToFloat x)
+    x <- getRandomPrim PrimWord32
+    return (word32ToFloat x)
 
 -- |Compute a uniform random 'Double' value in the range [0,1)
 doubleStdUniform :: RVar Double
-doubleStdUniform = getRandomDouble
+doubleStdUniform = getRandomPrim PrimDouble
 
 -- |Compute a uniform random value in the range [0,1) for any 'RealFloat' type 
 realFloatStdUniform :: RealFloat a => RVar a
@@ -229,14 +229,24 @@ $( replicateInstances ''Int integralTypes [d|
         instance CDF Uniform Int            where cdf  (Uniform a b) = integralUniformCDF a b
     |])
 
--- Some integral types have specialized StdUniform rvars:
-instance Distribution StdUniform Int8       where rvar ~StdUniform = fmap fromIntegral getRandomByte
-instance Distribution StdUniform Word8      where rvar ~StdUniform = getRandomByte
-instance Distribution StdUniform Word64     where rvar ~StdUniform = getRandomWord
--- and Integer has none...
-$( replicateInstances ''Int (integralTypes \\ [''Int8, ''Word8, ''Word64, ''Integer]) [d|
-        instance Distribution StdUniform Int    where rvar ~StdUniform = fmap fromIntegral getRandomWord
-    |])
+instance Distribution StdUniform Word8      where rvar ~StdUniform = getRandomPrim PrimWord8
+instance Distribution StdUniform Word16     where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord32
+instance Distribution StdUniform Word32     where rvar ~StdUniform = getRandomPrim PrimWord32
+instance Distribution StdUniform Word64     where rvar ~StdUniform = getRandomPrim PrimWord64
+
+instance Distribution StdUniform Int8       where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord8
+instance Distribution StdUniform Int16      where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord32
+instance Distribution StdUniform Int32      where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord32
+instance Distribution StdUniform Int64      where rvar ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord64
+
+instance Distribution StdUniform Int where
+    rvar
+        | toInteger (maxBound :: Int) > toInteger (maxBound :: Int32)
+        = const (fromIntegral `fmap` getRandomPrim PrimWord64)
+        
+        | otherwise
+        = const (fromIntegral `fmap` getRandomPrim PrimWord32)
+-- Integer has no StdUniform...
 
 $( replicateInstances ''Int (integralTypes \\ [''Integer]) [d|
         instance CDF StdUniform Int         where cdf  ~StdUniform = boundedStdUniformCDF
@@ -272,7 +282,7 @@ $( replicateInstances ''Char [''Char, ''Bool, ''Ordering] [d|
 
 instance Distribution StdUniform ()         where rvar ~StdUniform = return ()
 instance CDF StdUniform ()                  where cdf  ~StdUniform = return 1
-instance Distribution StdUniform Bool       where rvar ~StdUniform = fmap even getRandomByte
+instance Distribution StdUniform Bool       where rvar ~StdUniform = fmap even (getRandomPrim PrimWord8)
 instance CDF StdUniform Bool                where cdf  ~StdUniform = boundedEnumStdUniformCDF
 
 instance Distribution StdUniform Char       where rvar ~StdUniform = boundedEnumStdUniform

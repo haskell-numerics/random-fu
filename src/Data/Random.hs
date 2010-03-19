@@ -43,7 +43,7 @@ module Data.Random
     ) where
 
 import Data.Random.Sample
-import Data.Random.Source
+import Data.Random.Source (MonadRandom, RandomSource)
 import Data.Random.Source.DevRandom
 import Data.Random.Source.MWC ()
 import Data.Random.Source.StdGen
