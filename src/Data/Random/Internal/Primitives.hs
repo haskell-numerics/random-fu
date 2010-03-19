@@ -154,6 +154,7 @@ decomposePrimWhere supported requested = decomp requested
             x <- decomp PrimWord8
             y <- decomp (PrimNByteInteger n)
             return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+        decomp (PrimNByteInteger _) = return 0
                 
         
         decomp _ = error ("decomposePrimWhere: no supported primitive to satisfy " ++ show requested)
