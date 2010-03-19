@@ -8,23 +8,84 @@
 
 module Test.Hist where
 
+import Prelude hiding (sum)
+
 import Data.Random
 import System.Random.Mersenne.Pure64
 
 -- some convenient testing stuff
-import Data.List
+import Data.List hiding (sum)
 import Control.Arrow
 import Text.Printf
 import Control.Monad
 import Data.StateRef
 import Control.Exception
+import Control.Parallel.Strategies
+import Control.Monad.Loops
+import System.CPUTime
+import Control.Concurrent
+import GHC.Conc
+
+sum xs = foldl' (+) 0 xs
+
+cpuTimeDiff t0 t1 = fromInteger (t1 - t0) * recip (10^12)
+
+time action = do
+    t0 <- liftIO getCPUTime
+    result <- action
+    t1 <- liftIO getCPUTime
+    return (result, cpuTimeDiff t0 t1)
+
+time_ action = do
+    t0 <- liftIO getCPUTime
+    action
+    t1 <- liftIO getCPUTime
+    return (cpuTimeDiff t0 t1)
+
+replicateM'chunkSize = 100
+
+replicateM' :: Monad m => Int -> m a -> m [a]
+replicateM' n x
+    | n >= replicateM'chunkSize
+    = do
+        let (chunks, extra) = n `divMod` replicateM'chunkSize
+            extraRuns = replicateM extra x
+        
+        xs <- replicateM' chunks (replicateM replicateM'chunkSize x)
+        xtra <- extraRuns
+        return (concat (xs ++ [xtra]))
+        
+    | otherwise = replicateM n x
+
+cpus=numCapabilities -- * 2 - 1
+
+sampleN :: Int -> RVar a -> IO [a]
+sampleN n rv
+    | cpus == 1     = do
+        seed <- getRandomWordFrom DevRandom
+        mt <- newRef (pureMT seed)    
+        replicateM' n (sampleFrom mt rv)
+    
+    | otherwise = runInUnboundThread $ do
+        let (runs, extra) = n `divMod` cpus
+            extraRuns = replicateM' extra (sampleFrom DevRandom rv)
+    
+        sets <- forkMapM id $ (extraRuns :) $ replicate cpus $ do
+            seed <- getRandomWordFrom DevRandom
+            mt <- newRef (pureMT seed)
+            replicateM' runs (sampleFrom mt rv)
+    
+        let extract (Right x) = x
+        return (concatMap extract sets)
 
 hist :: Ord a => [a] -> [a] -> [(a, Int)]
-hist xs ys = map (id *** length) (hist' xs (sort ys))
+hist xs ys = hist' xs (sort ys)
     where
+        strictPair a b = a `seq` b `seq` (a,b)
+        
         hist' []     ys = []
         hist' (x:xs) ys = case break (>x) ys of
-            (as, bs) -> (x, as) : hist' xs bs
+            (as, bs) -> strictPair x (length as) : hist' xs bs
 
 -- cumulative histogram
 cHist xs ys = tail (scanl (\(_, p1) (x,p2) -> (x, p1+p2)) (undefined, 0) (hist xs ys))
@@ -45,13 +106,14 @@ pHist = pHist_ fmtDbl
 
 pHist_ :: (Fractional a, Ord a) => (a -> String) -> Int -> RVar a -> IO ()
 pHist_ fmt n x = do
-    y <- replicateM n (sampleFrom DevRandom x)
+    y <- sampleN n x
+    putStrLn ("generated " ++ show (length y) ++ " numbers, now making histogram...")
     printHist fmt hist y n
 
 -- cumulative probability histogram
 cpHist :: Int -> RVar Double -> IO ()
 cpHist n x = do
-    y <- replicateM n (sampleFrom DevRandom x)
+    y <- sampleN n x
     printHist fmtDbl cHist y n
 
 cpDiff :: CDF d Double => Int -> d Double -> IO ()
@@ -61,7 +123,7 @@ cpDiff_ :: (CDF d t, Fractional t, Ord t) => (t -> String) -> Int -> d t -> IO (
 cpDiff_ fmt n x = do
     mt <- newPureMT
     mt <- newRef mt
-    y <- replicateM n (sampleFrom mt x)
+    y <- sampleN n (rvar x)
     printHist fmt (cDiff n (cdf x)) y n
 
 --byte-count histogram (random source usage)
