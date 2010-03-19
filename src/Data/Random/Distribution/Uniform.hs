@@ -201,11 +201,7 @@ stdUniformNonneg = abs `fmap` stdUniform
 
 -- |Like 'stdUniform' but only returns positive values.
 stdUniformPos :: (Distribution StdUniform a, Num a) => RVar a
-stdUniformPos = do
-    x <- stdUniformNonneg
-    if x /= 0
-        then return x
-        else stdUniformPos
+stdUniformPos = iterateUntil (/= 0) stdUniformNonneg
 
 -- |A definition of a uniform distribution over the type @t@.  See also 'uniform'.
 data Uniform t = 
