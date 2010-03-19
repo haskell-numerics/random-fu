@@ -36,7 +36,9 @@ getRandomPrimFromMTRef ref PrimWord64 = do
 -- the mersenne random library is using, at least in the version I have.
 -- if this changes, switch to the commented version.
 -- Same thing below, in getRandomDoubleFromMTState.
-getRandomPrimFromMTRef ref PrimDouble = liftM wordToDouble (getRandomPrimFromMTRef ref PrimWord64)
+getRandomPrimFromMTRef ref PrimDouble = 
+    atomicModifyReference ref $ \(!mt) -> case randomWord64 mt of
+        (!w, !mt) -> (mt, wordToDouble w)
 -- getRandomPrimFromMTRef ref PrimDouble = do
 --    atomicModifyReference ref $ \(!mt) -> case randomDouble mt of
 --        (!w, !mt) -> (mt, w)
