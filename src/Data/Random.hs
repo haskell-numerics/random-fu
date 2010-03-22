@@ -2,7 +2,7 @@
  -      ``Data/Random''
  -}
 {-# LANGUAGE
-    FlexibleContexts
+    FlexibleContexts, CPP
   #-}
 
 -- |Random numbers and stuff...
@@ -21,7 +21,9 @@
 module Data.Random
     ( module Data.Random.Sample
     , module Data.Random.Source
+#ifndef windows
     , module Data.Random.Source.DevRandom
+#endif
     , module Data.Random.Source.StdGen
     , module Data.Random.Source.PureMT
     , module Data.Random.Source.Std
@@ -46,7 +48,9 @@ module Data.Random
 
 import Data.Random.Sample
 import Data.Random.Source (MonadRandom, RandomSource)
+#ifndef windows
 import Data.Random.Source.DevRandom
+#endif
 import Data.Random.Source.MWC ()
 import Data.Random.Source.StdGen
 import Data.Random.Source.PureMT

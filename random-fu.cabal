@@ -50,7 +50,6 @@ Library
                         Data.Random.RVar
                         Data.Random.Sample
                         Data.Random.Source
-                        Data.Random.Source.DevRandom
                         Data.Random.Source.MWC
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
@@ -81,6 +80,8 @@ Library
                         vector
 
   if os(Windows)
+    cpp-options:        -Dwindows
     build-depends:      erf-native
   else
     build-depends:      erf
+    exposed-modules:    Data.Random.Source.DevRandom
