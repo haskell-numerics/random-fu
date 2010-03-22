@@ -9,21 +9,25 @@ module Data.Random.Internal.Find where
 findMax :: (Fractional a, Ord a) => (a -> Bool) -> a
 findMax p = negate (findMin (p.negate))
 
-findMaxFrom :: (Fractional a, Ord a) => a -> a -> (a -> Bool) -> a
-findMaxFrom z 0 p = findMaxFrom z 1 p
-findMaxFrom z step1 p = findMinFrom z (negate step1) p
-
 -- |Given an upward-closed predicate on an ordered Fractional type,
 -- find the smallest value satisfying the predicate.
 findMin :: (Fractional a, Ord a) => (a -> Bool) -> a
 findMin = findMinFrom 0 1
 
+-- |Given an upward-closed predicate on an ordered Fractional type,
+-- find the smallest value satisfying the predicate.  Starts at the
+-- specified point with the specified stepsize, performs an exponential
+-- search out from there until it finds an interval bracketing the
+-- change-point of the predicate, and then performs a bisection search
+-- to isolate the change point.  Note that infinitely-divisible domains 
+-- such as 'Rational' cannot be searched by this function because it does
+-- not terminate until it reaches a point where further subdivision of the
+-- interval has no effect.
 findMinFrom :: (Fractional a, Ord a) => a -> a -> (a -> Bool) -> a
 findMinFrom z 0 p = findMinFrom z 1 p
 findMinFrom z step1 p
-    | p z   = descend (z-step1) z
-    | otherwise
-    = fixZero (ascend z (z+step1))
+    | p z       = descend (z-step1) z
+    | otherwise = fixZero (ascend z (z+step1))
     where
         -- eliminate negative zero, which, in many domains, is technically
         -- a feasible answer
