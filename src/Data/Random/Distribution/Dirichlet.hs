@@ -24,7 +24,7 @@ fractionalDirichlet as = do
 dirichlet :: Distribution Dirichlet [a] => [a] -> RVar [a]
 dirichlet as = rvar (Dirichlet as)
 
-data Dirichlet a = Dirichlet a deriving (Eq, Show)
+newtype Dirichlet a = Dirichlet a deriving (Eq, Show)
 
 instance (Fractional a, Distribution Gamma a) => Distribution Dirichlet [a] where
     rvar (Dirichlet as) = fractionalDirichlet as
