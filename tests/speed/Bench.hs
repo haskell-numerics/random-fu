@@ -59,7 +59,7 @@ suite src count name var = bgroup name
             allocaBytes bufSiz $ \ptr -> do
                 sequence_
                     [ do
-                        x <- sampleFrom src var :: IO Double
+                        x <- sampleFrom src var
             
                         pokeByteOff ptr offset x
                     | offset <- [0,8..bufSiz - 8]
