@@ -33,6 +33,7 @@ Library
                         Data.Random.Distribution.Dirichlet
                         Data.Random.Distribution.Exponential
                         Data.Random.Distribution.Gamma
+                        Data.Random.Distribution.Multinomial
                         Data.Random.Distribution.Normal
                         Data.Random.Distribution.Poisson
                         Data.Random.Distribution.Rayleigh

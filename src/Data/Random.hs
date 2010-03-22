@@ -33,6 +33,7 @@ module Data.Random
     , module Data.Random.Distribution.Dirichlet
     , module Data.Random.Distribution.Gamma
     , module Data.Random.Distribution.Exponential
+    , module Data.Random.Distribution.Multinomial
     , module Data.Random.Distribution.Normal
     , module Data.Random.Distribution.Poisson
     , module Data.Random.Distribution.Rayleigh
@@ -58,6 +59,7 @@ import Data.Random.Distribution.Categorical
 import Data.Random.Distribution.Dirichlet
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Exponential
+import Data.Random.Distribution.Multinomial
 import Data.Random.Distribution.Normal
 import Data.Random.Distribution.Poisson
 import Data.Random.Distribution.Rayleigh
