@@ -54,16 +54,7 @@ integralBinomial t p = bin 0 t p
                     count k (n+1) = do
                         x <- stdUniform
                         (count $! (if x < p then k + 1 else k)) n
-        
-        -- this gives 'believable' results... but is it really any good?
-        selectA cutoff t = return a
---             | cutoff >= a   = return a
---             | otherwise     = generalBernoulli a (a `div` cutoff) p
---             
-             where
-                 a = 1 + t `div` 2
---                 p = 0.5 :: Float -- fromIntegral cutoff / fromIntegral a :: Float
-                
+
 -- TODO: improve performance
 integralBinomialCDF :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialCDF n p x = sum
