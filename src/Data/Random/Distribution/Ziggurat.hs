@@ -55,7 +55,7 @@ data Ziggurat v t = Ziggurat {
         -- source or \"the literature\" - it's a fairly standard setup.
         zTable_xs         :: v t,
         -- |The ratio of each bin's Y value to the next bin's Y value
-        zTable_x_ratios   :: v t,
+        zTable_y_ratios   :: v t,
         -- |The Y value (zFunc x) of each bin
         zTable_ys         :: v t,
         -- |An RVar providing a random tuple consisting of:
@@ -106,17 +106,16 @@ runZiggurat Ziggurat{..} = go
             -- (or 0 to 1 if not mirroring the distribution).
             -- Let X be U scaled to the size of the selected bin.
             (i,u) <- zGetIU
-            let x = u * zTable_xs ! i
             
             -- if the uniform value U falls in the area "clearly inside" the
             -- bin, accept X immediately.
             -- Otherwise, depending on the bin selected, use either the
             -- tail distribution or an accept/reject test.
-            if abs u < zTable_x_ratios ! i
-                then return $! x
+            if abs u < zTable_y_ratios ! i
+                then return $! (u * zTable_xs ! i)
                 else if i == 0
-                    then sampleTail x
-                    else sampleGreyArea i x
+                    then sampleTail u
+                    else sampleGreyArea i $! (u * zTable_xs ! i)
         
         -- when the sample falls in the "grey area" (the area between
         -- the Y values of the selected bin and the bin after that one),
@@ -171,7 +170,7 @@ mkZiggurat_ :: (RealFloat t, Vector v t,
 mkZiggurat_ m f fInv c r v getIU tailDist = z
     where z = Ziggurat
             { zTable_xs         = zigguratTable f fInv c r v
-            , zTable_x_ratios   = precomputeRatios (zTable_xs z)
+            , zTable_y_ratios   = precomputeRatios (zTable_xs z)
             , zTable_ys         = Vec.map f (zTable_xs z)
             , zGetIU            = getIU
             , zUniform          = uniform
