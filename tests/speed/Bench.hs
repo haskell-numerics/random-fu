@@ -34,6 +34,22 @@ main = do
             xs <- sampleFrom src (dirichlet [1..fromIntegral count :: Double])
             foldl1' (+) xs `seq` return () :: IO ()
             
+        , bgroup "multinomial" 
+            [ bgroup "many p"
+                [ bench desc $ do
+                    xs <- sampleFrom src (multinomial [1..1e4 :: Double] (n :: Int))
+                    foldl1' (+) xs `seq` return () :: IO ()
+                | (desc, n) <- [("small n", 10), ("medium n", 10^4), ("large n", 10^8)]
+                ]
+            , bgroup "few p" 
+                [bench desc $ do
+                    replicateM_ 1000 $ do
+                        xs <- sampleFrom src (multinomial [1..10 :: Double] (n :: Int))
+                        foldl1' (+) xs `seq` return () :: IO ()
+                | (desc, n) <- [("small n", 10), ("medium n", 10^4), ("large n", 10^8)]
+                ]
+            ]
+            
         , bench "shuffle" $ do
             xs <- sampleFrom src (shuffle [1..count])
             foldl1' (+) xs `seq` return () :: IO ()
