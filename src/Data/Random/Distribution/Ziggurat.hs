@@ -32,7 +32,7 @@ import Data.Random.Distribution.Uniform
 import Data.Random.Distribution
 import Data.Random.RVar
 import Data.Vector.Generic as Vec
-import Foreign.Storable
+import Data.Function (fix)
 
 -- |A data structure containing all the data that is needed
 -- to implement Marsaglia & Tang's \"ziggurat\" algorithm for
@@ -236,8 +236,17 @@ mkZigguratRec ::
 mkZigguratRec m f fInv fInt fVol c getIU = z
         where
             z = mkZiggurat m f fInv fInt fVol c getIU (fix (mkTail m f fInv fInt fVol c getIU z))
-            fix f = f (fix f)
 
+mkTail :: 
+    (RealFloat a, Vector v a, Distribution Uniform a) =>
+    Bool
+    -> (a -> a) -> (a -> a) -> (a -> a)
+    -> a
+    -> Int
+    -> RVar (Int, a)
+    -> Ziggurat v a
+    -> (a -> RVar a)
+    -> (a -> RVar a)
 mkTail m f fInv fInt fVol c getIU typeRep nextTail r = do
      x <- rvar (mkZiggurat m f' fInv' fInt' fVol' c getIU nextTail `asTypeOf` typeRep)
      return (x + r * signum x)
@@ -256,11 +265,12 @@ mkTail m f fInv fInt fVol c getIU typeRep nextTail r = do
 zigguratTable :: (Fractional a, Vector v a, Ord a) =>
                  (a -> a) -> (a -> a) -> Int -> a -> a -> v a
 zigguratTable f fInv c r v = case zigguratXs f fInv c r v of
-    (xs, excess) -> fromList xs
-    where epsilon = 1e-3*v
+    (xs, _excess) -> fromList xs
 
+zigguratExcess :: (Fractional a, Ord a) => (a -> a) -> (a -> a) -> Int -> a -> a -> a
 zigguratExcess f fInv c r v = snd (zigguratXs f fInv c r v)
 
+zigguratXs :: (Fractional a, Ord a) => (a -> a) -> (a -> a) -> Int -> a -> a -> ([a], a)
 zigguratXs f fInv c r v = (xs, excess)
     where
         xs = Prelude.map x [0..c] -- sample c x
@@ -270,6 +280,7 @@ zigguratXs f fInv c r v = (xs, excess)
         x 1 = r
         x i | i == c = 0
         x (i+1) = next i
+        x _ = error "zigguratXs: programming error! this case should be impossible!"
         
         next i = let x_i = xs!!i
                   in if x_i <= 0 then -1 else fInv (ys!!i + (v / x_i))
@@ -277,6 +288,7 @@ zigguratXs f fInv c r v = (xs, excess)
         excess = xs!!(c-1) * (f 0 - ys !! (c-1)) - v 
 
 
+precomputeRatios :: (Vector v a, Fractional a) => v a -> v a
 precomputeRatios zTable_xs = generate (c-1) $ \i -> zTable_xs!(i+1) / zTable_xs!i
     where
         c = Vec.length zTable_xs
@@ -299,7 +311,7 @@ precomputeRatios zTable_xs = generate (c-1) $ \i -> zTable_xs!(i+1) / zTable_xs!
 -- Result: (R,V)
 findBin0 :: (RealFloat b) => 
     Int -> (b -> b) -> (b -> b) -> (b -> b) -> b -> (b, b)
-findBin0 cInt f fInv fInt fVol = (r,v r)
+findBin0 cInt f fInv fInt fVol = (rMin,v rMin)
     where
         c = fromIntegral cInt
         v r = r * f r + fVol - fInt r
@@ -307,7 +319,7 @@ findBin0 cInt f fInv fInt fVol = (r,v r)
         -- initial R guess:
         r0 = findMin (\r -> v r <= fVol / c)
         -- find a better R:
-        r = findMinFrom r0 1 $ \r -> 
+        rMin = findMinFrom r0 1 $ \r -> 
             let e = exc r 
              in e >= 0 && not (isNaN e)
         

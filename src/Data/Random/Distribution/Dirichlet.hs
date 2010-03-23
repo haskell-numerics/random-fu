@@ -14,7 +14,7 @@ import Data.List
 
 fractionalDirichlet :: (Fractional a, Distribution Gamma a) => [a] -> RVar [a]
 fractionalDirichlet []  = return []
-fractionalDirichlet [a] = return [1]
+fractionalDirichlet [_] = return [1]
 fractionalDirichlet as = do
     xs <- sequence [gamma a 1 | a <- as]
     let total = foldl1' (+) xs

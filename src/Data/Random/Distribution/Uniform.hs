@@ -51,27 +51,32 @@ import Control.Monad.Loops
 
 -- |Compute a random 'Integral' value between the 2 values provided (inclusive).
 integralUniform :: (Integral a) => a -> a -> RVar a
-integralUniform a b
-    | a > b     = compute b a
-    | otherwise = compute a b
+integralUniform x y
+    | x > y     = compute y x
+    | otherwise = compute x y
     where
-        compute a b = do
-            let m = 1 + toInteger b - toInteger a
+        compute l u = do
+            let m = 1 + toInteger u - toInteger l
             
             let bytes = bytesNeeded m
                 maxXpossible = (powersOf256 !! bytes) - 1
             
-            x <- iterateUntil (maxXpossible - maxXpossible `mod` m >) (getRandomPrim (PrimNByteInteger bytes))
-            return (a + fromInteger (x `mod` m))
+            z <- iterateUntil (maxXpossible - maxXpossible `mod` m >) (getRandomPrim (PrimNByteInteger bytes))
+            return (l + fromInteger (z `mod` m))
 
+integralUniformCDF :: (Integral a, Fractional b) => a -> a -> a -> b
 integralUniformCDF a b x
     | b < a     = integralUniformCDF b a x
     | x < a     = 0
     | x > b     = 1
     | otherwise = (fromIntegral x - fromIntegral a) / (fromIntegral b - fromIntegral a)
 
+bytesNeeded :: Integer -> Int
 bytesNeeded x = case findIndex (> x) powersOf256 of
-    Just x -> x
+    Just n  -> n
+    Nothing -> error "bytesNeeded: supplied Integer is impossibly large"
+
+powersOf256 :: [Integer]
 powersOf256 = iterate (256 *) 1
 
 -- |Compute a random value for a 'Bounded' type, between 'minBound' and 'maxBound'
@@ -268,8 +273,8 @@ instance HasResolution r =>
 instance HasResolution r => 
          CDF StdUniform (Fixed r)           where cdf  ~StdUniform = realStdUniformCDF
 
-instance Distribution Uniform ()            where rvar (Uniform a b) = return ()
-instance CDF Uniform ()                     where cdf  (Uniform a b) = return 1
+instance Distribution Uniform ()            where rvar (Uniform _ _) = return ()
+instance CDF Uniform ()                     where cdf  (Uniform _ _) = return 1
 $( replicateInstances ''Char [''Char, ''Bool, ''Ordering] [d|
         instance Distribution Uniform Char  where rvar (Uniform a b) = enumUniform a b
         instance CDF Uniform Char           where cdf  (Uniform a b) = enumUniformCDF a b

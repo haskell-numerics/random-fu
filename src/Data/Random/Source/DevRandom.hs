@@ -10,9 +10,8 @@ module Data.Random.Source.DevRandom
     ) where
 
 import Data.Random.Source
-import Data.Random.Internal.Primitives
 
-import System.IO (openBinaryFile, hGetBuf, IOMode(..))
+import System.IO (openBinaryFile, hGetBuf, Handle, IOMode(..))
 import Foreign
 
 -- |On systems that have it, \/dev\/random is a handy-dandy ready-to-use source
@@ -23,12 +22,16 @@ import Foreign
 -- purposes other than cryptography, \/dev\/urandom is preferable because when it
 -- runs out of real entropy it'll still churn out pseudorandom data.
 data DevRandom = DevRandom | DevURandom
+    deriving (Eq, Show)
 
 {-# NOINLINE devRandom  #-}
+devRandom :: Handle
 devRandom  = unsafePerformIO (openBinaryFile "/dev/random"  ReadMode)
 {-# NOINLINE devURandom #-}
+devURandom :: Handle
 devURandom = unsafePerformIO (openBinaryFile "/dev/urandom" ReadMode)
 
+dev :: DevRandom -> Handle
 dev DevRandom  = devRandom
 dev DevURandom = devURandom
 
@@ -47,3 +50,4 @@ instance RandomSource IO DevRandom where
     getSupportedRandomPrimFrom src PrimWord64  = allocaBytes 8 $ \buf -> do
         8 <- hGetBuf (dev src) buf  8
         peek (castPtr buf)
+    getSupportedRandomPrimFrom src prim = error ("getSupportedRandomPrimFrom/" ++ show src ++ ": unsupported prim requested: " ++ show prim)

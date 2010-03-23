@@ -16,17 +16,13 @@ import Data.Random.Distribution
 import Data.Random.Distribution.Beta
 import Data.Random.Distribution.Uniform
 
-import Data.Int
-import Data.Word
-import Control.Monad
-
     -- algorithm from Knuth's TAOCP, 3rd ed., p 136
     -- specific choice of cutoff size taken from gsl source
     -- note that although it's fast enough for large (eg, 2^10000) 
     -- @Integer@s, it's not accurate enough when using @Double@ as
     -- the @b@ parameter.
 integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> b -> RVar a
-integralBinomial t p = bin 0 t p
+integralBinomial = bin 0
     where
         -- GHC likes to discharge Beta to the Beta instance's context, which
         -- @integralBinomial@'s context doesn't (directly) satisfy.
@@ -50,15 +46,16 @@ integralBinomial t p = bin 0 t p
         
             | otherwise = count k t
                 where
-                    count k  0    = return k
-                    count k (n+1) = do
+                    count k'  0    = return k'
+                    count k' (n+1) = do
                         x <- stdUniform
-                        (count $! (if x < p then k + 1 else k)) n
+                        (count $! (if x < p then k' + 1 else k')) n
+                    count _ _ = error "integralBinomial: negative number of trials specified"
 
 -- TODO: improve performance
 integralBinomialCDF :: (Integral a, Real b) => a -> b -> a -> Double
-integralBinomialCDF n p x = sum
-    [ fromIntegral (n `c` i) * p' ^^ i * (1-p') ^^ (n-i)
+integralBinomialCDF t p x = sum
+    [ fromIntegral (t `c` i) * p' ^^ i * (1-p') ^^ (t-i)
     | i <- [0 .. x]
     ]
     

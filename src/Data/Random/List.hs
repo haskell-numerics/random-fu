@@ -31,9 +31,8 @@ shuffle xs = do
 --
 -- Throws an error the list is not exactly as long as claimed.
 shuffleN :: Int -> [a] -> RVar [a]
-shuffleN 0 xs = return []
-shuffleN m@(n+1) xs = do
+shuffleN 0 _ = return []
+shuffleN (n+1) xs = do
     is <- sequence [uniform 0 i | i <- [n,n-1..1]]
     return (SRS.shuffle xs is)
-
-    
+shuffleN _ _ = error "shuffleN: negative length specified"

@@ -31,7 +31,6 @@ import Data.Random.Distribution.Uniform
 import Data.Random.Distribution.Ziggurat
 import Data.Random.RVar
 
-import Control.Monad
 import Data.Vector.Generic (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as UV
@@ -137,6 +136,7 @@ normalFVol = sqrt (0.5 * pi)
 realFloatStdNormal :: (RealFloat a, Erf a, Distribution Uniform a) => RVar a
 realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggurat V.Vector a))
     where 
+        p :: Int
         p = 6
         
         getIU = do
@@ -191,9 +191,6 @@ floatStdNormalZ = mkZiggurat_ True
             w <- getRandomPrim PrimWord64
             let (u,i) = wordToFloatWithExcess w
             return (fromIntegral i .&. (floatStdNormalC-1), u+u-1)
-
-normalPdf :: Real a => a -> a -> a -> Double
-normalPdf m s x = recip (realToFrac s * sqrt (2*pi)) * exp (-0.5 * (realToFrac x - realToFrac m)^2 / (realToFrac s)^2)
 
 normalCdf :: (Real a) => a -> a -> a -> Double
 normalCdf m s x = normcdf ((realToFrac x - realToFrac m) / realToFrac s)

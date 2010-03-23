@@ -17,16 +17,14 @@ import Data.Random.Distribution.Uniform
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Binomial
 
-import Data.Int
-import Data.Word
 import Control.Monad
 
 -- from Knuth, with interpretation help from gsl sources
 integralPoisson :: (Integral a, RealFloat b, Distribution StdUniform b, Distribution (Erlang a) b, Distribution (Binomial b) a) => b -> RVar a
-integralPoisson mu = psn 0 mu
+integralPoisson = psn 0
     where
         psn :: (Integral a, RealFloat b, Distribution StdUniform b, Distribution (Erlang a) b, Distribution (Binomial b) a) => a -> b -> RVar a
-        psn k mu
+        psn j mu
             | mu > 10   = do
                 let m = floor (mu * (7/8))
             
@@ -34,10 +32,10 @@ integralPoisson mu = psn 0 mu
                 if x >= mu
                     then do
                         b <- binomial (m - 1) (mu / x)
-                        return (k + b)
-                    else psn (k + m) (mu - x)
+                        return (j + b)
+                    else psn (j + m) (mu - x)
             
-            | otherwise = prod 1 k
+            | otherwise = prod 1 j
                 where
                     emu = exp (-mu)
                 

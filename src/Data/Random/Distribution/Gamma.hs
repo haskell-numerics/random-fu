@@ -21,7 +21,6 @@ import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 import Data.Random.Distribution.Normal
 
-import Control.Monad
 import Data.Ratio
 
 -- derived from  Marsaglia & Tang, "A Simple Method for generating gamma
@@ -42,7 +41,7 @@ mtGamma a b = go
         
         go = do
             x <- stdNormal
-            let !v  = (1 + c*x)^3
+            let !v  = (1 + c*x)^(3 :: Int)
             
             if v <= 0
                 then go

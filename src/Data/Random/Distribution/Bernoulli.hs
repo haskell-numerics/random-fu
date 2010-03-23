@@ -16,8 +16,6 @@ import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 
-import Data.Int
-import Data.Word
 import Data.Ratio
 import Data.Complex
 
@@ -35,7 +33,7 @@ boolBernoulli p = do
     return (x <= p)
 
 boolBernoulliCDF :: (Real a) => a -> Bool -> Double
-boolBernoulliCDF p True  = 1
+boolBernoulliCDF _ True  = 1
 boolBernoulliCDF p False = (1 - realToFrac p)
 
 -- | @generalBernoulli t f p@ generates a random variable whose value is @t@
@@ -46,10 +44,10 @@ generalBernoulli f t p = do
     return (if x then t else f)
 
 generalBernoulliCDF :: CDF (Bernoulli b) Bool => (a -> a -> Bool) -> a -> a -> b -> a -> Double
-generalBernoulliCDF (>=) f t p x
-    | f >= t    = error "generalBernoulliCDF: f >= t"
-    | x >= t    = cdf (Bernoulli p) True
-    | x >= f    = cdf (Bernoulli p) False
+generalBernoulliCDF gte f t p x
+    | f `gte` t = error "generalBernoulliCDF: f >= t"
+    | x `gte` t = cdf (Bernoulli p) True
+    | x `gte` f = cdf (Bernoulli p) False
     | otherwise = 0
 
 data Bernoulli b a = Bernoulli b

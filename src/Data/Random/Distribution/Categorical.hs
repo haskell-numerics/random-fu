@@ -81,6 +81,8 @@ instance (Fractional p, Ord p, Distribution StdUniform p) => Distribution (Categ
                         | c < lastC = fail "categorical distribution sampling error: negative probability for an event!"
                         | u >~ c    = go c cs xs
                         | otherwise = return x
+                    
+                    go _ _ _ = error "rvar/Categorical: programming error! this case should be impossible!"
 
 instance Functor (Categorical p) where
     fmap f (Categorical ds) = Categorical [(p, f x) | ~(p, x) <- ds]
@@ -89,8 +91,8 @@ instance Foldable (Categorical p) where
     foldMap f (Categorical ds) = foldMap (f . snd) ds
 
 instance Traversable (Categorical p) where
-    traverse f (Categorical ds) = Categorical <$> traverse (\(p,e) -> (\e -> (p,e)) <$> f e) ds
-    sequenceA  (Categorical ds) = Categorical <$> traverse (\(p,e) -> (\e -> (p,e)) <$>   e) ds
+    traverse f (Categorical ds) = Categorical <$> traverse (\(p,e) -> (\e' -> (p,e')) <$> f e) ds
+    sequenceA  (Categorical ds) = Categorical <$> traverse (\(p,e) -> (\e' -> (p,e')) <$>   e) ds
 
 instance Fractional p => Monad (Categorical p) where
     return x = Categorical [(1, x)]
@@ -113,13 +115,13 @@ instance Fractional p => Monad (Categorical p) where
     -- user (who really better know what they mean if they're returning
     -- non-normalized probability anyway) to normalize explicitly than to
     -- undo any normalization that was done automatically.
-    (Categorical x) >>= f = {- normalizeCategoricalPs . -} Categorical $ do
-        (p, x) <- x
+    (Categorical xs) >>= f = {- normalizeCategoricalPs . -} Categorical $ do
+        (p, x) <- xs
         
         let Categorical fx = f x
-        (q, x) <- fx
+        (q, y) <- fx
         
-        return (p * q, x)
+        return (p * q, y)
 
 instance Fractional p => Applicative (Categorical p) where
     pure = return

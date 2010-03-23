@@ -28,12 +28,12 @@ data Triangular a = Triangular {
     triUpper  :: a}
     deriving (Eq, Show)
 
--- |Compute a triangular distribution for a 'Fractional' type.  The name is
--- a historical accident and may change in the future.
-realFloatTriangular :: (Floating a, Ord a, Distribution StdUniform a) => a -> a -> a -> RVar a
-realFloatTriangular a b c
-    | a <= b && b <= c
-    = do
+-- |Compute a triangular distribution for a 'Floating' type.
+floatingTriangular :: (Floating a, Ord a, Distribution StdUniform a) => a -> a -> a -> RVar a
+floatingTriangular a b c
+    | a > b     = floatingTriangular b a c
+    | b > c     = floatingTriangular a c b
+    | otherwise = do
         let p = (c-b)/(c-a)
         u <- stdUniform
         let d   | u >= p    = a
@@ -44,19 +44,19 @@ realFloatTriangular a b c
 --        x <- stdUniform
         return (b - ((1 - sqrt x) * (b-d)))
 
--- |@realFloatTriangularCDF a b c@ is the CDF of @realFloatTriangular a b c@.
-realFloatTriangularCDF :: RealFrac a => a -> a -> a -> a -> Double
-realFloatTriangularCDF a b c x
+-- |@triangularCDF a b c@ is the CDF of @realFloatTriangular a b c@.
+triangularCDF :: RealFrac a => a -> a -> a -> a -> Double
+triangularCDF a b c x
     | x < a
     = 0
     | x <= b
-    = realToFrac ((x - a) ^ 2 / ((c - a) * (b - a)))
+    = realToFrac ((x - a)^(2 :: Int) / ((c - a) * (b - a)))
     | x <= c
-    = realToFrac (1 - (c - x) ^ 2 / ((c - a) * (c - b)))
+    = realToFrac (1 - (c - x)^(2 :: Int) / ((c - a) * (c - b)))
     | otherwise
     = 1
     
 instance (RealFloat a, Ord a, Distribution StdUniform a) => Distribution Triangular a where
-    rvar (Triangular a b c) = realFloatTriangular a b c
+    rvar (Triangular a b c) = floatingTriangular a b c
 instance (RealFrac a, Distribution Triangular a) => CDF Triangular a where
-    cdf  (Triangular a b c) = realFloatTriangularCDF a b c
+    cdf  (Triangular a b c) = triangularCDF a b c

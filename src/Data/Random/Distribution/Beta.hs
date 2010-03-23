@@ -14,8 +14,6 @@ import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Uniform
 
-import Control.Monad
-
 fractionalBeta :: (Fractional a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVar a
 fractionalBeta 1 1 = stdUniform
 fractionalBeta a b = do
