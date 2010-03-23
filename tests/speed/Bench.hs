@@ -80,6 +80,7 @@ suite src count name var = bgroup name
                         pokeByteOff ptr offset x
                     | offset <- [0,8..bufSiz - 8]
                     ]
+                sumBuf count ptr
     
     , let !bufSiz = count * 8
        in bench "RVarT IO arrays" $ do
@@ -91,4 +92,5 @@ suite src count name var = bgroup name
                         lift (pokeByteOff ptr offset x)
                     | offset <- [0,8..bufSiz - 8]
                     ]
+                lift (sumBuf count ptr)
     ]

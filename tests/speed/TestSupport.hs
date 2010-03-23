@@ -5,6 +5,7 @@ import System.Random.MWC
 import Data.StateRef
 import Control.Monad (forever)
 import Control.Monad.ST
+import Foreign
 
 type Src = IORef PureMT
 getTestSource = do
@@ -22,8 +23,10 @@ sumM n x = go n 0
             x <- x
             go n $! (x + s)
 
-nTimes Nothing  x = forever x
-nTimes (Just n) x = go n
+sumBuf :: Int -> Ptr Double -> IO Double
+sumBuf bufSz ptr = go bufSz 0
     where
-        go 0 = return ()
-        go (n+1) = x >> go n
+        go 0     s = return s
+        go (sz+8) s = do
+            x <- peekByteOff ptr sz :: IO Double
+            go sz $! (x + s)
