@@ -14,7 +14,7 @@ data Multinomial p a where
     Multinomial :: [p] -> a -> Multinomial p [a]
 
 instance (Num a, Fractional p, Distribution (Binomial p) a) => Distribution (Multinomial p) [a] where
-    -- TODO: implement faster version based on Dirichlet for small n, large (length ps)
+    -- TODO: implement faster version based on Categorical for small n, large (length ps)
     rvar (Multinomial ps n) = go n ps (tailSums ps) id
         where
             go n []     _            f = return (f [])
