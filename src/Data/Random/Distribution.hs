@@ -16,22 +16,18 @@ import qualified Data.Vector.Generic as V
 
 -- |A definition of a random variable's distribution.  From the distribution
 -- an 'RVar' can be created, or the distribution can be directly sampled using 
--- 'sampleFrom' or 'sample'.
+-- 'sampleFrom' or 'sample'.  Minimum implementation is either 'rvar' or 'rvarT'.
 class Distribution d t where
     -- |Return a random variable with this distribution.
     rvar :: d t -> RVar t
+    rvar = rvarT
     
-    -- |Return a random vector with N i.i.d. variables of this distribution
-    rvec :: V.Vector v t => Int -> d t -> RVar (v t)
-        -- I can't find any indication of what the "right way" might be to
-        -- implement essentially "replicateM" for a vector.  I can't seem
-        -- to find a function @S.Stream m a -> m (v a)@ either.
-    rvec n d = do
-        list <- replicateM n (rvar d)
-        return (V.fromList list)
-        -- = V.unstreamM (S.generateM n (\_ -> rvar d))
-        -- (best surrogate i've come up with so far for an "unstreamM" 
-        -- which doesn't seem to exist is S.foldr V.cons V.empty)
+    -- |Return a random variable with the given distribution, pre-lifted to an arbitrary 'RVarT'.
+    -- Any arbitrary 'RVar' can also be converted to an 'RVarT m' for an arbitrary 'm', using
+    -- either 'lift' or 'sample'.
+    rvarT :: d t -> RVarT n t
+    rvarT d = lift (rvar d)
+
 
 class Distribution d t => CDF d t where
     -- |Return the cumulative distribution function of this distribution.
@@ -53,10 +49,3 @@ class Distribution d t => CDF d t where
     -- it should represent the CDF with respect to the lexicographic order
     -- of the tuple.
     cdf :: d t -> t -> Double
-
--- |Return a random variable with the given distribution, pre-lifted to an arbitrary 'RVarT'.
--- Any arbitrary 'RVar' can also be converted to an 'RVarT m' for an arbitrary 'm', using
--- either 'lift' or 'sample'.
-rvarT :: Distribution d t => d t -> RVarT n t
-rvarT d = lift (rvar d)
-
