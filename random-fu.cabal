@@ -23,6 +23,7 @@ Flag base4_2
     Description:        base-4.2 has an incompatible change in Data.Fixed (HasResolution)
 
 Library
+  ghc-options:          -Wall
   hs-source-dirs:       src
   exposed-modules:      Data.Random
                         Data.Random.Distribution

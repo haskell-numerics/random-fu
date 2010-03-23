@@ -5,6 +5,7 @@
     UndecidableInstances,
     GADTs
   #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- |This module provides functions useful for implementing new 'MonadRandom'
 -- and 'RandomSource' instances for state-abstractions containing 'PureMT'
@@ -13,13 +14,11 @@
 -- cases.
 module Data.Random.Source.PureMT where
 
-import Data.Random.Internal.Words
 import Data.Random.Internal.Primitives
 import Data.Random.Source
 import System.Random.Mersenne.Pure64
 
 import Data.StateRef
-import Data.Word
 
 import Control.Monad.Prompt
 import Control.Monad.State
@@ -29,25 +28,22 @@ import qualified Control.Monad.State.Strict as S
 -- |Given a mutable reference to a 'PureMT' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
 getRandomPrimFromMTRef :: (Monad m, ModifyRef sr m PureMT) => sr -> Prim a -> m a
-getRandomPrimFromMTRef ref PrimWord64 = do
-    atomicModifyReference ref $ \(!mt) -> case randomWord64 mt of
-        (!w, !mt) -> (mt, w)
--- for whatever reason, my simple wordToDouble is faster than whatever
--- the mersenne random library is using, at least in the version I have.
--- if this changes, switch to the commented version.
--- Same thing below, in getRandomDoubleFromMTState.
-getRandomPrimFromMTRef ref PrimDouble = 
-    atomicModifyReference ref $ \(!mt) -> case randomWord64 mt of
-        (!w, !mt) -> (mt, wordToDouble w)
--- getRandomPrimFromMTRef ref PrimDouble = do
---    atomicModifyReference ref $ \(!mt) -> case randomDouble mt of
---        (!w, !mt) -> (mt, w)
-getRandomPrimFromMTRef ref other = runPromptM (getRandomPrimFromMTRef ref) (decomposePrimWhere supported other)
+getRandomPrimFromMTRef ref prim
+    | supported prim = getThing (genPrim prim)
+    | otherwise = runPromptM (getRandomPrimFromMTRef ref) (decomposePrimWhere supported prim)
     where 
         supported :: Prim a -> Bool
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
+        
+        genPrim :: Prim a -> (PureMT -> (a, PureMT))
+        genPrim PrimWord64 = randomWord64
+        genPrim PrimDouble = randomDouble
+        genPrim p = error ("getRandomPrimFromMTRef: genPrim called for unsupported prim " ++ show p)
+        
+        getThing thing = atomicModifyReference ref $ \(!oldMT) -> case thing oldMT of (!w, !newMT) -> (newMT, w)
+            
 
 -- |Similarly, @getRandomPrimFromMTState x@ can be used in any \"state\"
 -- monad in the mtl sense whose state is a 'PureMT' generator.
@@ -58,23 +54,25 @@ getRandomPrimFromMTRef ref other = runPromptM (getRandomPrimFromMTRef ref) (deco
 -- 'PureMT' in the type there can be replaced by 'StdGen' or anything else 
 -- satisfying @MonadRandom (State s) => s@).
 getRandomPrimFromMTState :: MonadState PureMT m => Prim a -> m a
-getRandomPrimFromMTState PrimWord64 = do
-    !mt <- get
-    let (!ws, !newMt) = randomWord64 mt
-    put newMt
-    return ws
-getRandomPrimFromMTState PrimDouble = liftM wordToDouble (getRandomPrimFromMTState PrimWord64)
--- getRandomPrimFromMTState PrimDouble = do
---     !mt <- get
---     let (!x, !newMt) = randomDouble mt
---     put newMt
---     return x
-getRandomPrimFromMTState other = runPromptM getRandomPrimFromMTState (decomposePrimWhere supported other)
-    where 
+getRandomPrimFromMTState prim
+    | supported prim = getThing (genPrim prim)
+    | otherwise = runPromptM getRandomPrimFromMTState (decomposePrimWhere supported prim)
+    where
         supported :: Prim a -> Bool
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
+        
+        genPrim :: Prim a -> (PureMT -> (a, PureMT))
+        genPrim PrimWord64 = randomWord64
+        genPrim PrimDouble = randomDouble
+        genPrim p = error ("getRandomPrimFromMTRef: genPrim called for unsupported prim " ++ show p)
+        
+        getThing thing = do
+            !mt <- get
+            let (!ws, !newMt) = thing mt
+            put newMt
+            return ws
 
 instance MonadRandom (State PureMT) where
     supportedPrims _ _ = True

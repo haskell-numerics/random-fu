@@ -6,10 +6,6 @@
 module Data.Random.Internal.Words where
 
 import Foreign
-import GHC.IOBase
-
-import Data.Bits
-import Data.Word
 
 -- TODO: add a build flag for endianness-invariance, or just find a way
 -- to make sure these operations all do the right thing without costing 

@@ -12,11 +12,9 @@ module Data.Random.Source
     ) where
 
 import Data.Word
-import Control.Monad
 import Control.Monad.Prompt
 import Data.Tagged
 
-import Data.Random.Internal.Words
 import Data.Random.Internal.Primitives
 
 -- |A typeclass for monads with a chosen source of entropy.  For example,
@@ -111,15 +109,32 @@ instance Monad m => RandomSource m (m Word8) where
     supportedPrimsFrom _ _ = False
     
     getSupportedRandomPrimFrom f PrimWord8 = f
+    getSupportedRandomPrimFrom _ p = error ("getSupportedRandomPrimFrom/RandomSource m (m Word8): unsupported prim requested: " ++ show p)
+
+instance Monad m => RandomSource m (m Word16) where
+    supportedPrimsFrom _ PrimWord16 = True
+    supportedPrimsFrom _ _ = False
+    
+    getSupportedRandomPrimFrom f PrimWord16 = f
+    getSupportedRandomPrimFrom _ p = error ("getSupportedRandomPrimFrom/RandomSource m (m Word16): unsupported prim requested: " ++ show p)
+
+instance Monad m => RandomSource m (m Word32) where
+    supportedPrimsFrom _ PrimWord32 = True
+    supportedPrimsFrom _ _ = False
+    
+    getSupportedRandomPrimFrom f PrimWord32 = f
+    getSupportedRandomPrimFrom _ p = error ("getSupportedRandomPrimFrom/RandomSource m (m Word32): unsupported prim requested: " ++ show p)
 
 instance Monad m => RandomSource m (m Word64) where
     supportedPrimsFrom _ PrimWord64 = True
     supportedPrimsFrom _ _ = False
     
     getSupportedRandomPrimFrom f PrimWord64 = f
+    getSupportedRandomPrimFrom _ p = error ("getSupportedRandomPrimFrom/RandomSource m (m Word64): unsupported prim requested: " ++ show p)
 
 instance Monad m => RandomSource m (m Double) where
     supportedPrimsFrom _ PrimDouble = True
     supportedPrimsFrom _ _ = False
     
     getSupportedRandomPrimFrom f PrimDouble = f
+    getSupportedRandomPrimFrom _ p = error ("getSupportedRandomPrimFrom/RandomSource m (m Double): unsupported prim requested: " ++ show p)

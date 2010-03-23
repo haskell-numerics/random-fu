@@ -3,6 +3,7 @@
         FlexibleInstances,
         GADTs
   #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Data.Random.Source.MWC where
 
 import Data.Random.Internal.Primitives
@@ -24,6 +25,7 @@ instance RandomSource (ST s) (Gen s) where
     getSupportedRandomPrimFrom gen PrimWord32   = uniform gen
     getSupportedRandomPrimFrom gen PrimWord64   = uniform gen
     getSupportedRandomPrimFrom gen PrimDouble   = fmap wordToDouble (uniform gen)
+    getSupportedRandomPrimFrom _ p = error ("getSupportedRandomPrimFrom/Gen s: unsupported prim requested: " ++ show p)
 
 instance RandomSource IO (Gen RealWorld) where
     {-# INLINE supportedPrimsFrom #-}

@@ -11,7 +11,6 @@ module Data.Random.Distribution.Categorical where
 import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
-import Data.Random.List (randomElement)
 
 import Control.Arrow
 import Control.Monad

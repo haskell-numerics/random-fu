@@ -1,7 +1,8 @@
 {-# LANGUAGE
     MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs,
-    BangPatterns
+    BangPatterns, RankNTypes
   #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- |This module provides functions useful for implementing new 'MonadRandom'
 -- and 'RandomSource' instances for state-abstractions containing 'StdGen'
@@ -48,27 +49,9 @@ instance (Monad m, ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef
     getSupportedRandomPrimFrom = getRandomPrimFromRandomGenRef
 
 getRandomPrimFromStdGenIO :: Prim a -> IO a
-getRandomPrimFromStdGenIO PrimWord8 = do
-    int <- randomRIO (0, 255) :: IO Int
-    return (fromIntegral int)
-
-getRandomPrimFromStdGenIO PrimWord32 = do
-    int <- randomRIO (0, 0xffffffff)
-    return (fromInteger int)
-
-getRandomPrimFromStdGenIO PrimWord64 = do
-    int <- randomRIO (0, 0xffffffffffffffff)
-    return (fromInteger int)
-
--- based on reading the source of the "random" library's implementation, I do
--- not believe that the randomRIO (0,1) implementation for Double is capable of producing
--- the value 0.  Therefore, I'm not using it.  If this is an incorrect reading on
--- my part, or if this changes, then feel free to use the commented version.
--- Same goes for the other getRandomDouble... functions here.
-getRandomPrimFromStdGenIO PrimDouble = liftM wordToDouble (getRandomPrimFromStdGenIO PrimWord64)
--- getRandomPrimFromStdGenIO PrimDouble = (0, 1)
-
-getRandomPrimFromStdGenIO other = runPromptM getRandomPrimFromStdGenIO (decomposePrimWhere supported other)
+getRandomPrimFromStdGenIO prim
+    | supported prim = genPrim prim
+    | otherwise = runPromptM getRandomPrimFromStdGenIO (decomposePrimWhere supported prim)
     where 
         {-# INLINE supported #-}
         supported :: Prim a -> Bool
@@ -77,31 +60,29 @@ getRandomPrimFromStdGenIO other = runPromptM getRandomPrimFromStdGenIO (decompos
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
+        
+        -- based on reading the source of the "random" library's implementation, I do
+        -- not believe that the randomRIO (0,1) implementation for Double is capable of producing
+        -- the value 0.  Therefore, I'm not using it.  If this is an incorrect reading on
+        -- my part, or if this changes, then feel free to change the implementation.
+        -- Same goes for the other getRandomDouble... functions here.
+
+        {-# INLINE genPrim #-}
+        genPrim :: Prim a -> IO a
+        genPrim PrimWord8  = fmap fromIntegral                  (randomRIO (0, 0xff) :: IO Int)
+        genPrim PrimWord16 = fmap fromIntegral                  (randomRIO (0, 0xffff) :: IO Int)
+        genPrim PrimWord32 = fmap fromInteger                   (randomRIO (0, 0xffffffff))
+        genPrim PrimWord64 = fmap fromInteger                   (randomRIO (0, 0xffffffffffffffff))
+        genPrim PrimDouble = fmap (wordToDouble . fromInteger)  (randomRIO (0, 0xffffffffffffffff))
+        genPrim p = error ("getRandomPrimFromStdGenIO: genPrim called for unsupported prim " ++ show p)
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
 getRandomPrimFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> Prim a -> m a
-getRandomPrimFromRandomGenRef g PrimWord8
-    = atomicModifyReference g $ \(!gen) -> case randomR (0,0xff) gen of
-        (!w, !gen) -> (gen, fromIntegral (w :: Int))
-    where 
-        swap :: (Int, a) -> (a, Word8)
-        swap (a,b) = (b,fromIntegral a)
-
-getRandomPrimFromRandomGenRef g PrimWord32
-    = atomicModifyReference g $ \(!gen) -> case randomR (0,0xffffffff) gen of
-        (!w, !gen) -> (gen, fromInteger w)
-
-getRandomPrimFromRandomGenRef g PrimWord64
-    = atomicModifyReference g $ \(!gen) -> case randomR (0,0xffffffffffffffff) gen of
-        (!w, !gen) -> (gen, fromInteger w)
-
-getRandomPrimFromRandomGenRef g PrimDouble = liftM wordToDouble (getRandomPrimFromRandomGenRef g PrimWord64)
--- getRandomPrimFromRandomGenRef g PrimDouble = atomicModifyRef g (swap . randomR (0,1))
---     where swap (a,b) = (b,a)
-
-getRandomPrimFromRandomGenRef g other = runPromptM (getRandomPrimFromRandomGenRef g) (decomposePrimWhere supported other)
+getRandomPrimFromRandomGenRef ref prim
+    | supported prim = genPrim prim getThing
+    | otherwise = runPromptM (getRandomPrimFromRandomGenRef ref) (decomposePrimWhere supported prim)
     where 
         {-# INLINE supported #-}
         supported :: Prim a -> Bool
@@ -110,6 +91,18 @@ getRandomPrimFromRandomGenRef g other = runPromptM (getRandomPrimFromRandomGenRe
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
+        
+        {-# INLINE genPrim #-}
+        genPrim :: (RandomGen g) => Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
+        genPrim PrimWord8  f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
+        genPrim PrimWord16 f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
+        genPrim PrimWord32 f = f (randomR (0, 0xffffffff))          (fromInteger)
+        genPrim PrimWord64 f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
+        genPrim PrimDouble f = f (randomR (0, 0xffffffffffffffff))  (wordToDouble . fromInteger)
+        genPrim p _ = error ("getRandomPrimFromRandomGenRef: genPrim called for unsupported prim " ++ show p)
+        
+        {-# INLINE getThing #-}
+        getThing thing f = atomicModifyReference ref $ \(!oldMT) -> case thing oldMT of (!w, !newMT) -> (newMT, f w)
 
 
 -- |Similarly, @getRandomWordFromRandomGenState x@ can be used in any \"state\"
@@ -118,36 +111,34 @@ getRandomPrimFromRandomGenRef g other = runPromptM (getRandomPrimFromRandomGenRe
 -- which do precisely that, allowing an easy conversion of 'RVar's and
 -- other 'Distribution' instances to \"pure\" random variables.
 getRandomPrimFromRandomGenState :: (RandomGen g, MonadState g m) => Prim a -> m a
-getRandomPrimFromRandomGenState PrimWord8 = do
-    g <- get
-    case randomR (0, 255 :: Int) g of
-        (i,g) -> do
-            put g
-            return (fromIntegral i)
-
-getRandomPrimFromRandomGenState PrimWord64 = do
-    g <- get
-    case randomR (0, 0xffffffffffffffff) g of
-        (i,g) -> do
-            put g
-            return (fromInteger i)
-
-getRandomPrimFromRandomGenState PrimDouble = liftM wordToDouble (getRandomPrimFromRandomGenState PrimWord64)
--- getRandomPrimFromRandomGenState PrimDouble = do
---     g <- get
---     case randomR (0, 1) g of
---         (x,g) -> do
---             put g
---             return x
-
-getRandomPrimFromRandomGenState other = runPromptM getRandomPrimFromRandomGenState (decomposePrimWhere supported other)
+getRandomPrimFromRandomGenState prim
+    | supported prim = genPrim prim getThing
+    | otherwise = runPromptM getRandomPrimFromRandomGenState (decomposePrimWhere supported prim)
     where 
+        {-# INLINE supported #-}
         supported :: Prim a -> Bool
         supported PrimWord8  = True
+        supported PrimWord32  = True
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
-
+        
+        {-# INLINE genPrim #-}
+        genPrim :: (RandomGen g) => Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
+        genPrim PrimWord8  f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
+        genPrim PrimWord16 f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
+        genPrim PrimWord32 f = f (randomR (0, 0xffffffff))          (fromInteger)
+        genPrim PrimWord64 f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
+        genPrim PrimDouble f = f (randomR (0, 0xffffffffffffffff))  (wordToDouble . fromInteger)
+        genPrim p _ = error ("getRandomPrimFromRandomGenState: genPrim called for unsupported prim " ++ show p)
+        
+        {-# INLINE getThing #-}
+        getThing thing f = do
+            !oldGen <- get
+            case thing oldGen of
+                (!i,!newGen) -> do
+                    put newGen
+                    return (f i)
 
 instance MonadRandom (State StdGen) where
     supportedPrims _ _ = True

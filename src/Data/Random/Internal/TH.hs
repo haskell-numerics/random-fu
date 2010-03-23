@@ -69,8 +69,8 @@ replaceName x y z
 -- This code takes those 2 instance declarations and creates identical ones for
 -- every type named in 'integralTypes'.
 replicateInstances :: (Monad m, Data t) => Name -> [Name] -> m [t] -> m [t]
-replicateInstances standin types decls = do
-    decls <- decls
+replicateInstances standin types getDecls = do
+    decls <- getDecls
     sequence
         [ everywhereM (mkM (return . replaceName standin t)) dec
         | t <- types

@@ -40,12 +40,12 @@ data Prim a where
     deriving (Typeable)
 
 instance Show (Prim a) where
-    showsPrec p PrimWord8               = showString "PrimWord8"
-    showsPrec p PrimWord16              = showString "PrimWord16"
-    showsPrec p PrimWord32              = showString "PrimWord32"
-    showsPrec p PrimWord64              = showString "PrimWord64"
-    showsPrec p PrimDouble              = showString "PrimDouble"
-    showsPrec p (PrimNByteInteger n)    = showParen (p > 10) (showString "PrimNByteInteger " . showsPrec 11 n)
+    showsPrec _p PrimWord8               = showString "PrimWord8"
+    showsPrec _p PrimWord16              = showString "PrimWord16"
+    showsPrec _p PrimWord32              = showString "PrimWord32"
+    showsPrec _p PrimWord64              = showString "PrimWord64"
+    showsPrec _p PrimDouble              = showString "PrimDouble"
+    showsPrec  p (PrimNByteInteger n)    = showParen (p > 10) (showString "PrimNByteInteger " . showsPrec 11 n)
 
 -- This is essentially a suite of interrelated default implementations,
 -- each definition making use of only 'supported' primitives.  It _really_

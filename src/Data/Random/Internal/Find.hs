@@ -24,10 +24,10 @@ findMin = findMinFrom 0 1
 -- not terminate until it reaches a point where further subdivision of the
 -- interval has no effect.
 findMinFrom :: (Fractional a, Ord a) => a -> a -> (a -> Bool) -> a
-findMinFrom z 0 p = findMinFrom z 1 p
-findMinFrom z step1 p
-    | p z       = descend (z-step1) z
-    | otherwise = fixZero (ascend z (z+step1))
+findMinFrom z0 0 p = findMinFrom z0 1 p
+findMinFrom z0 step1 p
+    | p z0      = descend (z0-step1) z0
+    | otherwise = fixZero (ascend z0 (z0+step1))
     where
         -- eliminate negative zero, which, in many domains, is technically
         -- a feasible answer
@@ -39,13 +39,13 @@ findMinFrom z step1 p
         -- 0 <= l < x
         ascend l x 
             | p x       = bisect l x
-            | otherwise = ascend x $! 2*x-z
+            | otherwise = ascend x $! 2*x-z0
         
         -- preconditions:
         -- p h
         -- x < h <= 0
         descend x h 
-            | p x       = (descend $! 2*x-z) x
+            | p x       = (descend $! 2*x-z0) x
             | otherwise = bisect x h
         
         -- preconditions:
@@ -53,11 +53,11 @@ findMinFrom z step1 p
         -- p h
         -- l <= h
         bisect l h 
-            | l >= h    = h
-            | l >= mid || mid >= h
+            | l /< h    = h
+            | l /< mid || mid /< h
             = if p mid then mid else h
             | p mid     = bisect l mid
             | otherwise = bisect mid h
             where 
-                a >= b = not (a < b)
+                a /< b = not (a < b)
                 mid = (l+h)*0.5

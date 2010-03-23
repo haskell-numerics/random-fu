@@ -23,10 +23,7 @@ module Data.Random.RVar
 
 import Data.Random.Internal.Primitives
 import Data.Random.Source
-import Data.Random.Source.Std
 import Data.Random.Lift as L
-
-import Data.Bits
 
 import qualified Control.Monad.Trans as T
 import Control.Applicative
