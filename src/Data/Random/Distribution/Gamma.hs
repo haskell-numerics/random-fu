@@ -34,27 +34,33 @@ mtGamma
         Distribution StdUniform a, 
         Distribution Normal a)
     => a -> a -> RVar a
-mtGamma a b = go
+mtGamma a b 
+    | a < 1     = do
+        u <- stdUniform
+        mtGamma (1+a) $! (b * u ** recip a)
+    | otherwise = go
     where
         !d = a - fromRational (1%3)
         !c = recip (sqrt (9*d))
         
         go = do
             x <- stdNormal
-            let !v  = (1 + c*x)^(3 :: Int)
+            let !v   = 1 + c*x
             
             if v <= 0
                 then go
                 else do
                     u  <- stdUniform
                     let !x_2 = x*x; !x_4 = x_2*x_2
-                        dv = d * v
+                        v3 = v*v*v
+                        dv = d * v3
                     if      u < 1 - 0.0331*x_4
-                     || log u < 0.5 * x_2 + d - dv + d*log v
+                     || log u < 0.5 * x_2 + d - dv + d*log v3
                         then return (b*dv)
                         else go
 
-
+{-# SPECIALIZE gamma :: Float  -> Float  -> RVar Float  #-}
+{-# SPECIALIZE gamma :: Double -> Double -> RVar Double #-}
 gamma :: (Distribution Gamma a) => a -> a -> RVar a
 gamma a b = rvar (Gamma a b)
 

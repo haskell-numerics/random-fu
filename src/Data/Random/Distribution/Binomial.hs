@@ -4,7 +4,8 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
-    UndecidableInstances, TemplateHaskell
+    UndecidableInstances, TemplateHaskell,
+    BangPatterns
   #-}
 
 module Data.Random.Distribution.Binomial where
@@ -21,6 +22,10 @@ import Data.Random.Distribution.Uniform
     -- note that although it's fast enough for large (eg, 2^10000) 
     -- @Integer@s, it's not accurate enough when using @Double@ as
     -- the @b@ parameter.
+{-# SPECIALIZE integralBinomial :: Int -> Float  -> RVar Int #-}
+{-# SPECIALIZE integralBinomial :: Int -> Double -> RVar Int #-}
+{-# SPECIALIZE integralBinomial :: Integer -> Float  -> RVar Integer #-}
+{-# SPECIALIZE integralBinomial :: Integer -> Double -> RVar Integer #-}
 integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> b -> RVar a
 integralBinomial = bin 0
     where
@@ -34,7 +39,7 @@ integralBinomial = bin 0
         -- he/she wants.
         -- Anyway, this type signature makes GHC happy.
         bin :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> a -> b -> RVar a
-        bin k t p
+        bin !k !t !p
             | t > 10    = do
                 let a = 1 + t `div` 2
                     b = 1 + t - a
@@ -46,10 +51,10 @@ integralBinomial = bin 0
         
             | otherwise = count k t
                 where
-                    count k'  0    = return k'
-                    count k' (n+1) = do
+                    count !k'  0    = return k'
+                    count !k' (n+1) = do
                         x <- stdUniform
-                        (count $! (if x < p then k' + 1 else k')) n
+                        count (if x < p then k' + 1 else k') n
                     count _ _ = error "integralBinomial: negative number of trials specified"
 
 -- TODO: improve performance
@@ -65,12 +70,24 @@ integralBinomialCDF t p x = sum
 
 -- would it be valid to repeat the above computation using fractional @t@?
 -- obviously something different would have to be done with @count@ as well...
+{-# SPECIALIZE floatingBinomial :: Float  -> Float  -> RVar Float  #-}
+{-# SPECIALIZE floatingBinomial :: Float  -> Double -> RVar Float  #-}
+{-# SPECIALIZE floatingBinomial :: Double -> Float  -> RVar Double #-}
+{-# SPECIALIZE floatingBinomial :: Double -> Double -> RVar Double #-}
 floatingBinomial :: (RealFrac a, Distribution (Binomial b) Integer) => a -> b -> RVar a
 floatingBinomial t p = fmap fromInteger (rvar (Binomial (truncate t) p))
 
 floatingBinomialCDF :: (CDF (Binomial b) Integer, RealFrac a) => a -> b -> a -> Double
 floatingBinomialCDF t p x = cdf (Binomial (truncate t :: Integer) p) (floor x)
 
+{-# SPECIALIZE binomial :: Int -> Float  -> RVar Int #-}
+{-# SPECIALIZE binomial :: Int -> Double -> RVar Int #-}
+{-# SPECIALIZE binomial :: Integer -> Float  -> RVar Integer #-}
+{-# SPECIALIZE binomial :: Integer -> Double -> RVar Integer #-}
+{-# SPECIALIZE binomial :: Float  -> Float  -> RVar Float  #-}
+{-# SPECIALIZE binomial :: Float  -> Double -> RVar Float  #-}
+{-# SPECIALIZE binomial :: Double -> Float  -> RVar Double #-}
+{-# SPECIALIZE binomial :: Double -> Double -> RVar Double #-}
 binomial :: Distribution (Binomial b) a => a -> b -> RVar a
 binomial t p = rvar (Binomial t p)
 

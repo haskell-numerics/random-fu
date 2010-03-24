@@ -1,7 +1,7 @@
 {-# LANGUAGE
         MultiParamTypeClasses,
         FlexibleInstances, FlexibleContexts,
-        RecordWildCards
+        RecordWildCards, BangPatterns
   #-}
 
 -- |A generic \"ziggurat algorithm\" implementation.  Fairly rough right
@@ -32,6 +32,8 @@ import Data.Random.Distribution.Uniform
 import Data.Random.Distribution
 import Data.Random.RVar
 import Data.Vector.Generic as Vec
+import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as UV
 import Data.Function (fix)
 
 -- |A data structure containing all the data that is needed
@@ -53,11 +55,11 @@ data Ziggurat v t = Ziggurat {
         -- faster by not needing to specially-handle bin 0 quite as often.
         -- If you really need to know why it works, see the 'runZiggurat'
         -- source or \"the literature\" - it's a fairly standard setup.
-        zTable_xs         :: v t,
+        zTable_xs         :: !(v t),
         -- |The ratio of each bin's Y value to the next bin's Y value
-        zTable_y_ratios   :: v t,
+        zTable_y_ratios   :: !(v t),
         -- |The Y value (zFunc x) of each bin
-        zTable_ys         :: v t,
+        zTable_ys         :: !(v t),
         -- |An RVar providing a random tuple consisting of:
         --
         --  * a bin index, uniform over [0,c) :: Int (where @c@ is the
@@ -71,41 +73,46 @@ data Ziggurat v t = Ziggurat {
         -- single random word (64 bits) can be efficiently converted to
         -- a double (using 52 bits) and a bin number (using up to 12 bits),
         -- for example.
-        zGetIU            :: RVar (Int, t),
+        zGetIU            :: !(RVar (Int, t)),
         
         -- |The distribution for the final \"virtual\" bin
         -- (the ziggurat algorithm does not handle distributions
         -- that wander off to infinity, so another distribution is needed
         -- to handle the last \"bin\" that stretches to infinity)
-        zTailDist         :: RVar t,
+        zTailDist         :: (RVar t),
         
         -- |A copy of the uniform RVar generator for the base type,
         -- so that @Distribution Uniform t@ is not needed when sampling
         -- from a Ziggurat (makes it a bit more self-contained).
-        zUniform          :: t -> t -> RVar t,
+        zUniform          :: !(t -> t -> RVar t),
         
         -- |The (one-sided antitone) PDF, not necessarily normalized
-        zFunc             :: t -> t,
+        zFunc             :: !(t -> t),
         
         -- |A flag indicating whether the distribution should be
         -- mirrored about the origin (the ziggurat algorithm it
         -- its native form only samples from one-sided distributions.
         -- By mirroring, we can extend it to symmetric distributions
         -- such as the normal distribution)
-        zMirror           :: Bool
+        zMirror           :: !Bool
     }
 
 -- |Sample from the distribution encoded in a 'Ziggurat' data structure.
 {-# INLINE runZiggurat #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat UV.Vector Float  -> RVar Float #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat UV.Vector Double -> RVar Double #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat  V.Vector Float  -> RVar Float #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat  V.Vector Double -> RVar Double #-}
 runZiggurat :: (Num a, Ord a, Vector v a) =>
                Ziggurat v a -> RVar a
-runZiggurat Ziggurat{..} = go
+runZiggurat !Ziggurat{..} = go
     where
+        {-# NOINLINE go #-}
         go = do
             -- Select a bin (I) and a uniform value (U) from -1 to 1
             -- (or 0 to 1 if not mirroring the distribution).
             -- Let X be U scaled to the size of the selected bin.
-            (i,u) <- zGetIU
+            (!i,!u) <- zGetIU
             
             -- if the uniform value U falls in the area "clearly inside" the
             -- bin, accept X immediately.
@@ -120,8 +127,9 @@ runZiggurat Ziggurat{..} = go
         -- when the sample falls in the "grey area" (the area between
         -- the Y values of the selected bin and the bin after that one),
         -- use an accept/reject method based on the target PDF.
+        {-# INLINE sampleGreyArea #-}
         sampleGreyArea i x = do
-            v <- zUniform (zTable_ys ! (i+1)) (zTable_ys ! i)
+            !v <- zUniform (zTable_ys ! (i+1)) (zTable_ys ! i)
             if v < zFunc (abs x)
                 then return $! x
                 else go
@@ -129,9 +137,10 @@ runZiggurat Ziggurat{..} = go
         -- if the selected bin is the "infinite" one, call it quits and
         -- defer to the tail distribution (mirroring if needed to ensure
         -- the result has the sign already selected by zGetIU)
+        {-# INLINE sampleTail #-}
         sampleTail x
-            | x < 0     = fmap negate zTailDist
-            | otherwise = zTailDist
+            | zMirror && x < 0  = fmap negate zTailDist
+            | otherwise         = zTailDist
 
 
 -- |Build the tables to implement the \"ziggurat algorithm\" devised by 
@@ -156,6 +165,11 @@ runZiggurat Ziggurat{..} = go
 -- 
 --  * an RVar sampling from the tail (the region where x > R)
 -- 
+{-# INLINE mkZiggurat_ #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Float  ->  Float) -> (Float  ->  Float) -> Int -> Float  -> Float  -> RVar (Int,  Float) -> RVar Float  -> Ziggurat UV.Vector Float #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Double -> Double) -> (Double -> Double) -> Int -> Double -> Double -> RVar (Int, Double) -> RVar Double -> Ziggurat UV.Vector Double #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Float  ->  Float) -> (Float  ->  Float) -> Int -> Float  -> Float  -> RVar (Int,  Float) -> RVar Float  -> Ziggurat V.Vector Float #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Double -> Double) -> (Double -> Double) -> Int -> Double -> Double -> RVar (Int, Double) -> RVar Double -> Ziggurat V.Vector Double #-}
 mkZiggurat_ :: (RealFloat t, Vector v t,
                Distribution Uniform t) =>
               Bool
@@ -167,17 +181,18 @@ mkZiggurat_ :: (RealFloat t, Vector v t,
               -> RVar (Int, t)
               -> RVar t
               -> Ziggurat v t
-mkZiggurat_ m f fInv c r v getIU tailDist = z
-    where z = Ziggurat
-            { zTable_xs         = zigguratTable f fInv c r v
-            , zTable_y_ratios   = precomputeRatios (zTable_xs z)
-            , zTable_ys         = Vec.map f (zTable_xs z)
-            , zGetIU            = getIU
-            , zUniform          = uniform
-            , zFunc             = f
-            , zTailDist         = tailDist
-            , zMirror           = m
-            }
+mkZiggurat_ m f fInv c r v getIU tailDist = Ziggurat
+    { zTable_xs         = xs
+    , zTable_y_ratios   = precomputeRatios xs
+    , zTable_ys         = Vec.map f xs
+    , zGetIU            = getIU
+    , zUniform          = uniform
+    , zFunc             = f
+    , zTailDist         = tailDist
+    , zMirror           = m
+    }
+    where 
+        xs = zigguratTable f fInv c r v
 
 -- |Build the tables to implement the \"ziggurat algorithm\" devised by 
 -- Marsaglia & Tang, attempting to automatically compute the R and V

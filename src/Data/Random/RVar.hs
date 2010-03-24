@@ -54,9 +54,9 @@ instance Functor (RVarT n) where
     fmap = liftM
 
 instance Monad (RVarT n) where
-    return x = RVarT (return x)
+    return x = RVarT (return $! x)
     fail s   = RVarT (fail s)
-    (RVarT m) >>= k = RVarT (m >>= unRVarT.k)
+    (RVarT m) >>= k = RVarT (m >>= \x -> x `seq` unRVarT (k x))
 
 instance Applicative (RVarT n) where
     pure  = return

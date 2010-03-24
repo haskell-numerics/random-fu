@@ -197,6 +197,8 @@ uniform a b = rvar (Uniform a b)
 -- For integral types, this means uniformly distributed over the full range
 -- of the type (and hence there is no support for Integer).  For fractional
 -- types, this means uniformly distributed on the interval [0,1).
+{-# SPECIALIZE stdUniform :: RVar Double #-}
+{-# SPECIALIZE stdUniform :: RVar Float #-}
 stdUniform :: (Distribution StdUniform a) => RVar a
 stdUniform = rvar StdUniform
 
@@ -259,10 +261,10 @@ instance Distribution Uniform Double        where rvar (Uniform a b) = doubleUni
 instance CDF Uniform Float                  where cdf  (Uniform a b) = realUniformCDF a b
 instance CDF Uniform Double                 where cdf  (Uniform a b) = realUniformCDF a b
 
-instance Distribution StdUniform Float      where rvar  ~StdUniform = floatStdUniform
-instance Distribution StdUniform Double     where rvarT ~StdUniform = getRandomPrim PrimDouble
-instance CDF StdUniform Float               where cdf   ~StdUniform = realStdUniformCDF
-instance CDF StdUniform Double              where cdf   ~StdUniform = realStdUniformCDF
+instance Distribution StdUniform Float      where rvar ~StdUniform = floatStdUniform
+instance Distribution StdUniform Double     where rvar ~StdUniform = getRandomPrim PrimDouble; rvarT ~StdUniform = getRandomPrim PrimDouble
+instance CDF StdUniform Float               where cdf  ~StdUniform = realStdUniformCDF
+instance CDF StdUniform Double              where cdf  ~StdUniform = realStdUniformCDF
 
 instance HasResolution r => 
          Distribution Uniform (Fixed r)     where rvar (Uniform a b) = fixedUniform  a b

@@ -1,9 +1,6 @@
-{-
- -      ``Data/Random/Distribution/Normal''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses, FlexibleInstances, FlexibleContexts,
-    UndecidableInstances, ForeignFunctionInterface
+    UndecidableInstances, ForeignFunctionInterface, BangPatterns
   #-}
 
 module Data.Random.Distribution.Normal
@@ -83,12 +80,12 @@ knuthPolarNormalPair = do
 normalTail :: (Distribution StdUniform a, Floating a, Ord a) =>
               a -> RVar a
 normalTail r = go
-    where 
+    where
         go = do
-            u <- stdUniform
-            v <- stdUniform
-            let x = log u / r
-                y = log v
+            !u <- stdUniform
+            let !x = log u / r
+            !v <- stdUniform
+            let !y = log v
             if x*x + y+y > 0
                 then go
                 else return (r - x)
@@ -146,6 +143,7 @@ realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggu
 
 -- |A random variable sampling from the standard normal distribution
 -- over the 'Double' type.
+{-# NOINLINE doubleStdNormal #-}
 doubleStdNormal :: RVar Double
 doubleStdNormal = runZiggurat doubleStdNormalZ
 
@@ -156,6 +154,7 @@ doubleStdNormalR, doubleStdNormalV :: Double
 doubleStdNormalR = 3.852046150368388
 doubleStdNormalV = 2.4567663515413507e-3
 
+{-# NOINLINE doubleStdNormalZ #-}
 doubleStdNormalZ :: Ziggurat UV.Vector Double
 doubleStdNormalZ = mkZiggurat_ True 
         normalF normalFInv 
@@ -164,22 +163,24 @@ doubleStdNormalZ = mkZiggurat_ True
         (normalTail doubleStdNormalR)
     where 
         getIU = do
-            w <- getRandomPrim PrimWord64
+            !w <- getRandomPrim PrimWord64
             let (u,i) = wordToDoubleWithExcess w
-            return (fromIntegral i .&. (doubleStdNormalC-1), u+u-1)
+            return $! (fromIntegral i .&. (doubleStdNormalC-1), u+u-1)
 
 -- |A random variable sampling from the standard normal distribution
 -- over the 'Float' type.
+{-# NOINLINE floatStdNormal #-}
 floatStdNormal :: RVar Float
 floatStdNormal = runZiggurat floatStdNormalZ
 
--- floatStdNormalC must not be over 2^41 if using wordToFloatWithExcess
+-- floatStdNormalC must not be over 2^9 if using word32ToFloatWithExcess
 floatStdNormalC :: Int
 floatStdNormalC = 512
 floatStdNormalR, floatStdNormalV :: Float
 floatStdNormalR = 3.852046150368388
 floatStdNormalV = 2.4567663515413507e-3
 
+{-# NOINLINE floatStdNormalZ #-}
 floatStdNormalZ :: Ziggurat UV.Vector Float
 floatStdNormalZ = mkZiggurat_ True 
         normalF normalFInv 
@@ -188,8 +189,8 @@ floatStdNormalZ = mkZiggurat_ True
         (normalTail floatStdNormalR)
     where
         getIU = do
-            w <- getRandomPrim PrimWord64
-            let (u,i) = wordToFloatWithExcess w
+            !w <- getRandomPrim PrimWord32
+            let (u,i) = word32ToFloatWithExcess w
             return (fromIntegral i .&. (floatStdNormalC-1), u+u-1)
 
 normalCdf :: (Real a) => a -> a -> a -> Double

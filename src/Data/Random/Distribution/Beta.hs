@@ -14,6 +14,8 @@ import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Uniform
 
+{-# SPECIALIZE fractionalBeta :: Float  -> Float  -> RVar Float #-}
+{-# SPECIALIZE fractionalBeta :: Double -> Double -> RVar Double #-}
 fractionalBeta :: (Fractional a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVar a
 fractionalBeta 1 1 = stdUniform
 fractionalBeta a b = do
@@ -21,12 +23,8 @@ fractionalBeta a b = do
     y <- gamma b 1
     return (x / (x + y))
 
-fractionalBetaFromIntegral :: (Fractional c, Distribution (Erlang a) c, Distribution (Erlang b) c) => a -> b -> RVar c
-fractionalBetaFromIntegral a b =  do
-    x <- erlang a
-    y <- erlang b
-    return (x / (x + y))
-
+{-# SPECIALIZE beta :: Float  -> Float  -> RVar Float #-}
+{-# SPECIALIZE beta :: Double -> Double -> RVar Double #-}
 beta :: Distribution Beta a => a -> a -> RVar a
 beta a b = rvar (Beta a b)
 
