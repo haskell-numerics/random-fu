@@ -1,13 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Gamma''
- -
- -  needs cleanup, verification, and automagic selection of appropriate
- -  algorithms, and proper citations.
- -
- -  should eliminate spurious 'border crossings' betweer RVars and sampleFrom
- -  perhaps Distribution class should have as its basis a function of type
- -  (d t -> RVar t)
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
