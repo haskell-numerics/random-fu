@@ -7,14 +7,14 @@ import Control.Monad (forever)
 import Control.Monad.ST
 import Foreign
 
-type Src = IORef PureMT
-getTestSource = do
-    mt <- newPureMT
-    newReference mt :: IO Src
+-- type Src = IORef PureMT
+-- getTestSource = do
+--     mt <- newPureMT
+--     newReference mt :: IO Src
 
--- type Src = Gen RealWorld
--- getTestSource :: IO Src
--- getTestSource = stToIO create
+type Src = Gen RealWorld
+getTestSource :: IO Src
+getTestSource = stToIO create
 
 sumM n x = go n 0
     where
