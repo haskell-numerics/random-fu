@@ -11,6 +11,7 @@ module Test.Hist where
 import Prelude hiding (sum)
 
 import Data.Random
+import Data.Random.Source
 import System.Random.Mersenne.Pure64
 
 -- some convenient testing stuff
@@ -62,7 +63,7 @@ cpus=numCapabilities -- * 2 - 1
 sampleN :: Int -> RVar a -> IO [a]
 sampleN n rv
     | cpus == 1     = do
-        seed <- getRandomWordFrom DevRandom
+        seed <- getRandomPrimFrom DevRandom PrimWord64
         mt <- newRef (pureMT seed)    
         replicateM' n (sampleFrom mt rv)
     
@@ -71,7 +72,7 @@ sampleN n rv
             extraRuns = replicateM' extra (sampleFrom DevRandom rv)
     
         sets <- forkMapM id $ (extraRuns :) $ replicate cpus $ do
-            seed <- getRandomWordFrom DevRandom
+            seed <- getRandomPrimFrom DevRandom PrimWord64
             mt <- newRef (pureMT seed)
             replicateM' runs (sampleFrom mt rv)
     
@@ -169,7 +170,7 @@ mkByteCounter src = do
     let src' = do
             modifyRef x succ
             readRef x >>= evaluate
-            getRandomByteFrom src
+            getRandomPrimFrom src PrimWord8
     return (src', dx) `asTypeOf` (undefined :: IO (m word8, m int))
 
 uniformize :: CDF d t => d t -> RVar Double
