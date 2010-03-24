@@ -15,8 +15,6 @@ import Data.Ratio
 
 -- derived from  Marsaglia & Tang, "A Simple Method for generating gamma
 -- variables", ACM Transactions on Mathematical Software, Vol 26, No 3 (2000), p363-372.
--- 'd' and 'c' are promoted from locally-computed constants to parameters of the
--- distribution.
 {-# SPECIALIZE mtGamma :: Double -> Double -> RVar Double #-}
 {-# SPECIALIZE mtGamma :: Float -> Float -> RVar Float #-}
 mtGamma
