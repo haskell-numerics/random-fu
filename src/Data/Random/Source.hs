@@ -78,7 +78,8 @@ class Monad m => MonadRandom m where
 -- See also 'MonadRandom'.
 class Monad m => RandomSource m s where
     -- |Predicate indicating whether a given primitive is supported by the
-    -- instance.  The second parameter is a phantoms used only to select the instance.
+    -- instance.  The tag on the first parameter is a phantom used only to
+    -- select the instance, but the value itself may be inspected.
     supportedPrimsFrom :: Tagged (m ()) s -> Prim t -> Bool
     
     -- |Generate a random value corresponding to the specified primitive
