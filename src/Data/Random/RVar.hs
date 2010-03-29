@@ -18,6 +18,7 @@ module Data.Random.RVar
     , runRVar
     , RVarT
     , runRVarT
+    , runRVarTWith
     ) where
 
 
@@ -30,7 +31,7 @@ import Control.Applicative
 import Control.Monad.Identity
 import Control.Monad.Prompt (PromptT, runPromptT, prompt)
 
--- |An opaque type containing a \"random variable\" - a value 
+-- |An opaque type modeling a \"random variable\" - a value 
 -- which depends on the outcome of some random process.
 type RVar = RVarT Identity
 
@@ -40,15 +41,92 @@ runRVar = runRVarT
 -- |A random variable with access to operations in an underlying monad.  Useful
 -- examples include any form of state for implementing random processes with hysteresis,
 -- or writer monads for implementing tracing of complicated algorithms.
+-- 
+-- For example, a simple random walk can be implemented as an 'RVarT' 'IO' value:
+--
+-- > rwalkIO :: IO (RVarT IO Double)
+-- > rwalkIO d = do
+-- >     lastVal <- newIORef 0
+-- >     
+-- >     let x = do
+-- >             prev    <- lift (readIORef lastVal)
+-- >             change  <- rvarT StdNormal
+-- >             
+-- >             let new = prev + change
+-- >             lift (writeIORef lastVal new)
+-- >             return new
+-- >         
+-- >     return x
+--
+-- To run the random walk, it must first be initialized, and then it can be sampled as usual:
+--
+-- > do
+-- >     rw <- rwalkIO
+-- >     x <- sampleFrom DevURandom rw
+-- >     y <- sampleFrom DevURandom rw
+-- >     ...
+--
+-- The same random-walk process as above can be implemented using MTL types
+-- as follows (using @import Control.Monad.Trans as MTL@):
+-- 
+-- > rwalkState :: RVarT (State Double) Double
+-- > rwalkState = do
+-- >     prev <- MTL.lift get
+-- >     change  <- rvarT StdNormal
+-- >     
+-- >     let new = prev + change
+-- >     MTL.lift (put new)
+-- >     return new
+-- 
+-- Invocation is straightforward (although a bit noisy) if you're used 
+-- to MTL, but there is a gotcha lurking here: @sample@ and 'runRVarT' 
+-- inherit the extreme generality of 'lift', so there will almost always
+-- need to be an explicit type signature lurking somewhere in any client 
+-- code making use of 'RVarT' with MTL types.  In this example, the 
+-- inferred type of @start@ would be too general to be practical, so the
+-- signature for @rwalk@  explicitly fixes it to 'Double'.  Alternatively, 
+-- in this case @sample@ could be replaced with
+-- @\x -> runRVarTWith MTL.lift x StdRandom@.
+-- 
+-- > rwalk :: Int -> Double -> StdGen -> ([Double], StdGen)
+-- > rwalk count start gen = evalState (runStateT (sample (replicateM count rwalkState)) gen) start
 newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 
--- | \"Runs\" the monad.
+-- | \"Runs\" an 'RVarT', sampling the random variable it defines.
+-- 
+-- The 'Lift' context allows random variables to be defined using a minimal
+-- underlying functor ('Identity' is sufficient for \"conventional\" random
+-- variables) and then sampled in any monad into which the underlying functor 
+-- can be embedded (which, for 'Identity', is all monads).
 {-# INLINE runRVarT #-}
 runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
 runRVarT (RVarT m) src = runPromptT return bindP bindN m
     where
         bindP prim cont = getRandomPrimFrom src prim >>= cont
         bindN nExp cont = lift nExp >>= cont
+
+-- |Like 'runRVarT' but allowing a user-specified lift operation.  This 
+-- operation must obey the \"monad transformer\" laws:
+--
+-- > lift . return = return
+-- > lift (x >>= f) = (lift x) >>= (lift . f)
+--
+-- One example of a useful non-standard lifting would be one that takes @State s@ to
+-- another monad with a different state representation (such as @IO@ with the
+-- state mapped to an @IORef@):
+--
+-- > embedState :: (Monad m) => m s -> (s -> m ()) -> State s a -> m a
+-- > embedState get put = \m -> do
+-- >     s <- get
+-- >     (res,s) <- return (runState m s)
+-- >     put s
+-- >     return res
+{-# INLINE runRVarTWith #-}
+runRVarTWith :: (RandomSource m s) => (forall t. n t -> m t) -> RVarT n a -> s -> m a
+runRVarTWith liftN (RVarT m) src = runPromptT return bindP bindN m
+    where
+        bindP prim cont = getRandomPrimFrom src prim >>= cont
+        bindN nExp cont = liftN nExp >>= cont
 
 instance Functor (RVarT n) where
     fmap = liftM

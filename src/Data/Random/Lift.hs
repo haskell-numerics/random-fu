@@ -13,6 +13,12 @@ import qualified Control.Monad.Trans as T
 -- For instances where 'm' and 'n' have 'return'/'pure' defined,
 -- these instances must satisfy
 -- @lift (return x) == return x@.
+-- 
+-- This form of 'lift' has an extremely general type and is used primarily to
+-- support 'sample'.  Its excessive generality is the main reason it's not
+-- exported from "Data.Random".  'RVarT' is, however, an instance of 
+-- 'T.MonadTrans', which in most cases is the preferred way
+-- to do the lifting.
 class Lift m n where
     lift :: m a -> n a
 
