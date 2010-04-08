@@ -6,15 +6,21 @@ import Data.StateRef
 import Control.Monad (forever)
 import Control.Monad.ST
 import Foreign
+import System.Random
 
 -- type Src = IORef PureMT
 -- getTestSource = do
 --     mt <- newPureMT
 --     newReference mt :: IO Src
 
-type Src = Gen RealWorld
-getTestSource :: IO Src
-getTestSource = stToIO create
+type Src = IORef StdGen
+getTestSource = do
+    mt <- newStdGen
+    newReference mt :: IO Src
+
+-- type Src = Gen RealWorld
+-- getTestSource :: IO Src
+-- getTestSource = stToIO create
 
 sumM n x = go n 0
     where

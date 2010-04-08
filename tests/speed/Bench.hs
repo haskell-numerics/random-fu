@@ -5,11 +5,14 @@ import Data.Random
 
 import Control.Monad
 import Control.Monad.ST
+import Control.Monad.State
+import qualified Control.Monad.Random as CMR
 import Control.Monad.Trans (lift)
 import Data.List
 import qualified Data.Vector as V
 import Foreign
 import System.IO
+import System.Random
 import TestSupport
 
 import Criterion.Main
@@ -49,10 +52,41 @@ main = do
                 | (desc, n) <- [("small n", 10), ("medium n", 10^4), ("large n", 10^8)]
                 ]
             ]
-            
+           
         , bench "shuffle" $ do
             xs <- sampleFrom src (shuffle [1..count])
             foldl1' (+) xs `seq` return () :: IO ()
+        
+        , bgroup "replicateM" 
+            [ bench "randomRIO" $ do
+                xs <- replicateM count (randomRIO (10,50) :: IO Double)
+                sum xs `seq` return ()
+        
+            , bench "uniform A" $ do
+                xs <- replicateM count (sampleFrom src (uniform 10 50) :: IO Double)
+                sum xs `seq` return ()
+            , bench "uniform B" $ do
+                xs <- sampleFrom src (replicateM count (uniform 10 50)) :: IO [Double]
+                sum xs `seq` return ()
+            ]
+        
+        , bgroup "pure StdGen"
+            [ bench "getRandomRs" $ do
+                src <- newStdGen
+                let (xs, _) = CMR.runRand (CMR.getRandomRs (10,50)) src
+                sum (take count xs :: [Double]) `seq` return ()
+            , bench "RVarT, State - sample replicateM" $ do
+                src <- newStdGen
+                let (xs, _) = runState (sample (replicateM count (uniform 10 50))) src
+                sum (xs :: [Double]) `seq` return ()
+            , bench "RVarT, State - replicateM sample" $ do
+                src <- newStdGen
+                let (xs, _) = runState (replicateM count (sample (uniform 10 50))) src
+                sum (xs :: [Double]) `seq` return ()
+            ]
+        
+        , bench "baseline sum" $ nf sum [1..fromIntegral count :: Double]
+            
         ]
 
 -- Ideally, these would all be the same speed

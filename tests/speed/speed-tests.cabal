@@ -12,6 +12,6 @@ description:            Various benchmarks for the random-fu library.
 
 Executable random-fu-bench
   main-is:              Bench.hs
-  build-depends:        base >= 4, criterion, random-fu, mtl,
+  build-depends:        base >= 4, criterion, random-fu, MonadRandom, mtl,
                         stateref, mersenne-random-pure64, mwc-random,
-                        vector
+                        random, vector
