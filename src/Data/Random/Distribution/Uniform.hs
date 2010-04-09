@@ -52,19 +52,25 @@ import Control.Monad.Loops
 
 -- |Compute a random 'Integral' value between the 2 values provided (inclusive).
 {-# SPECIALIZE integralUniform :: Int -> Int -> RVar Int #-}
+{-# INLINE integralUniform #-}
 integralUniform :: (Integral a) => a -> a -> RVar a
-integralUniform l u
-    | l > u     = integralUniform u l
-    | otherwise = go
+integralUniform !l !u
+    | l > u         = integralUniform u l
+    | nReject == 0  = fmap shift prim
+    | otherwise     = fmap shift loop
     where
-        !m = 1 + toInteger u - toInteger l
-        (!bytes, !nPossible) = bytesNeeded m
-        xLimit  = nPossible - nPossible `mod` m
-        go = do
-            !z <- getRandomPrim (PrimNByteInteger bytes)
-            if z < xLimit
-                then return (l + fromInteger (z `mod` m))
-                else go
+        m = 1 + toInteger u - toInteger l
+        (bytes, nPossible) = bytesNeeded m
+        nReject = nPossible `mod` m
+        
+        !prim = getRandomPrim (PrimNByteInteger bytes)
+        !shift = \(!z) -> l + (fromInteger $! (z `mod` m))
+        
+        loop = do
+            z <- prim
+            if z < nReject
+                then loop
+                else return z
 
 integralUniformCDF :: (Integral a, Fractional b) => a -> a -> a -> b
 integralUniformCDF a b x
@@ -73,6 +79,9 @@ integralUniformCDF a b x
     | x > b     = 1
     | otherwise = (fromIntegral x - fromIntegral a) / (fromIntegral b - fromIntegral a)
 
+-- TODO: come up with a decent, fast heuristic to decide whether to return an extra
+-- byte.  May involve moving calculation of nReject into this function, and then
+-- accepting first if 4*nReject < nPossible or something similar.
 bytesNeeded :: Integer -> (Int, Integer)
 bytesNeeded x = head (dropWhile ((<= x).snd) powersOf256)
 
