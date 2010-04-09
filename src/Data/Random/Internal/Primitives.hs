@@ -58,10 +58,23 @@ instance Show (Prim a) where
 -- 
 -- Hopefully, when not inlined, it does not impose too much overhead.
 {-# INLINE decomposePrimWhere #-}
+{-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Word8   -> Prompt Prim Word8   #-}
+{-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Word16  -> Prompt Prim Word16  #-}
+{-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Word32  -> Prompt Prim Word32  #-}
+{-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Word64  -> Prompt Prim Word64  #-}
+{-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Double  -> Prompt Prim Double  #-}
+{-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Integer -> Prompt Prim Integer #-}
 decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim a -> Prompt Prim a
 decomposePrimWhere supported requested = decomp requested
     where
         {-# INLINE decomp #-}
+
+        {-# SPECIALIZE decomp :: Prim Word8   -> Prompt Prim Word8   #-}
+        {-# SPECIALIZE decomp :: Prim Word16  -> Prompt Prim Word16  #-}
+        {-# SPECIALIZE decomp :: Prim Word32  -> Prompt Prim Word32  #-}
+        {-# SPECIALIZE decomp :: Prim Word64  -> Prompt Prim Word64  #-}
+        {-# SPECIALIZE decomp :: Prim Double  -> Prompt Prim Double  #-}
+        {-# SPECIALIZE decomp :: Prim Integer -> Prompt Prim Integer #-}
         -- First, all supported prims should just be evaluated directly.
         decomp :: Prim a -> Prompt Prim a
         decomp prim

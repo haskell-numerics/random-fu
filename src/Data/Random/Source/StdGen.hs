@@ -87,7 +87,8 @@ getRandomPrimFromRandomGenRef ref prim
         {-# INLINE supported #-}
         supported :: Prim a -> Bool
         supported PrimWord8  = True
-        supported PrimWord32  = True
+        supported PrimWord16 = True
+        supported PrimWord32 = True
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
@@ -98,7 +99,7 @@ getRandomPrimFromRandomGenRef ref prim
         genPrim PrimWord16 f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
         genPrim PrimWord32 f = f (randomR (0, 0xffffffff))          (fromInteger)
         genPrim PrimWord64 f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
-        genPrim PrimDouble f = f (randomR (0, 0xffffffffffffffff))  (wordToDouble . fromInteger)
+        genPrim PrimDouble f = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
         genPrim p _ = error ("getRandomPrimFromRandomGenRef: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
@@ -110,15 +111,21 @@ getRandomPrimFromRandomGenRef ref prim
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
 -- which do precisely that, allowing an easy conversion of 'RVar's and
 -- other 'Distribution' instances to \"pure\" random variables.
+{-# SPECIALIZE getRandomPrimFromRandomGenState :: Prim a -> State StdGen a #-}
+{-# SPECIALIZE getRandomPrimFromRandomGenState :: Monad m => Prim a -> StateT StdGen m a #-}
 getRandomPrimFromRandomGenState :: (RandomGen g, MonadState g m) => Prim a -> m a
 getRandomPrimFromRandomGenState prim
-    | supported prim = genPrim prim getThing
-    | otherwise = runPromptM getRandomPrimFromRandomGenState (decomposePrimWhere supported prim)
+    | supported prim = genSupported prim
+    | otherwise = runPromptM genSupported (decomposePrimWhere supported prim)
     where 
+        {-# INLINE genSupported #-}
+        genSupported prim = genPrim prim getThing
+        
         {-# INLINE supported #-}
         supported :: Prim a -> Bool
         supported PrimWord8  = True
-        supported PrimWord32  = True
+        supported PrimWord16 = True
+        supported PrimWord32 = True
         supported PrimWord64 = True
         supported PrimDouble = True
         supported _          = False
@@ -129,7 +136,11 @@ getRandomPrimFromRandomGenState prim
         genPrim PrimWord16 f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
         genPrim PrimWord32 f = f (randomR (0, 0xffffffff))          (fromInteger)
         genPrim PrimWord64 f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
-        genPrim PrimDouble f = f (randomR (0, 0xffffffffffffffff))  (wordToDouble . fromInteger)
+        genPrim PrimDouble f = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
+          {- not using the Random Double instance for 2 reasons.  1st, it only generates 32 bits of entropy, when 
+             a [0,1) Double has room for 52.  Second, it appears there's a bug where it can actually generate a 
+             negative number in the case where randomIvalInteger returns minBound::Int32. -}
+--        genPrim PrimDouble f = f (randomR (0, 1.0))  (id)
         genPrim p _ = error ("getRandomPrimFromRandomGenState: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
@@ -138,7 +149,7 @@ getRandomPrimFromRandomGenState prim
             case thing oldGen of
                 (!i,!newGen) -> do
                     put newGen
-                    return (f i)
+                    return (f $! i)
 
 instance MonadRandom (State StdGen) where
     supportedPrims _ _ = True

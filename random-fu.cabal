@@ -23,7 +23,9 @@ Flag base4_2
     Description:        base-4.2 has an incompatible change in Data.Fixed (HasResolution)
 
 Library
-  ghc-options:          -Wall
+  ghc-options:          -Wall -funbox-strict-fields -fno-method-sharing
+  if (impl(ghc >= 6.12))
+    ghc-options:        -fdicts-strict
   hs-source-dirs:       src
   exposed-modules:      Data.Random
                         Data.Random.Distribution

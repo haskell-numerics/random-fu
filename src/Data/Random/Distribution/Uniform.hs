@@ -5,7 +5,8 @@
     MultiParamTypeClasses, FunctionalDependencies,
     FlexibleContexts, FlexibleInstances, 
     UndecidableInstances, EmptyDataDecls,
-    TemplateHaskell
+    TemplateHaskell,
+    BangPatterns
   #-}
 
 module Data.Random.Distribution.Uniform
@@ -50,19 +51,20 @@ import Data.List
 import Control.Monad.Loops
 
 -- |Compute a random 'Integral' value between the 2 values provided (inclusive).
+{-# SPECIALIZE integralUniform :: Int -> Int -> RVar Int #-}
 integralUniform :: (Integral a) => a -> a -> RVar a
-integralUniform x y
-    | x > y     = compute y x
-    | otherwise = compute x y
+integralUniform l u
+    | l > u     = integralUniform u l
+    | otherwise = go
     where
-        compute l u = do
-            let m = 1 + toInteger u - toInteger l
-            
-            let bytes = bytesNeeded m
-                maxXpossible = (powersOf256 !! bytes) - 1
-            
-            z <- iterateUntil (maxXpossible - maxXpossible `mod` m >) (getRandomPrim (PrimNByteInteger bytes))
-            return (l + fromInteger (z `mod` m))
+        !m = 1 + toInteger u - toInteger l
+        (!bytes, !maxXpossible) = bytesNeeded m
+        xLimit  = maxXpossible - maxXpossible `mod` m
+        go = do
+            !z <- getRandomPrim (PrimNByteInteger bytes)
+            if z < xLimit
+                then return (l + fromInteger (z `mod` m))
+                else go
 
 integralUniformCDF :: (Integral a, Fractional b) => a -> a -> a -> b
 integralUniformCDF a b x
@@ -71,13 +73,11 @@ integralUniformCDF a b x
     | x > b     = 1
     | otherwise = (fromIntegral x - fromIntegral a) / (fromIntegral b - fromIntegral a)
 
-bytesNeeded :: Integer -> Int
-bytesNeeded x = case findIndex (> x) powersOf256 of
-    Just n  -> n
-    Nothing -> error "bytesNeeded: supplied Integer is impossibly large"
+bytesNeeded :: Integer -> (Int, Integer)
+bytesNeeded x = head (dropWhile ((<= x).snd) powersOf256)
 
-powersOf256 :: [Integer]
-powersOf256 = iterate (256 *) 1
+powersOf256 :: [(Int, Integer)]
+powersOf256 = zip [0..] (map (subtract 1) (iterate (256 *) 1))
 
 -- |Compute a random value for a 'Bounded' type, between 'minBound' and 'maxBound'
 -- (inclusive for 'Integral' or 'Enum' types, in ['minBound', 'maxBound') for Fractional types.)
@@ -102,6 +102,7 @@ floatStdUniform = do
     return (word32ToFloat x)
 
 -- |Compute a uniform random 'Double' value in the range [0,1)
+{-# INLINE doubleStdUniform #-}
 doubleStdUniform :: RVar Double
 doubleStdUniform = getRandomPrim PrimDouble
 
@@ -142,6 +143,7 @@ floatUniform a b = do
     return (a + x * (b - a))
 
 -- |@doubleUniform a b@ computes a uniform random 'Double' value in the range [a,b)
+{-# INLINE doubleUniform #-}
 doubleUniform :: Double -> Double -> RVar Double
 doubleUniform 0 1 = doubleStdUniform
 doubleUniform a b = do

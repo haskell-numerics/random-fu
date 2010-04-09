@@ -114,6 +114,12 @@ wordToFloatWithExcess x = (wordToFloat x, x `shiftR` 23)
 wordToDouble :: Word64 -> Double
 wordToDouble x = (encodeFloat $! toInteger (x .&. 0x000fffffffffffff {- 2^52-1 -})) $ (-52)
 
+{-# INLINE word32ToDouble #-}
+-- |Pack a 'Word32' into a 'Double' in the range [0,1).  Note that a Double's 
+-- mantissa is 52 bits, so this does not fill all of them.
+word32ToDouble :: Word32 -> Double
+word32ToDouble x = (encodeFloat $! toInteger x) $ (-32)
+
 {-# INLINE wordToDoubleWithExcess #-}
 -- |Same as wordToDouble, but also return the unused bits (as the 12
 -- least significant bits of a 'Word64')
