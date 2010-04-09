@@ -58,8 +58,8 @@ integralUniform l u
     | otherwise = go
     where
         !m = 1 + toInteger u - toInteger l
-        (!bytes, !maxXpossible) = bytesNeeded m
-        xLimit  = maxXpossible - maxXpossible `mod` m
+        (!bytes, !nPossible) = bytesNeeded m
+        xLimit  = nPossible - nPossible `mod` m
         go = do
             !z <- getRandomPrim (PrimNByteInteger bytes)
             if z < xLimit
@@ -77,7 +77,7 @@ bytesNeeded :: Integer -> (Int, Integer)
 bytesNeeded x = head (dropWhile ((<= x).snd) powersOf256)
 
 powersOf256 :: [(Int, Integer)]
-powersOf256 = zip [0..] (map (subtract 1) (iterate (256 *) 1))
+powersOf256 = zip [0..] (iterate (256 *) 1)
 
 -- |Compute a random value for a 'Bounded' type, between 'minBound' and 'maxBound'
 -- (inclusive for 'Integral' or 'Enum' types, in ['minBound', 'maxBound') for Fractional types.)
