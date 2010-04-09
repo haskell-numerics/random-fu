@@ -260,6 +260,15 @@ instance Distribution StdUniform Int where
         
         | otherwise
         = const (fromIntegral `fmap` getRandomPrim PrimWord32)
+
+instance Distribution StdUniform Word where
+    rvar
+        | toInteger (maxBound :: Word) > toInteger (maxBound :: Word32)
+        = const (fromIntegral `fmap` getRandomPrim PrimWord64)
+        
+        | otherwise
+        = const (fromIntegral `fmap` getRandomPrim PrimWord32)
+
 -- Integer has no StdUniform...
 
 $( replicateInstances ''Int (integralTypes \\ [''Integer]) [d|

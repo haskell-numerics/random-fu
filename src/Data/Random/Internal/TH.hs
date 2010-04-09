@@ -30,9 +30,9 @@ import Data.Int
 -- |Names of standard 'Integral' types
 integralTypes :: [Name]
 integralTypes = 
-    [ ''Int,   ''Integer
-    , ''Int8,  ''Int16,  ''Int32,  ''Int64
-    , ''Word8, ''Word16, ''Word32, ''Word64
+    [ ''Integer
+    , ''Int,  ''Int8,  ''Int16,  ''Int32,  ''Int64
+    , ''Word, ''Word8, ''Word16, ''Word32, ''Word64
     ]
 
 -- |Names of standard 'RealFloat' types
