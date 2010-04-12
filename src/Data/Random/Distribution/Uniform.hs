@@ -51,11 +51,23 @@ import Data.List
 import Control.Monad.Loops
 
 -- |Compute a random 'Integral' value between the 2 values provided (inclusive).
-{-# SPECIALIZE integralUniform :: Int -> Int -> RVar Int #-}
 {-# INLINE integralUniform #-}
 integralUniform :: (Integral a) => a -> a -> RVar a
-integralUniform !l !u
-    | l > u         = integralUniform u l
+integralUniform !x !y = if x < y then integralUniform' x y else integralUniform' y x
+
+{-# SPECIALIZE integralUniform' :: Int   -> Int   -> RVar Int   #-}
+{-# SPECIALIZE integralUniform' :: Int8  -> Int8  -> RVar Int8  #-}
+{-# SPECIALIZE integralUniform' :: Int16 -> Int16 -> RVar Int16 #-}
+{-# SPECIALIZE integralUniform' :: Int32 -> Int32 -> RVar Int32 #-}
+{-# SPECIALIZE integralUniform' :: Int64 -> Int64 -> RVar Int64 #-}
+{-# SPECIALIZE integralUniform' :: Word   -> Word   -> RVar Word   #-}
+{-# SPECIALIZE integralUniform' :: Word8  -> Word8  -> RVar Word8  #-}
+{-# SPECIALIZE integralUniform' :: Word16 -> Word16 -> RVar Word16 #-}
+{-# SPECIALIZE integralUniform' :: Word32 -> Word32 -> RVar Word32 #-}
+{-# SPECIALIZE integralUniform' :: Word64 -> Word64 -> RVar Word64 #-}
+{-# SPECIALIZE integralUniform' :: Integer -> Integer -> RVar Integer #-}
+integralUniform' :: (Integral a) => a -> a -> RVar a
+integralUniform' !l !u
     | nReject == 0  = fmap shift prim
     | otherwise     = fmap shift loop
     where
