@@ -55,11 +55,13 @@ getRandomPrimFromStdGenIO prim
     where 
         {-# INLINE supported #-}
         supported :: Prim a -> Bool
-        supported PrimWord8  = True
-        supported PrimWord32 = True
-        supported PrimWord64 = True
-        supported PrimDouble = True
-        supported _          = False
+        supported PrimWord8             = True
+        supported PrimWord16            = True
+        supported PrimWord32            = True
+        supported PrimWord64            = True
+        supported PrimDouble            = True
+        supported (PrimNByteInteger _)  = True
+        supported _                     = False
         
         -- based on reading the source of the "random" library's implementation, I do
         -- not believe that the randomRIO (0,1) implementation for Double is capable of producing
@@ -69,11 +71,12 @@ getRandomPrimFromStdGenIO prim
 
         {-# INLINE genPrim #-}
         genPrim :: Prim a -> IO a
-        genPrim PrimWord8  = fmap fromIntegral                  (randomRIO (0, 0xff) :: IO Int)
-        genPrim PrimWord16 = fmap fromIntegral                  (randomRIO (0, 0xffff) :: IO Int)
-        genPrim PrimWord32 = fmap fromInteger                   (randomRIO (0, 0xffffffff))
-        genPrim PrimWord64 = fmap fromInteger                   (randomRIO (0, 0xffffffffffffffff))
-        genPrim PrimDouble = fmap (wordToDouble . fromInteger)  (randomRIO (0, 0xffffffffffffffff))
+        genPrim PrimWord8            = fmap fromIntegral                  (randomRIO (0, 0xff) :: IO Int)
+        genPrim PrimWord16           = fmap fromIntegral                  (randomRIO (0, 0xffff) :: IO Int)
+        genPrim PrimWord32           = fmap fromInteger                   (randomRIO (0, 0xffffffff))
+        genPrim PrimWord64           = fmap fromInteger                   (randomRIO (0, 0xffffffffffffffff))
+        genPrim PrimDouble           = fmap (wordToDouble . fromInteger)  (randomRIO (0, 0xffffffffffffffff))
+        genPrim (PrimNByteInteger n) = randomRIO (0, iterate (*256) 1 !! n)
         genPrim p = error ("getRandomPrimFromStdGenIO: genPrim called for unsupported prim " ++ show p)
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
@@ -86,20 +89,22 @@ getRandomPrimFromRandomGenRef ref prim
     where 
         {-# INLINE supported #-}
         supported :: Prim a -> Bool
-        supported PrimWord8  = True
-        supported PrimWord16 = True
-        supported PrimWord32 = True
-        supported PrimWord64 = True
-        supported PrimDouble = True
-        supported _          = False
+        supported PrimWord8             = True
+        supported PrimWord16            = True
+        supported PrimWord32            = True
+        supported PrimWord64            = True
+        supported PrimDouble            = True
+        supported (PrimNByteInteger _)  = True
+        supported _                     = False
         
         {-# INLINE genPrim #-}
         genPrim :: (RandomGen g) => Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
-        genPrim PrimWord8  f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
-        genPrim PrimWord16 f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
-        genPrim PrimWord32 f = f (randomR (0, 0xffffffff))          (fromInteger)
-        genPrim PrimWord64 f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
-        genPrim PrimDouble f = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
+        genPrim PrimWord8            f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
+        genPrim PrimWord16           f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
+        genPrim PrimWord32           f = f (randomR (0, 0xffffffff))          (fromInteger)
+        genPrim PrimWord64           f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
+        genPrim PrimDouble           f = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
+        genPrim (PrimNByteInteger n) f = f (randomR (0, iterate (*256) 1 !! n)) (id :: Integer -> Integer)
         genPrim p _ = error ("getRandomPrimFromRandomGenRef: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
@@ -123,24 +128,26 @@ getRandomPrimFromRandomGenState prim
         
         {-# INLINE supported #-}
         supported :: Prim a -> Bool
-        supported PrimWord8  = True
-        supported PrimWord16 = True
-        supported PrimWord32 = True
-        supported PrimWord64 = True
-        supported PrimDouble = True
-        supported _          = False
+        supported PrimWord8             = True
+        supported PrimWord16            = True
+        supported PrimWord32            = True
+        supported PrimWord64            = True
+        supported PrimDouble            = True
+        supported (PrimNByteInteger _)  = True
+        supported _                     = False
         
         {-# INLINE genPrim #-}
         genPrim :: (RandomGen g) => Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
-        genPrim PrimWord8  f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
-        genPrim PrimWord16 f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
-        genPrim PrimWord32 f = f (randomR (0, 0xffffffff))          (fromInteger)
-        genPrim PrimWord64 f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
-        genPrim PrimDouble f = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
+        genPrim PrimWord8            f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
+        genPrim PrimWord16           f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
+        genPrim PrimWord32           f = f (randomR (0, 0xffffffff))          (fromInteger)
+        genPrim PrimWord64           f = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
+        genPrim PrimDouble           f = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
           {- not using the Random Double instance for 2 reasons.  1st, it only generates 32 bits of entropy, when 
              a [0,1) Double has room for 52.  Second, it appears there's a bug where it can actually generate a 
              negative number in the case where randomIvalInteger returns minBound::Int32. -}
 --        genPrim PrimDouble f = f (randomR (0, 1.0))  (id)
+        genPrim (PrimNByteInteger n) f = f (randomR (0, iterate (*256) 1 !! n)) id
         genPrim p _ = error ("getRandomPrimFromRandomGenState: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
