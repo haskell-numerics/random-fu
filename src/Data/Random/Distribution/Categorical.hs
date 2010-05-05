@@ -60,27 +60,21 @@ instance (Fractional p, Ord p, Distribution StdUniform p) => Distribution (Categ
         getEvent u cs xs
         
         where
-            -- Implicit epsilon, to deal with the facts that
-            --  a) we don't know whether the type of the probabilities has exact addition/subtraction/etc.,
-            --     but given the combination of @Fractional@ and @Distribution StdUniform@ in the context,
-            --     we have strong reason to suspect it at least does not have exact division/multiplication,
-            --     so the probabilities may not sum to exactly 1 if they arose from any non-trivial computation.
-            --  b) we don't know what its ULP might be, if it even has one
-            --
-            -- Note that this particular setup relies heavily on the assumption that all 
-            -- c's lie in the range 0 < c <= 1
-            --
-            -- This corresponds to an epsilon of 100 ULPs at whatever 
-            -- resolution the type has near 1, I think.
-            x >~ y  = (100 + (x - y) > 100)
-            
-            getEvent u = go 0
+            -- In the (hopefully) extremely rare event that, due to numerical
+            -- instability, the last 'c' is less than 1 _and_ a number greater than 
+            -- it is drawn, simply retry the sampling.  If it comes to that, also
+            -- do one last sanity check that lastC > 0, to make sure that there
+            -- is some nonzero chance of termination.
+            getEvent u cs0 xs0 = go 0 cs0 xs0
                 where
-                    go lastC [] _   = fail ("categorical distribution sampling error: probabilities do not sum to one (lastC == " ++ show lastC ++ ")")
+                    go lastC [] _
+                        | lastC > 0 = do {newU <- stdUniform; getEvent newU cs0 xs0}
+                        | otherwise = fail "categorical distribution sampling error: total probablility not greater than zero"
                     go lastC (c:cs) (x:xs)
                         | c < lastC = fail "categorical distribution sampling error: negative probability for an event!"
-                        | u >~ c    = go c cs xs
-                        | otherwise = return x
+                        | u > c     = go c cs xs
+                        | c == c    = return x
+                        | otherwise = fail "categorical distribution sampling error: NaN probability"
                     
                     go _ _ _ = error "rvar/Categorical: programming error! this case should be impossible!"
 
