@@ -29,16 +29,6 @@ import Data.Random.Distribution.Uniform
 integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> b -> RVar a
 integralBinomial = bin 0
     where
-        -- GHC likes to discharge Beta to the Beta instance's context, which
-        -- @integralBinomial@'s context doesn't (directly) satisfy.
-        -- Seems like GHC could do better.  GHC could discharge it in @integralBinomial@'s
-        -- context when attempting to satisfy bin, since the Beta instance covers all @b@,
-        -- whereupon it would find that the contexts do, in fact, match.
-        -- Of course, it's a pretty obscure case, so maybe it's better to just 
-        -- leave it to the coder who's doing weird stuff to tell the compiler what
-        -- he/she wants.
-        -- Anyway, this type signature makes GHC happy.
-        bin :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> a -> b -> RVar a
         bin !k !t !p
             | t > 10    = do
                 let a = 1 + t `div` 2

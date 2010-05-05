@@ -4,10 +4,13 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
-    UndecidableInstances
+    UndecidableInstances,
+    TemplateHaskell
   #-}
 
 module Data.Random.Distribution.Beta where
+
+import Data.Random.Internal.TH
 
 import Data.Random.RVar
 import Data.Random.Distribution
@@ -30,5 +33,7 @@ beta a b = rvar (Beta a b)
 
 data Beta a = Beta a a
 
-instance (Fractional a, Distribution Gamma a, Distribution StdUniform a) => Distribution Beta a where
-    rvar (Beta a b) = fractionalBeta a b
+$( replicateInstances ''Float realFloatTypes [d|
+        instance Distribution Beta Float
+              where rvar (Beta a b) = fractionalBeta a b
+    |])
