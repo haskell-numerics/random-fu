@@ -12,11 +12,12 @@ homepage:               http://code.haskell.org/~mokus/random-fu
 
 category:               Math
 synopsis:               Random number generation
-description:            Random number generation based on orthogonal typeclasses
-                        for entropy sources and random variable distributions, all
-                        served up on a monadic platter.  Aspires to be useful
-                        in an idiomatic way in both \"pure\" and \"impure\" styles,
-                        as well as reasonably fast.
+description:            Random number generation based on orthogonal
+                        typeclasses for entropy sources and random variable
+                        distributions, all served up on a monadic platter.
+                        Aspires to be useful in an idiomatic way in both
+                        \"pure\" and \"impure\" styles, as well as reasonably
+                        fast.
 
 Flag base4
 Flag base4_2
