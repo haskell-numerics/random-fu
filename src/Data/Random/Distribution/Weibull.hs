@@ -1,15 +1,11 @@
 {-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, UndecidableInstances #-}
-module Data.Random.Distribution.Weibull
-    ( mkWeibull, Weibull
-    , weibullLambda, weibullK
-    ) where
+module Data.Random.Distribution.Weibull where
 
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 
 data Weibull a = Weibull { weibullLambda :: !a, weibullK :: !a }
     deriving (Eq, Show)
-mkWeibull lambda k = Weibull lambda k
 
 instance (Floating a, Distribution StdUniform a) => Distribution Weibull a where
     rvarT (Weibull lambda k) = do
