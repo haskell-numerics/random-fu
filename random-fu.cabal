@@ -1,6 +1,6 @@
 name:                   random-fu
 version:                0.1.0.0
-stability:              experimental
+stability:              provisional
 
 cabal-version:          >= 1.2
 build-type:             Simple
@@ -28,6 +28,21 @@ description:            Random number generation based on modeling random
                         comparable to other Haskell libraries, but still
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
+                        
+                        Warning to anyone upgrading from \"< 0.1\": 'Discrete'
+                        has been renamed 'Categorical', the entropy source 
+                        classes have been redesigned, and many things are no
+                        longer exported from the root module "Data.Random"
+                        (In particular, DevRandom - this is not available on 
+                        windows, so it will likely move to its own package 
+                        eventually so that client code dependencies on it will 
+                        be made explicit).
+                        
+                        The "Data.Random" module itself should now have a
+                        relatively stable interface, but the other modules
+                        are still subject to change.  Specifically, I am 
+                        considering hiding data constructors for most or all 
+                        of the distributions.
 
 Flag base4
 Flag base4_2

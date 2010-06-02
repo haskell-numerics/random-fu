@@ -4,6 +4,10 @@
         GADTs
   #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+-- |This module defines the following instances:
+-- 
+-- > instance RandomSource (ST s) (Gen s)
+-- > instance RandomSource IO (Gen RealWorld)
 module Data.Random.Source.MWC where
 
 import Data.Random.Internal.Primitives

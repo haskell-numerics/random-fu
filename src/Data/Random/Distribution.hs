@@ -43,8 +43,8 @@ import Data.Random.RVar
 -- @fmap (cdf dist) x@ for uniformity.
 -- 
 -- On the other hand, most 'Distribution's will not be closed under all the
--- same operations as 'RVar' (which, being a monad, allows lots of very
--- useful operations to be applied).  The sum of two uniformly-distributed 
+-- same operations as 'RVar' (which, being a monad, has a fully turing-complete
+-- internal computational model).  The sum of two uniformly-distributed 
 -- variables, for example, is not uniformly distributed.  To support general 
 -- composition, the 'Distribution' class defines a function 'rvar' to 
 -- construct the more-abstract and more-composable 'RVar' representation 
@@ -75,9 +75,15 @@ class Distribution d t => CDF d t where
     -- must be uniformly distributed over (0,1).  Inclusion of either endpoint is optional,
     -- though the preferred range is (0,1].
     -- 
-    -- Thus, 'cdf' for a product type should not be a joint CDF as commonly 
-    -- defined, as that definition violates both conditions.
+    -- Note that this definition requires that  'cdf' for a product type 
+    -- should _not_ be a joint CDF as commonly defined, as that definition 
+    -- violates both conditions.
     -- Instead, it should be a univariate CDF over the product type.  That is,
     -- it should represent the CDF with respect to the lexicographic order
-    -- of the tuple.
+    -- of the product.
+    -- 
+    -- The present specification is probably only really useful for testing
+    -- conformance of a variable to its target distribution, and I am open to
+    -- suggestions for more-useful specifications (especially with regard to
+    -- the interaction with product types).
     cdf :: d t -> t -> Double

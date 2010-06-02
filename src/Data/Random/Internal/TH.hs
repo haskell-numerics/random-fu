@@ -26,6 +26,7 @@ import Language.Haskell.TH
 
 import Data.Word
 import Data.Int
+import Control.Monad
 
 -- |Names of standard 'Integral' types
 integralTypes :: [Name]
@@ -69,11 +70,13 @@ replaceName x y z
 -- This code takes those 2 instance declarations and creates identical ones for
 -- every type named in 'integralTypes'.
 replicateInstances :: (Monad m, Data t) => Name -> [Name] -> m [t] -> m [t]
-replicateInstances standin types getDecls = do
-    decls <- getDecls
-    sequence
-        [ everywhereM (mkM (return . replaceName standin t)) dec
-        | t <- types
-        , dec <- decls
-        ]
+replicateInstances standin types getDecls = liftM concat $ sequence
+    [ do
+        decls <- getDecls
+        sequence
+            [ everywhereM (mkM (return . replaceName standin t)) dec
+            | dec <- decls
+            ]
+    | t <- types
+    ]
 

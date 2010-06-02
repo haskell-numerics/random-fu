@@ -25,8 +25,8 @@ import Control.Monad.State
 import qualified Control.Monad.ST.Strict as S
 import qualified Control.Monad.State.Strict as S
 
--- |Given a mutable reference to a 'PureMT' generator, we can make a
--- 'RandomSource' usable in any monad in which the reference can be modified.
+-- |Given a mutable reference to a 'PureMT' generator, we can implement
+-- 'RandomSource' for in any monad in which the reference can be modified.
 getRandomPrimFromMTRef :: (Monad m, ModifyRef sr m PureMT) => sr -> Prim a -> m a
 getRandomPrimFromMTRef ref prim
     | supported prim = getThing (genPrim prim)
