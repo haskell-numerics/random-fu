@@ -32,9 +32,36 @@ import Control.Monad.Identity
 import Control.Monad.Prompt (PromptT, runPromptT, prompt)
 
 -- |An opaque type modeling a \"random variable\" - a value 
--- which depends on the outcome of some random process.
+-- which depends on the outcome of some random event.  'RVar's 
+-- can be conveniently defined by an imperative-looking style:
+-- 
+-- > normalPair =  do
+-- >     u <- stdUniform
+-- >     t <- stdUniform
+-- >     let r = sqrt (-2 * log u)
+-- >         theta = (2 * pi) * t
+-- >         
+-- >         x = r * cos theta
+-- >         y = r * sin theta
+-- >     return (x,y)
+-- 
+-- OR by a more applicative style:
+-- 
+-- > logNormal = exp <$> stdNormal
+--
+-- Once defined (in any style), there are a couple ways to sample 'RVar's:
+-- 
+-- * In a monad, using a 'RandomSource':
+-- 
+-- > sampleFrom DevRandom (uniform 1 100) :: IO Int
+-- 
+-- * As a pure function transforming a functional RNG:
+-- 
+-- > sampleState (uniform 1 100) :: StdGen -> (Int, StdGen)
 type RVar = RVarT Identity
 
+-- |\"Run\" an 'RVar' - samples the random variable from the provided
+-- source of entropy.
 runRVar :: RandomSource m s => RVar a -> s -> m a
 runRVar = runRVarT
 
@@ -86,7 +113,7 @@ runRVar = runRVarT
 -- inferred type of @start@ would be too general to be practical, so the
 -- signature for @rwalk@  explicitly fixes it to 'Double'.  Alternatively, 
 -- in this case @sample@ could be replaced with
--- @\x -> runRVarTWith MTL.lift x StdRandom@.
+-- @\\x -> runRVarTWith MTL.lift x StdRandom@.
 -- 
 -- > rwalk :: Int -> Double -> StdGen -> ([Double], StdGen)
 -- > rwalk count start gen = evalState (runStateT (sample (replicateM count rwalkState)) gen) start
@@ -98,6 +125,16 @@ newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 -- underlying functor ('Identity' is sufficient for \"conventional\" random
 -- variables) and then sampled in any monad into which the underlying functor 
 -- can be embedded (which, for 'Identity', is all monads).
+-- 
+-- The lifting is very important - without it, every 'RVar' would have
+-- to either be given access to the full capability of the monad in which it
+-- will eventually be sampled (which, incidentally, would also have to be 
+-- monomorphic so you couldn't sample one 'RVar' in more than one monad)
+-- or functions manipulating 'RVar's would have to use higher-ranked 
+-- types to enforce the same kind of isolation and polymorphism.
+-- 
+-- For non-standard liftings or those where you would rather not introduce a
+-- 'Lift' instance, see 'runRVarTWith'.
 {-# INLINE runRVarT #-}
 runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
 runRVarT (RVarT m) src = runPromptT return bindP bindN m

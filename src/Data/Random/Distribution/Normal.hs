@@ -200,7 +200,7 @@ normalCdf m s x = normcdf ((realToFrac x - realToFrac m) / realToFrac s)
 data Normal a
     -- |The \"standard\" normal distribution - mean 0, stddev 1
     = StdNormal
-    -- |@Normal m s@ is a normal distribution with mean @m@ and stddev @s@.
+    -- |@Normal m s@ is a normal distribution with mean @m@ and stddev @sd@.
     | Normal a a -- mean, sd
 
 instance Distribution Normal Double where
