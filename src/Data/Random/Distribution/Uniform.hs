@@ -15,7 +15,6 @@ module Data.Random.Distribution.Uniform
 	
     , StdUniform(..)
     , stdUniform
-    , stdUniformNonneg
     , stdUniformPos
     
     , integralUniform
@@ -218,16 +217,18 @@ uniform a b = rvar (Uniform a b)
 
 -- |Get a \"standard\" uniformly distributed value.
 -- For integral types, this means uniformly distributed over the full range
--- of the type (and hence there is no support for Integer).  For fractional
+-- of the type (there is no support for 'Integer').  For fractional
 -- types, this means uniformly distributed on the interval [0,1).
 {-# SPECIALIZE stdUniform :: RVar Double #-}
 {-# SPECIALIZE stdUniform :: RVar Float #-}
 stdUniform :: (Distribution StdUniform a) => RVar a
 stdUniform = rvar StdUniform
 
--- |Like 'stdUniform', but uses 'abs' to return only positive or zero values.
+-- |Like 'stdUniform', but returns only positive or zero values.  Not 
+-- exported because it is not truly uniform: nonzero values are twice
+-- as likely as zero on signed types.
 stdUniformNonneg :: (Distribution StdUniform a, Num a) => RVar a
-stdUniformNonneg = abs `fmap` stdUniform
+stdUniformNonneg = fmap abs stdUniform
 
 -- |Like 'stdUniform' but only returns positive values.
 stdUniformPos :: (Distribution StdUniform a, Num a) => RVar a
