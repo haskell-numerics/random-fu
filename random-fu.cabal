@@ -86,10 +86,10 @@ Library
     build-depends:      syb
     
     if flag(base4_2)
-      build-depends:    base >= 4 && <4.2
-    else
       cpp-options:      -Dbase_4_2
       build-depends:    base >= 4.2 && <5
+    else
+      build-depends:    base >= 4 && <4.2
   else
     build-depends:      base >= 3 && < 4
     
