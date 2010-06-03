@@ -54,7 +54,7 @@ module Data.Random
       Gamma(..), gamma,
       
       -- * Entropy Sources
-      MonadRandom, RandomSource,
+      MonadRandom, RandomSource, StdRandom(..),
       
       -- * Useful list-based operations
       randomElement,
