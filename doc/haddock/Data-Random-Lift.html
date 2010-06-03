@@ -23,6 +23,10 @@
 ><TD CLASS="title"
 >random-fu-0.1.0.0: Random number generation</TD
 ><TD CLASS="topbut"
+><A HREF="src/Data-Random-Lift.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
 ><A HREF="index.html"
 >Contents</A
 ></TD
@@ -103,7 +107,10 @@
 ></TD
 ></TR
 ><TR
-><TD CLASS="decl"
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
 ><SPAN CLASS="keyword"
 >class</SPAN
 >  <A NAME="t:Lift"
@@ -115,6 +122,13 @@
 > m n  <SPAN CLASS="keyword"
 >where</SPAN
 ></TD
+><TD CLASS="declbut"
+><A HREF="src/Data-Random-Lift.html#Lift"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
 ></TR
 ><TR
 ><TD CLASS="body"
@@ -124,7 +138,7 @@
 ><P
 >A class for &quot;liftable&quot; data structures. Conceptually
  an extension of <TT
-><A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Trans.html#t%3AMonadTrans"
+><A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Trans.html#t%3AMonadTrans"
 >MonadTrans</A
 ></TT
 > to allow deep lifting,
@@ -149,7 +163,7 @@
 >Data.Random</A
 >.  RVarT is, however, an instance of 
  <TT
-><A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Trans.html#t%3AMonadTrans"
+><A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Trans.html#t%3AMonadTrans"
 >MonadTrans</A
 ></TT
 >, which in most cases is the preferred way
@@ -169,7 +183,10 @@
 ><TD CLASS="body"
 ><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
 ><TR
-><TD CLASS="decl"
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
 ><A NAME="v:lift"
 ><A NAME="v%3Alift"
 ></A
@@ -177,6 +194,13 @@
 ><B
 >lift</B
 > ::  m a -&gt; n a</TD
+><TD CLASS="declbut"
+><A HREF="src/Data-Random-Lift.html#lift"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
 ></TR
 ></TABLE
 ></TD
@@ -202,19 +226,19 @@
 ></TR
 ><TR
 ><TD CLASS="decl"
-><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+><A HREF="http://hackage.haskell.org/packages/archive/base/latest/doc/html/Control-Monad.html#t%3AMonad"
 >Monad</A
 > m =&gt; <A HREF="Data-Random-Lift.html#t%3ALift"
 >Lift</A
-> <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Identity.html#t%3AIdentity"
+> <A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Identity.html#t%3AIdentity"
 >Identity</A
 > m</TD
 ></TR
 ><TR
 ><TD CLASS="decl"
->(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+>(<A HREF="http://hackage.haskell.org/packages/archive/base/latest/doc/html/Control-Monad.html#t%3AMonad"
 >Monad</A
-> m, <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Trans.html#t%3AMonadTrans"
+> m, <A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Trans.html#t%3AMonadTrans"
 >MonadTrans</A
 > t) =&gt; <A HREF="Data-Random-Lift.html#t%3ALift"
 >Lift</A
@@ -226,7 +250,7 @@
 >Lift</A
 > (<A HREF="Data-Random-RVar.html#t%3ARVarT"
 >RVarT</A
-> <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Identity.html#t%3AIdentity"
+> <A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Identity.html#t%3AIdentity"
 >Identity</A
 >) (<A HREF="Data-Random-RVar.html#t%3ARVarT"
 >RVarT</A

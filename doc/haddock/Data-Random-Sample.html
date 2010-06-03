@@ -23,6 +23,10 @@
 ><TD CLASS="title"
 >random-fu-0.1.0.0: Random number generation</TD
 ><TD CLASS="topbut"
+><A HREF="src/Data-Random-Sample.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
 ><A HREF="index.html"
 >Contents</A
 ></TD
@@ -113,11 +117,11 @@
 >sampleState</A
 > :: (<A HREF="Data-Random-Sample.html#t%3ASampleable"
 >Sampleable</A
-> d (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AState"
+> d (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AState"
 >State</A
 > s) t, <A HREF="Data-Random-Source.html#t%3AMonadRandom"
 >MonadRandom</A
-> (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AState"
+> (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AState"
 >State</A
 > s)) =&gt; d t -&gt; s -&gt; (t, s)</TD
 ></TR
@@ -131,11 +135,11 @@
 >sampleStateT</A
 > :: (<A HREF="Data-Random-Sample.html#t%3ASampleable"
 >Sampleable</A
-> d (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AStateT"
+> d (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AStateT"
 >StateT</A
 > s m) t, <A HREF="Data-Random-Source.html#t%3AMonadRandom"
 >MonadRandom</A
-> (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AStateT"
+> (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AStateT"
 >StateT</A
 > s m)) =&gt; d t -&gt; s -&gt; m (t, s)</TD
 ></TR
@@ -155,7 +159,10 @@
 ></TD
 ></TR
 ><TR
-><TD CLASS="decl"
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
 ><SPAN CLASS="keyword"
 >class</SPAN
 >  <A NAME="t:Sampleable"
@@ -166,6 +173,13 @@
 >Sampleable</B
 > d m t  <SPAN CLASS="keyword"
 >where</SPAN
+></TD
+><TD CLASS="declbut"
+><A HREF="src/Data-Random-Sample.html#Sampleable"
+>Source</A
+></TD
+></TR
+></TABLE
 ></TD
 ></TR
 ><TR
@@ -207,7 +221,10 @@
 ><TD CLASS="body"
 ><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
 ><TR
-><TD CLASS="decl"
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
 ><A NAME="v:sampleFrom"
 ><A NAME="v%3AsampleFrom"
 ></A
@@ -217,6 +234,13 @@
 > :: <A HREF="Data-Random-Source.html#t%3ARandomSource"
 >RandomSource</A
 > m s =&gt; s -&gt; d t -&gt; m t</TD
+><TD CLASS="declbut"
+><A HREF="src/Data-Random-Sample.html#sampleFrom"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
 ></TR
 ><TR
 ><TD CLASS="doc"
@@ -269,7 +293,10 @@
 ></TD
 ></TR
 ><TR
-><TD CLASS="decl"
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
 ><A NAME="v:sample"
 ><A NAME="v%3Asample"
 ></A
@@ -281,6 +308,13 @@
 > d m t, <A HREF="Data-Random-Source.html#t%3AMonadRandom"
 >MonadRandom</A
 > m) =&gt; d t -&gt; m t</TD
+><TD CLASS="declbut"
+><A HREF="src/Data-Random-Sample.html#sample"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
 ></TR
 ><TR
 ><TD CLASS="doc"
@@ -293,7 +327,10 @@
 ></TD
 ></TR
 ><TR
-><TD CLASS="decl"
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
 ><A NAME="v:sampleState"
 ><A NAME="v%3AsampleState"
 ></A
@@ -302,13 +339,20 @@
 >sampleState</B
 > :: (<A HREF="Data-Random-Sample.html#t%3ASampleable"
 >Sampleable</A
-> d (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AState"
+> d (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AState"
 >State</A
 > s) t, <A HREF="Data-Random-Source.html#t%3AMonadRandom"
 >MonadRandom</A
-> (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AState"
+> (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AState"
 >State</A
 > s)) =&gt; d t -&gt; s -&gt; (t, s)</TD
+><TD CLASS="declbut"
+><A HREF="src/Data-Random-Sample.html#sampleState"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
 ></TR
 ><TR
 ><TD CLASS="doc"
@@ -327,7 +371,10 @@
 ></TD
 ></TR
 ><TR
-><TD CLASS="decl"
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
 ><A NAME="v:sampleStateT"
 ><A NAME="v%3AsampleStateT"
 ></A
@@ -336,13 +383,20 @@
 >sampleStateT</B
 > :: (<A HREF="Data-Random-Sample.html#t%3ASampleable"
 >Sampleable</A
-> d (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AStateT"
+> d (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AStateT"
 >StateT</A
 > s m) t, <A HREF="Data-Random-Source.html#t%3AMonadRandom"
 >MonadRandom</A
-> (<A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Lazy.html#t%3AStateT"
+> (<A HREF="http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-State-Lazy.html#t%3AStateT"
 >StateT</A
 > s m)) =&gt; d t -&gt; s -&gt; m (t, s)</TD
+><TD CLASS="declbut"
+><A HREF="src/Data-Random-Sample.html#sampleStateT"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
 ></TR
 ><TR
 ><TD CLASS="doc"
