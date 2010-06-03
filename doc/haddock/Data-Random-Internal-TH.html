@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Data.Random.Internal.TH</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Data-Random-Internal-TH.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Data.Random.Internal.TH</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Template Haskell utility code to replicate instance declarations
+ to cover large numbers of types.  I'm doing that rather than using
+ class contexts because most Distribution instances need to cover
+ multiple classes (such as Enum, Integral and Fractional) and that
+ can't be done easily because of overlap.  
+</P
+><P
+>I experimented a bit with a convoluted type-level classification 
+ scheme, but I think this is simpler and easier to understand.  It 
+ makes the haddock docs more cluttered because of the combinatorial 
+ explosion of instances, but overall I think it's just more sane than 
+ anything else I've come up with yet.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreplicateInstances"
+>replicateInstances</A
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+>Monad</A
+> m, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Data.html#t%3AData"
+>Data</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+> -&gt; [<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+>] -&gt; m [t] -&gt; m [t]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AintegralTypes"
+>integralTypes</A
+> :: [<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArealFloatTypes"
+>realFloatTypes</A
+> :: [<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+>]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:replicateInstances"
+><A NAME="v%3AreplicateInstances"
+></A
+></A
+><B
+>replicateInstances</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+>Monad</A
+> m, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Data.html#t%3AData"
+>Data</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+> -&gt; [<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+>] -&gt; m [t] -&gt; m [t]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+><TT
+>replicateInstances standin types decls</TT
+> will take the template-haskell
+ <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3ADec"
+>Dec</A
+></TT
+>s in <TT
+>decls</TT
+> and substitute every instance of the <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+></TT
+> <TT
+>standin</TT
+> with
+ each <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+></TT
+> in <TT
+>types</TT
+>, producing one copy of the <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3ADec"
+>Dec</A
+></TT
+>s in <TT
+>decls</TT
+> for every
+ <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+></TT
+> in <TT
+>types</TT
+>.
+</P
+><P
+>For example, Data.Random.Distribution.Uniform has the following bit of TH code:
+</P
+><PRE
+> $( replicateInstances ''Int integralTypes [d|</PRE
+><PRE
+>       instance Distribution Uniform Int   where rvar (Uniform a b) = integralUniform a b</PRE
+><PRE
+>       instance CDF Uniform Int            where cdf  (Uniform a b) = integralUniformCDF a b</PRE
+><PRE
+>   |])</PRE
+><P
+>This code takes those 2 instance declarations and creates identical ones for
+ every type named in <TT
+><A HREF="Data-Random-Internal-TH.html#v%3AintegralTypes"
+>integralTypes</A
+></TT
+>.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:integralTypes"
+><A NAME="v%3AintegralTypes"
+></A
+></A
+><B
+>integralTypes</B
+> :: [<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+>]</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Names of standard <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AIntegral"
+>Integral</A
+></TT
+> types
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:realFloatTypes"
+><A NAME="v%3ArealFloatTypes"
+></A
+></A
+><B
+>realFloatTypes</B
+> :: [<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/template-haskell-2.4.0.0/Language-Haskell-TH-Syntax.html#t%3AName"
+>Name</A
+>]</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Names of standard <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+></TT
+> types
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

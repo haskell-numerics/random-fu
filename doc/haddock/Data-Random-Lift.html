@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Data.Random.Lift</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Data-Random-Lift.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Data.Random.Lift</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>class</SPAN
+>  <A HREF="#t%3ALift"
+>Lift</A
+> m n  <SPAN CLASS="keyword"
+>where</SPAN
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Alift"
+>lift</A
+> ::  m a -&gt; n a</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>class</SPAN
+>  <A NAME="t:Lift"
+><A NAME="t%3ALift"
+></A
+></A
+><B
+>Lift</B
+> m n  <SPAN CLASS="keyword"
+>where</SPAN
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+><P
+>A class for &quot;liftable&quot; data structures. Conceptually
+ an extension of <TT
+><A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Trans.html#t%3AMonadTrans"
+>MonadTrans</A
+></TT
+> to allow deep lifting,
+ but lifting need not be done between monads only. Eg lifting
+ between Applicatives is allowed.
+</P
+><P
+>For instances where m and n have 'return'/'pure' defined,
+ these instances must satisfy
+ <TT
+>lift (return x) == return x</TT
+>.
+</P
+><P
+>This form of <TT
+><A HREF="Data-Random-Lift.html#v%3Alift"
+>lift</A
+></TT
+> has an extremely general type and is used primarily to
+ support sample.  Its excessive generality is the main reason it's not
+ exported from <A HREF="Data-Random.html"
+>Data.Random</A
+>.  RVarT is, however, an instance of 
+ <TT
+><A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Trans.html#t%3AMonadTrans"
+>MonadTrans</A
+></TT
+>, which in most cases is the preferred way
+ to do the lifting.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Methods</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A NAME="v:lift"
+><A NAME="v%3Alift"
+></A
+></A
+><B
+>lift</B
+> ::  m a -&gt; n a</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Lift')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Lift" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="Data-Random-Lift.html#t%3ALift"
+>Lift</A
+> m m</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+>Monad</A
+> m =&gt; <A HREF="Data-Random-Lift.html#t%3ALift"
+>Lift</A
+> <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Identity.html#t%3AIdentity"
+>Identity</A
+> m</TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+>Monad</A
+> m, <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Trans.html#t%3AMonadTrans"
+>MonadTrans</A
+> t) =&gt; <A HREF="Data-Random-Lift.html#t%3ALift"
+>Lift</A
+> m (t m)</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="Data-Random-Lift.html#t%3ALift"
+>Lift</A
+> (<A HREF="Data-Random-RVar.html#t%3ARVarT"
+>RVarT</A
+> <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-Identity.html#t%3AIdentity"
+>Identity</A
+>) (<A HREF="Data-Random-RVar.html#t%3ARVarT"
+>RVarT</A
+> m)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

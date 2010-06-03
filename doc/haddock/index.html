@@ -1,0 +1,474 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>random-fu-0.1.0.0: Random number generation</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>random-fu-0.1.0.0: Random number generation</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Random number generation based on modeling random
+variables in two complementary ways: first, by the
+parameters of standard mathematical distributions and,
+second, by an abstract type (<TT
+>RVar</TT
+>) which can be
+composed and manipulated monadically and sampled in
+either monadic or &quot;pure&quot; styles.
+The primary purpose of this library is to support
+defining and sampling a wide variety of high quality
+random variables.  Quality is prioritized over speed,
+but performance is an important goal too.
+In my testing, I have found it capable of speed
+comparable to other Haskell libraries, but still
+a fair bit slower than straight C implementations of
+the same algorithms.
+Warning to anyone upgrading from &quot;&lt; 0.1&quot;: <TT
+>Discrete</TT
+>
+has been renamed <TT
+>Categorical</TT
+>, the entropy source
+classes have been redesigned, and many things are no
+longer exported from the root module <A HREF="Data-Random.html"
+>Data.Random</A
+>
+(In particular, DevRandom - this is not available on
+windows, so it will likely move to its own package
+eventually so that client code dependencies on it will
+be made explicit).
+The <A HREF="Data-Random.html"
+>Data.Random</A
+> module itself should now have a
+relatively stable interface, but the other modules
+are still subject to change.  Specifically, I am
+considering hiding data constructors for most or all
+of the distributions.
+</TD
+></TR
+><TR
+><TD CLASS="section1"
+>Modules</TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla2" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD STYLE="width: 50em"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'n:0')" ALT="show/hide"
+>Data</TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding: 0; padding-left: 2em" COLSPAN="3"
+><TABLE CLASS="vanilla2" CELLSPACING="0" CELLPADDING="0" ID="n:0" STYLE="display:block;"
+><TR
+><TD STYLE="width: 48em"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'n:1')" ALT="show/hide"
+><A HREF="Data-Random.html"
+>Data.Random</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding: 0; padding-left: 2em" COLSPAN="3"
+><TABLE CLASS="vanilla2" CELLSPACING="0" CELLPADDING="0" ID="n:1" STYLE="display:block;"
+><TR
+><TD STYLE="width: 46em"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'n:2')" ALT="show/hide"
+><A HREF="Data-Random-Distribution.html"
+>Data.Random.Distribution</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding: 0; padding-left: 2em" COLSPAN="3"
+><TABLE CLASS="vanilla2" CELLSPACING="0" CELLPADDING="0" ID="n:2" STYLE="display:block;"
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Bernoulli.html"
+>Data.Random.Distribution.Bernoulli</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Beta.html"
+>Data.Random.Distribution.Beta</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Binomial.html"
+>Data.Random.Distribution.Binomial</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Categorical.html"
+>Data.Random.Distribution.Categorical</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Dirichlet.html"
+>Data.Random.Distribution.Dirichlet</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Exponential.html"
+>Data.Random.Distribution.Exponential</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Gamma.html"
+>Data.Random.Distribution.Gamma</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Multinomial.html"
+>Data.Random.Distribution.Multinomial</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Normal.html"
+>Data.Random.Distribution.Normal</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Poisson.html"
+>Data.Random.Distribution.Poisson</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Rayleigh.html"
+>Data.Random.Distribution.Rayleigh</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Triangular.html"
+>Data.Random.Distribution.Triangular</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Uniform.html"
+>Data.Random.Distribution.Uniform</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Weibull.html"
+>Data.Random.Distribution.Weibull</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Distribution-Ziggurat.html"
+>Data.Random.Distribution.Ziggurat</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD STYLE="width: 46em"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'n:3')" ALT="show/hide"
+>Internal</TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding: 0; padding-left: 2em" COLSPAN="3"
+><TABLE CLASS="vanilla2" CELLSPACING="0" CELLPADDING="0" ID="n:3" STYLE="display:block;"
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Internal-Find.html"
+>Data.Random.Internal.Find</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Internal-Fixed.html"
+>Data.Random.Internal.Fixed</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Internal-Primitives.html"
+>Data.Random.Internal.Primitives</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Internal-TH.html"
+>Data.Random.Internal.TH</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Internal-Words.html"
+>Data.Random.Internal.Words</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 46em"
+><A HREF="Data-Random-Lift.html"
+>Data.Random.Lift</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 46em"
+><A HREF="Data-Random-List.html"
+>Data.Random.List</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 46em"
+><A HREF="Data-Random-RVar.html"
+>Data.Random.RVar</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 46em"
+><A HREF="Data-Random-Sample.html"
+>Data.Random.Sample</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="width: 46em"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'n:4')" ALT="show/hide"
+><A HREF="Data-Random-Source.html"
+>Data.Random.Source</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding: 0; padding-left: 2em" COLSPAN="3"
+><TABLE CLASS="vanilla2" CELLSPACING="0" CELLPADDING="0" ID="n:4" STYLE="display:block;"
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Source-DevRandom.html"
+>Data.Random.Source.DevRandom</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Source-MWC.html"
+>Data.Random.Source.MWC</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Source-PureMT.html"
+>Data.Random.Source.PureMT</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Source-Std.html"
+>Data.Random.Source.Std</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+><TR
+><TD STYLE="padding-left: 1.25em;width: 44em"
+><A HREF="Data-Random-Source-StdGen.html"
+>Data.Random.Source.StdGen</A
+></TD
+><TD
+></TD
+><TD
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

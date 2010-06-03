@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Data.Random.Source.PureMT</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Data-Random-Source-PureMT.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Data.Random.Source.PureMT</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>This module provides functions useful for implementing new <TT
+><A HREF="Data-Random-Source.html#t%3AMonadRandom"
+>MonadRandom</A
+></TT
+>
+ and <TT
+><A HREF="Data-Random-Source.html#t%3ARandomSource"
+>RandomSource</A
+></TT
+> instances for state-abstractions containing <TT
+><A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+></TT
+>
+ values (the pure pseudorandom generator provided by the
+ mersenne-random-pure64 package), as well as instances for some common
+ cases.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetRandomPrimFromMTRef"
+>getRandomPrimFromMTRef</A
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+>Monad</A
+> m, <A HREF="/Users/mokus/.cabal/share/doc/stateref-0.3/html/Data-StateRef-Types.html#t%3AModifyRef"
+>ModifyRef</A
+> sr m <A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+>) =&gt; sr -&gt; <A HREF="Data-Random-Internal-Primitives.html#t%3APrim"
+>Prim</A
+> a -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetRandomPrimFromMTState"
+>getRandomPrimFromMTState</A
+> :: <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Class.html#t%3AMonadState"
+>MonadState</A
+> <A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+> m =&gt; <A HREF="Data-Random-Internal-Primitives.html#t%3APrim"
+>Prim</A
+> a -&gt; m a</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:getRandomPrimFromMTRef"
+><A NAME="v%3AgetRandomPrimFromMTRef"
+></A
+></A
+><B
+>getRandomPrimFromMTRef</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Control-Monad.html#t%3AMonad"
+>Monad</A
+> m, <A HREF="/Users/mokus/.cabal/share/doc/stateref-0.3/html/Data-StateRef-Types.html#t%3AModifyRef"
+>ModifyRef</A
+> sr m <A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+>) =&gt; sr -&gt; <A HREF="Data-Random-Internal-Primitives.html#t%3APrim"
+>Prim</A
+> a -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Given a mutable reference to a <TT
+><A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+></TT
+> generator, we can implement
+ <TT
+><A HREF="Data-Random-Source.html#t%3ARandomSource"
+>RandomSource</A
+></TT
+> for in any monad in which the reference can be modified.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:getRandomPrimFromMTState"
+><A NAME="v%3AgetRandomPrimFromMTState"
+></A
+></A
+><B
+>getRandomPrimFromMTState</B
+> :: <A HREF="/usr/local/share/doc/mtl-1.1.0.2/html/Control-Monad-State-Class.html#t%3AMonadState"
+>MonadState</A
+> <A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+> m =&gt; <A HREF="Data-Random-Internal-Primitives.html#t%3APrim"
+>Prim</A
+> a -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Similarly, <TT
+>getRandomPrimFromMTState x</TT
+> can be used in any &quot;state&quot;
+ monad in the mtl sense whose state is a <TT
+><A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+></TT
+> generator.
+ Additionally, the standard mtl state monads have <TT
+><A HREF="Data-Random-Source.html#t%3AMonadRandom"
+>MonadRandom</A
+></TT
+> instances
+ which do precisely that, allowing an easy conversion of RVars and
+ other Distribution instances to &quot;pure&quot; random variables (e.g., by
+ <TT
+>runState . sample :: Distribution d t =&gt; d t -&gt; PureMT -&gt; (t, PureMT)</TT
+>.
+ <TT
+><A HREF="/Users/mokus/.cabal/share/doc/mersenne-random-pure64-0.2.0.2/html/System-Random-Mersenne-Pure64.html#t%3APureMT"
+>PureMT</A
+></TT
+> in the type there can be replaced by StdGen or anything else 
+ satisfying <TT
+>MonadRandom (State s) =&gt; s</TT
+>).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

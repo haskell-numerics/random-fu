@@ -1,0 +1,726 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Data.Random.Internal.Words</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Data-Random-Internal-Words.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Data.Random.Internal.Words</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>A few little functions I found myself writing inline over and over again.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildWord16"
+>buildWord16</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildWord32"
+>buildWord32</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildWord32%27"
+>buildWord32'</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildWord64"
+>buildWord64</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildWord64%27"
+>buildWord64'</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildWord64%27%27"
+>buildWord64''</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aword32ToFloat"
+>word32ToFloat</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aword32ToFloatWithExcess"
+>word32ToFloatWithExcess</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+>, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AwordToFloat"
+>wordToFloat</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AwordToFloatWithExcess"
+>wordToFloatWithExcess</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+>, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AwordToDouble"
+>wordToDouble</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aword32ToDouble"
+>word32ToDouble</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AwordToDoubleWithExcess"
+>wordToDoubleWithExcess</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+>, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+>)</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:buildWord16"
+><A NAME="v%3AbuildWord16"
+></A
+></A
+><B
+>buildWord16</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Build a word out of 8 bytes.  No promises are made regarding the order
+ in which the bytes are stuffed.  Note that this means that a RandomSource
+ or MonadRandom making use of the default definition of getRandomWord, etc.,
+ may return different random values on different platforms when started 
+ with the same seed, depending on the platform's endianness.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:buildWord32"
+><A NAME="v%3AbuildWord32"
+></A
+></A
+><B
+>buildWord32</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Build a word out of 8 bytes.  No promises are made regarding the order
+ in which the bytes are stuffed.  Note that this means that a RandomSource
+ or MonadRandom making use of the default definition of getRandomWord, etc.,
+ may return different random values on different platforms when started 
+ with the same seed, depending on the platform's endianness.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:buildWord32'"
+><A NAME="v%3AbuildWord32%27"
+></A
+></A
+><B
+>buildWord32'</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:buildWord64"
+><A NAME="v%3AbuildWord64"
+></A
+></A
+><B
+>buildWord64</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Build a word out of 8 bytes.  No promises are made regarding the order
+ in which the bytes are stuffed.  Note that this means that a RandomSource
+ or MonadRandom making use of the default definition of getRandomWord, etc.,
+ may return different random values on different platforms when started 
+ with the same seed, depending on the platform's endianness.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:buildWord64'"
+><A NAME="v%3AbuildWord64%27"
+></A
+></A
+><B
+>buildWord64'</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:buildWord64''"
+><A NAME="v%3AbuildWord64%27%27"
+></A
+></A
+><B
+>buildWord64''</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:word32ToFloat"
+><A NAME="v%3Aword32ToFloat"
+></A
+></A
+><B
+>word32ToFloat</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Pack the low 23 bits from a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TT
+> into a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TT
+> in the range [0,1).
+ Used to convert a stdUniform <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TT
+> to a stdUniform <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:word32ToFloatWithExcess"
+><A NAME="v%3Aword32ToFloatWithExcess"
+></A
+></A
+><B
+>word32ToFloatWithExcess</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+>, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+>)</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Same as word32ToFloat, but also return the unused bits (as the 9
+ least significant bits of a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TT
+>)
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:wordToFloat"
+><A NAME="v%3AwordToFloat"
+></A
+></A
+><B
+>wordToFloat</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Pack the low 23 bits from a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TT
+> into a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TT
+> in the range [0,1).
+ Used to convert a stdUniform <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TT
+> to a stdUniform <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:wordToFloatWithExcess"
+><A NAME="v%3AwordToFloatWithExcess"
+></A
+></A
+><B
+>wordToFloatWithExcess</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+>, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+>)</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Same as wordToFloat, but also return the unused bits (as the 41
+ least significant bits of a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TT
+>)
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:wordToDouble"
+><A NAME="v%3AwordToDouble"
+></A
+></A
+><B
+>wordToDouble</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Pack the low 52 bits from a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TT
+> into a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TT
+> in the range [0,1).
+ Used to convert a stdUniform <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TT
+> to a stdUniform <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:word32ToDouble"
+><A NAME="v%3Aword32ToDouble"
+></A
+></A
+><B
+>word32ToDouble</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+> -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Pack a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TT
+> into a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TT
+> in the range [0,1).  Note that a Double's 
+ mantissa is 52 bits, so this does not fill all of them.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:wordToDoubleWithExcess"
+><A NAME="v%3AwordToDoubleWithExcess"
+></A
+></A
+><B
+>wordToDoubleWithExcess</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+> -&gt; (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+>, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+>)</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Same as wordToDouble, but also return the unused bits (as the 12
+ least significant bits of a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TT
+>)
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

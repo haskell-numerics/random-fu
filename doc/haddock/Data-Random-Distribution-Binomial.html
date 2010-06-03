@@ -1,0 +1,757 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Data.Random.Distribution.Binomial</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Data-Random-Distribution-Binomial.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Data.Random.Distribution.Binomial</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:integralBinomial"
+><A NAME="v%3AintegralBinomial"
+></A
+></A
+><B
+>integralBinomial</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AIntegral"
+>Integral</A
+> a, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b) =&gt; a -&gt; b -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:integralBinomialCDF"
+><A NAME="v%3AintegralBinomialCDF"
+></A
+></A
+><B
+>integralBinomialCDF</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AIntegral"
+>Integral</A
+> a, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b) =&gt; a -&gt; b -&gt; a -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:floatingBinomial"
+><A NAME="v%3AfloatingBinomial"
+></A
+></A
+><B
+>floatingBinomial</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFrac"
+>RealFrac</A
+> a, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+>) =&gt; a -&gt; b -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:floatingBinomialCDF"
+><A NAME="v%3AfloatingBinomialCDF"
+></A
+></A
+><B
+>floatingBinomialCDF</B
+> :: (<A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+>, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFrac"
+>RealFrac</A
+> a) =&gt; a -&gt; b -&gt; a -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:binomial"
+><A NAME="v%3Abinomial"
+></A
+></A
+><B
+>binomial</B
+> :: <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b) a =&gt; a -&gt; b -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Binomial"
+><A NAME="t%3ABinomial"
+></A
+></A
+><B
+>Binomial</B
+> b a </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Binomial"
+><A NAME="v%3ABinomial"
+></A
+></A
+><B
+>Binomial</B
+> a b</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Binomial')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Binomial" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k3I], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3I]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3I]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k3C], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3C]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3C]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k3w], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3w]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3w]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k3q], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3q]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3q]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k3k], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3k]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord"
+>Word</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3k]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord"
+>Word</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k3e], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3e]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt64"
+>Int64</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3e]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt64"
+>Int64</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k38], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k38]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt32"
+>Int32</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k38]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt32"
+>Int32</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k32], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k32]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt16"
+>Int16</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k32]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt16"
+>Int16</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k2W], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2W]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt8"
+>Int8</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2W]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt8"
+>Int8</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k2Q], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2Q]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2Q]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AReal"
+>Real</A
+> b[a1k2K], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2K]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+>) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2K]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1koh]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+> =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1koh]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1kob]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+> =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1kob]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k3F], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k3F], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k3F], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k3F]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3F]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord64"
+>Word64</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k3z], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k3z], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k3z], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k3z]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3z]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord32"
+>Word32</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k3t], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k3t], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k3t], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k3t]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3t]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord16"
+>Word16</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k3n], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k3n], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k3n], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k3n]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3n]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord8"
+>Word8</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k3h], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k3h], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k3h], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k3h]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3h]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Word.html#t%3AWord"
+>Word</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k3b], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k3b], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k3b], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k3b]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k3b]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt64"
+>Int64</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k35], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k35], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k35], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k35]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k35]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt32"
+>Int32</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k2Z], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k2Z], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k2Z], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k2Z]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2Z]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt16"
+>Int16</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k2T], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k2T], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k2T], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k2T]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2T]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt8"
+>Int8</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k2N], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k2N], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k2N], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k2N]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2N]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> b[a1k2H], <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> b[a1k2H], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Beta.html#t%3ABeta"
+>Beta</A
+> b[a1k2H], <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> b[a1k2H]) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1k2H]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1koe]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+> =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1koe]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1ko8]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AInteger"
+>Integer</A
+> =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Binomial.html#t%3ABinomial"
+>Binomial</A
+> b[a1ko8]) <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloat"
+>Float</A
+></TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

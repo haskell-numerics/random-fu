@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Data.Random.Distribution.Triangular</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Data-Random-Distribution-Triangular.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Data.Random.Distribution.Triangular</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ATriangular"
+>Triangular</A
+> a = <A HREF="#v%3ATriangular"
+>Triangular</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtriLower"
+>triLower</A
+> :: a</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtriMid"
+>triMid</A
+> :: a</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtriUpper"
+>triUpper</A
+> :: a</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfloatingTriangular"
+>floatingTriangular</A
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> a, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> a, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> a) =&gt; a -&gt; a -&gt; a -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtriangularCDF"
+>triangularCDF</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFrac"
+>RealFrac</A
+> a =&gt; a -&gt; a -&gt; a -&gt; a -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Triangular"
+><A NAME="t%3ATriangular"
+></A
+></A
+><B
+>Triangular</B
+> a </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>A description of a triangular distribution - a distribution whose PDF
+ is a triangle ramping up from a lower bound to a specified midpoint
+ and back down to the upper bound.  This is a very simple distribution
+ that does not generally occur naturally but is used sometimes as an
+ estimate of a true distribution when only the range of the values and
+ an approximate mode of the true distribution are known.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Triangular"
+><A NAME="v%3ATriangular"
+></A
+></A
+><B
+>Triangular</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:triLower"
+><A NAME="v%3AtriLower"
+></A
+></A
+><B
+>triLower</B
+> :: a</TD
+><TD CLASS="rdoc"
+>The lower bound of the triangle in the PDF (the smallest number the distribution can generate)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:triMid"
+><A NAME="v%3AtriMid"
+></A
+></A
+><B
+>triMid</B
+> :: a</TD
+><TD CLASS="rdoc"
+>The midpoint of the triangle (also the mode of the distribution)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:triUpper"
+><A NAME="v%3AtriUpper"
+></A
+></A
+><B
+>triUpper</B
+> :: a</TD
+><TD CLASS="rdoc"
+>The upper bound of the triangle (and the largest number the distribution can generate)
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Triangular')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Triangular" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFrac"
+>RealFrac</A
+> a, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Triangular.html#t%3ATriangular"
+>Triangular</A
+> a) =&gt; <A HREF="Data-Random-Distribution.html#t%3ACDF"
+>CDF</A
+> <A HREF="Data-Random-Distribution-Triangular.html#t%3ATriangular"
+>Triangular</A
+> a</TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> a, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> a, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> a) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Triangular.html#t%3ATriangular"
+>Triangular</A
+> a</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Eq.html#t%3AEq"
+>Eq</A
+> a =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Eq.html#t%3AEq"
+>Eq</A
+> (<A HREF="Data-Random-Distribution-Triangular.html#t%3ATriangular"
+>Triangular</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Text-Show.html#t%3AShow"
+>Show</A
+> a =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Text-Show.html#t%3AShow"
+>Show</A
+> (<A HREF="Data-Random-Distribution-Triangular.html#t%3ATriangular"
+>Triangular</A
+> a)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:floatingTriangular"
+><A NAME="v%3AfloatingTriangular"
+></A
+></A
+><B
+>floatingTriangular</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+> a, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> a, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AStdUniform"
+>StdUniform</A
+> a) =&gt; a -&gt; a -&gt; a -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute a triangular distribution for a <TT
+><A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3AFloating"
+>Floating</A
+></TT
+> type.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:triangularCDF"
+><A NAME="v%3AtriangularCDF"
+></A
+></A
+><B
+>triangularCDF</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFrac"
+>RealFrac</A
+> a =&gt; a -&gt; a -&gt; a -&gt; a -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ADouble"
+>Double</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><TT
+>triangularCDF a b c</TT
+> is the CDF of <TT
+>realFloatTriangular a b c</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

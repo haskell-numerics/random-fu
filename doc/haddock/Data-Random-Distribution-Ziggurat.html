@@ -1,0 +1,864 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Data.Random.Distribution.Ziggurat</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Data-Random-Distribution-Ziggurat.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>random-fu-0.1.0.0: Random number generation</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Data.Random.Distribution.Ziggurat</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>A generic &quot;ziggurat algorithm&quot; implementation.  Fairly rough right
+  now.
+</P
+><P
+>There is a lot of room for improvement in <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#v%3AfindBin0"
+>findBin0</A
+></TT
+> especially.
+  It needs a fair amount of cleanup and elimination of redundant
+  calculation, as well as either a justification for using the simple
+  <TT
+><A HREF="Data-Random-Internal-Find.html#v%3AfindMinFrom"
+>findMinFrom</A
+></TT
+> or a proper root-finding algorithm. 
+</P
+><P
+>It would also be nice to add (preferably by pulling in an 
+  external package) support for numerical integration and 
+  differentiation, so that tables can be derived from only a 
+  PDF (if the end user is willing to take the performance and 
+  accuracy hit for the convenience).
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AZiggurat"
+>Ziggurat</A
+> v t = <A HREF="#v%3AZiggurat"
+>Ziggurat</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzTable_xs"
+>zTable_xs</A
+> :: !(v t)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzTable_y_ratios"
+>zTable_y_ratios</A
+> :: !(v t)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzTable_ys"
+>zTable_ys</A
+> :: !(v t)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzGetIU"
+>zGetIU</A
+> :: !(<A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t))</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzTailDist"
+>zTailDist</A
+> :: <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzUniform"
+>zUniform</A
+> :: !(t -&gt; t -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzFunc"
+>zFunc</A
+> :: !(t -&gt; t)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AzMirror"
+>zMirror</A
+> :: !<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+></TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmkZigguratRec"
+>mkZigguratRec</A
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> t, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v t, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AUniform"
+>Uniform</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+> -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; t -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t) -&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v t</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmkZiggurat"
+>mkZiggurat</A
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> t, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v t, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AUniform"
+>Uniform</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+> -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; t -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t) -&gt; (t -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t) -&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v t</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmkZiggurat_"
+>mkZiggurat_</A
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> t, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v t, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AUniform"
+>Uniform</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+> -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; t -&gt; t -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t) -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t -&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v t</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfindBin0"
+>findBin0</A
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> b =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; (b -&gt; b) -&gt; (b -&gt; b) -&gt; (b -&gt; b) -&gt; b -&gt; (b, b)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArunZiggurat"
+>runZiggurat</A
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ANum"
+>Num</A
+> a, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> a, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v a) =&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v a -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> a</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Ziggurat"
+><A NAME="t%3AZiggurat"
+></A
+></A
+><B
+>Ziggurat</B
+> v t </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+><P
+>A data structure containing all the data that is needed
+ to implement Marsaglia &amp; Tang's &quot;ziggurat&quot; algorithm for
+ sampling certain kinds of random distributions.
+</P
+><P
+>The documentation here is probably not sufficient to tell a user exactly
+ how to build one of these from scratch, but it is not really intended to
+ be.  There are several helper functions that will build <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+></TT
+>s.
+ The pathologically curious may wish to read the <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#v%3ArunZiggurat"
+>runZiggurat</A
+></TT
+> source.
+ That is the ultimate specification of the semantics of all these fields.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Ziggurat"
+><A NAME="v%3AZiggurat"
+></A
+></A
+><B
+>Ziggurat</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:zTable_xs"
+><A NAME="v%3AzTable_xs"
+></A
+></A
+><B
+>zTable_xs</B
+> :: !(v t)</TD
+><TD CLASS="rdoc"
+><P
+>The X locations of each bin in the distribution.  Bin 0 is the
+ infinite one.
+</P
+><P
+>In the case of bin 0, the value given is sort of magical - x[0] is
+ defined to be V/f(R).  It's not actually the location of any bin, 
+ but a value computed to make the algorithm more concise and slightly 
+ faster by not needing to specially-handle bin 0 quite as often.
+ If you really need to know why it works, see the <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#v%3ArunZiggurat"
+>runZiggurat</A
+></TT
+>
+ source or &quot;the literature&quot; - it's a fairly standard setup.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:zTable_y_ratios"
+><A NAME="v%3AzTable_y_ratios"
+></A
+></A
+><B
+>zTable_y_ratios</B
+> :: !(v t)</TD
+><TD CLASS="rdoc"
+>The ratio of each bin's Y value to the next bin's Y value
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:zTable_ys"
+><A NAME="v%3AzTable_ys"
+></A
+></A
+><B
+>zTable_ys</B
+> :: !(v t)</TD
+><TD CLASS="rdoc"
+>The Y value (zFunc x) of each bin
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:zGetIU"
+><A NAME="v%3AzGetIU"
+></A
+></A
+><B
+>zGetIU</B
+> :: !(<A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t))</TD
+><TD CLASS="rdoc"
+><P
+>An RVar providing a random tuple consisting of:
+</P
+><UL
+><LI
+> a bin index, uniform over [0,c) :: Int (where <TT
+>c</TT
+> is the
+    number of bins in the tables)
+</LI
+><LI
+> a uniformly distributed fractional value, from -1 to 1 
+    if not mirrored, from 0 to 1 otherwise.
+</LI
+></UL
+><P
+>This is provided as a single <TT
+><A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+></TT
+> because it can be implemented
+ more efficiently than naively sampling 2 separate values - a
+ single random word (64 bits) can be efficiently converted to
+ a double (using 52 bits) and a bin number (using up to 12 bits),
+ for example.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:zTailDist"
+><A NAME="v%3AzTailDist"
+></A
+></A
+><B
+>zTailDist</B
+> :: <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t</TD
+><TD CLASS="rdoc"
+>The distribution for the final &quot;virtual&quot; bin
+ (the ziggurat algorithm does not handle distributions
+ that wander off to infinity, so another distribution is needed
+ to handle the last &quot;bin&quot; that stretches to infinity)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:zUniform"
+><A NAME="v%3AzUniform"
+></A
+></A
+><B
+>zUniform</B
+> :: !(t -&gt; t -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t)</TD
+><TD CLASS="rdoc"
+>A copy of the uniform RVar generator for the base type,
+ so that <TT
+>Distribution Uniform t</TT
+> is not needed when sampling
+ from a Ziggurat (makes it a bit more self-contained).
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:zFunc"
+><A NAME="v%3AzFunc"
+></A
+></A
+><B
+>zFunc</B
+> :: !(t -&gt; t)</TD
+><TD CLASS="rdoc"
+>The (one-sided antitone) PDF, not necessarily normalized
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:zMirror"
+><A NAME="v%3AzMirror"
+></A
+></A
+><B
+>zMirror</B
+> :: !<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+></TD
+><TD CLASS="rdoc"
+>A flag indicating whether the distribution should be
+ mirrored about the origin (the ziggurat algorithm it
+ its native form only samples from one-sided distributions.
+ By mirroring, we can extend it to symmetric distributions
+ such as the normal distribution)
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Ziggurat')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Ziggurat" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>(<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ANum"
+>Num</A
+> t, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> t, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v t) =&gt; <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> (<A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v) t</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:mkZigguratRec"
+><A NAME="v%3AmkZigguratRec"
+></A
+></A
+><B
+>mkZigguratRec</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> t, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v t, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AUniform"
+>Uniform</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+> -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; t -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t) -&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v t</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Build a lazy recursive ziggurat.  Uses a lazily-constructed ziggurat
+ as its tail distribution (with another as its tail, ad nauseum).
+</P
+><P
+>Arguments:
+</P
+><UL
+><LI
+> flag indicating whether to mirror the distribution
+</LI
+><LI
+> the (one-sided antitone) PDF, not necessarily normalized
+</LI
+><LI
+> the inverse of the PDF
+</LI
+><LI
+> the integral of the PDF (definite, from 0)
+</LI
+><LI
+> the estimated volume under the PDF (from 0 to +infinity)
+</LI
+><LI
+> the chunk size (number of bins in each layer).  64 seems to
+    perform well in practice.
+</LI
+><LI
+> an RVar providing the <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#v%3AzGetIU"
+>zGetIU</A
+></TT
+> random tuple
+</LI
+></UL
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:mkZiggurat"
+><A NAME="v%3AmkZiggurat"
+></A
+></A
+><B
+>mkZiggurat</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> t, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v t, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AUniform"
+>Uniform</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+> -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; t -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t) -&gt; (t -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t) -&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v t</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Build the tables to implement the &quot;ziggurat algorithm&quot; devised by 
+ Marsaglia &amp; Tang, attempting to automatically compute the R and V
+ values.
+</P
+><P
+>Arguments are the same as for <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#v%3AmkZigguratRec"
+>mkZigguratRec</A
+></TT
+>, with an additional
+ argument for the tail distribution as a function of the selected
+ R value.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:mkZiggurat_"
+><A NAME="v%3AmkZiggurat_"
+></A
+></A
+><B
+>mkZiggurat_</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> t, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v t, <A HREF="Data-Random-Distribution.html#t%3ADistribution"
+>Distribution</A
+> <A HREF="Data-Random-Distribution-Uniform.html#t%3AUniform"
+>Uniform</A
+> t) =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Bool.html#t%3ABool"
+>Bool</A
+> -&gt; (t -&gt; t) -&gt; (t -&gt; t) -&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; t -&gt; t -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+>, t) -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> t -&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v t</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Build the tables to implement the &quot;ziggurat algorithm&quot; devised by 
+ Marsaglia &amp; Tang, attempting to automatically compute the R and V
+ values.
+</P
+><P
+>Arguments:
+</P
+><UL
+><LI
+> flag indicating whether to mirror the distribution
+</LI
+><LI
+> the (one-sided antitone) PDF, not necessarily normalized
+</LI
+><LI
+> the inverse of the PDF
+</LI
+><LI
+> the number of bins
+</LI
+><LI
+> R, the x value of the first bin
+</LI
+><LI
+> V, the volume of each bin
+</LI
+><LI
+> an RVar providing the <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#v%3AzGetIU"
+>zGetIU</A
+></TT
+> random tuple
+</LI
+><LI
+> an RVar sampling from the tail (the region where x &gt; R)
+</LI
+></UL
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:findBin0"
+><A NAME="v%3AfindBin0"
+></A
+></A
+><B
+>findBin0</B
+> :: <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ARealFloat"
+>RealFloat</A
+> b =&gt; <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Int.html#t%3AInt"
+>Int</A
+> -&gt; (b -&gt; b) -&gt; (b -&gt; b) -&gt; (b -&gt; b) -&gt; b -&gt; (b, b)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>I suspect this isn't completely right, but it works well so far.
+ Search the distribution for an appropriate R and V.
+</P
+><P
+>Arguments:
+</P
+><UL
+><LI
+> Number of bins
+</LI
+><LI
+> target function (one-sided antitone PDF, not necessarily normalized)
+</LI
+><LI
+> function inverse
+</LI
+><LI
+> function definite integral (from 0 to _)
+</LI
+><LI
+> estimate of total volume under function (integral from 0 to infinity)
+</LI
+></UL
+><P
+>Result: (R,V)
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v:runZiggurat"
+><A NAME="v%3ArunZiggurat"
+></A
+></A
+><B
+>runZiggurat</B
+> :: (<A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Prelude.html#t%3ANum"
+>Num</A
+> a, <A HREF="/Library/Frameworks/GHC.framework/Versions/6.12.1/usr/share/doc/ghc/html/libraries/base-4.2.0.0/Data-Ord.html#t%3AOrd"
+>Ord</A
+> a, <A HREF="/Users/mokus/.cabal/share/doc/vector-0.6.0.1/html/Data-Vector-Generic.html#t%3AVector"
+>Vector</A
+> v a) =&gt; <A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+> v a -&gt; <A HREF="Data-Random-RVar.html#t%3ARVar"
+>RVar</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sample from the distribution encoded in a <TT
+><A HREF="Data-Random-Distribution-Ziggurat.html#t%3AZiggurat"
+>Ziggurat</A
+></TT
+> data structure.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>
