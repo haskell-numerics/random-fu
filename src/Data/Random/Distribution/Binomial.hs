@@ -50,7 +50,7 @@ integralBinomial = bin 0
 -- TODO: improve performance
 integralBinomialCDF :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialCDF t p x = sum
-    [ fromIntegral (t `c` i) * p' ^^ i * (1-p') ^^ (t-i)
+    [ fromInteger (toInteger t `c` toInteger i) * p' ^^ i * (1-p') ^^ (t-i)
     | i <- [0 .. x]
     ]
     
