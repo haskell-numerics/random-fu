@@ -39,7 +39,7 @@ description:            Random number generation based on modeling random
                         be made explicit).
                         
                         Support for "base" packages earlier than version 4
-                        (and thus GHC releases earlier than 6.10) have been 
+                        (and thus GHC releases earlier than 6.10) has been 
                         dropped, as too many of this package's dependencies do
                         not support older versions.
                         
