@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.1.0.0
+version:                0.1.0.1
 stability:              provisional
 
 cabal-version:          >= 1.2
@@ -38,13 +38,17 @@ description:            Random number generation based on modeling random
                         eventually so that client code dependencies on it will 
                         be made explicit).
                         
+                        Support for "base" packages earlier than version 4
+                        (and thus GHC releases earlier than 6.10) have been 
+                        dropped, as too many of this package's dependencies do
+                        not support older versions.
+                        
                         The "Data.Random" module itself should now have a
                         relatively stable interface, but the other modules
                         are still subject to change.  Specifically, I am 
                         considering hiding data constructors for most or all 
                         of the distributions.
 
-Flag base4
 Flag base4_2
     Description:        base-4.2 has an incompatible change in Data.Fixed (HasResolution)
 
@@ -82,16 +86,11 @@ Library
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
-  if flag(base4)
-    build-depends:      syb
-    
-    if flag(base4_2)
-      cpp-options:      -Dbase_4_2
-      build-depends:    base >= 4.2 && <5
-    else
-      build-depends:    base >= 4 && <4.2
+  if flag(base4_2)
+    cpp-options:        -Dbase_4_2
+    build-depends:      base >= 4.2 && <5
   else
-    build-depends:      base >= 3 && < 4
+    build-depends:      base >= 4 && <4.2
     
   build-depends:        array,
                         containers,
@@ -103,6 +102,7 @@ Library
                         random,
                         random-shuffle,
                         stateref >= 0.3 && < 0.4,
+                        syb,
                         tagged,
                         template-haskell,
                         vector
