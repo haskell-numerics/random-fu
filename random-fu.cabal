@@ -87,9 +87,9 @@ Library
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
   if flag(base4_2)
-    cpp-options:        -Dbase_4_2
     build-depends:      base >= 4.2 && <5
   else
+    cpp-options:        -Dold_Fixed
     build-depends:      base >= 4 && <4.2
     
   build-depends:        array,
