@@ -12,6 +12,7 @@ import Prelude hiding (sum)
 
 import Data.Random
 import Data.Random.Source
+import Data.Random.Source.DevRandom
 import System.Random.Mersenne.Pure64
 
 -- some convenient testing stuff
