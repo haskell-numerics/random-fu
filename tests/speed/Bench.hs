@@ -2,6 +2,16 @@
 module Main where
 
 import Data.Random
+import Data.Random.Source.DevRandom
+import Data.Random.Distribution.Beta
+import Data.Random.Distribution.Binomial
+import Data.Random.Distribution.Dirichlet
+import Data.Random.Distribution.Exponential
+import Data.Random.Distribution.Multinomial
+import Data.Random.Distribution.Poisson
+import Data.Random.Distribution.Rayleigh
+import Data.Random.Distribution.Triangular
+
 
 import Control.Monad
 import Control.Monad.ST
