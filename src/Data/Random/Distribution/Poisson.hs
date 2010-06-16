@@ -47,7 +47,7 @@ integralPoisson = psn 0
 
 integralPoissonCDF :: (Integral a, Real b) => b -> a -> Double
 integralPoissonCDF mu k = exp (negate lambda) * sum
-    [ exp (fromIntegral i * log lambda - i_fac_ln
+    [ exp (fromIntegral i * log lambda - i_fac_ln)
     | (i, i_fac_ln) <- zip [0..k] (scanl (+) 0 (map log [1..]))
     ]
     
