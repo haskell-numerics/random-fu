@@ -25,11 +25,17 @@ import Data.Complex
 bernoulli :: Distribution (Bernoulli b) a => b -> RVar a
 bernoulli p = rvar (Bernoulli p)
 
+-- |Generate a Bernoulli process with the given probability.  For @Bool@ results,
+-- @bernoulli p@ will return True (p*100)% of the time and False otherwise.
+-- For numerical types, True is replaced by 1 and False by 0.
+bernoulliT :: Distribution (Bernoulli b) a => b -> RVarT m a
+bernoulliT p = rvarT (Bernoulli p)
+
 -- |A random variable whose value is 'True' the given fraction of the time
 -- and 'False' the rest.
-boolBernoulli :: (Fractional a, Ord a, Distribution StdUniform a) => a -> RVar Bool
+boolBernoulli :: (Fractional a, Ord a, Distribution StdUniform a) => a -> RVarT m Bool
 boolBernoulli p = do
-    x <- stdUniform
+    x <- stdUniformT
     return (x <= p)
 
 boolBernoulliCDF :: (Real a) => a -> Bool -> Double
@@ -38,9 +44,9 @@ boolBernoulliCDF p False = (1 - realToFrac p)
 
 -- | @generalBernoulli t f p@ generates a random variable whose value is @t@
 -- with probability @p@ and @f@ with probability @1-p@.
-generalBernoulli :: Distribution (Bernoulli b) Bool => a -> a -> b -> RVar a
+generalBernoulli :: Distribution (Bernoulli b) Bool => a -> a -> b -> RVarT m a
 generalBernoulli f t p = do
-    x <- bernoulli p
+    x <- bernoulliT p
     return (if x then t else f)
 
 generalBernoulliCDF :: CDF (Bernoulli b) Bool => (a -> a -> Bool) -> a -> a -> b -> a -> Double
@@ -55,7 +61,7 @@ data Bernoulli b a = Bernoulli b
 instance (Fractional b, Ord b, Distribution StdUniform b) 
        => Distribution (Bernoulli b) Bool
     where
-        rvar (Bernoulli p) = boolBernoulli p
+        rvarT (Bernoulli p) = boolBernoulli p
 instance (Distribution (Bernoulli b) Bool, Real b)
        => CDF (Bernoulli b) Bool
     where
@@ -65,7 +71,7 @@ $( replicateInstances ''Int integralTypes [d|
         instance Distribution (Bernoulli b) Bool 
               => Distribution (Bernoulli b) Int
               where
-                  rvar (Bernoulli p) = generalBernoulli 0 1 p
+                  rvarT (Bernoulli p) = generalBernoulli 0 1 p
         instance CDF (Bernoulli b) Bool
               => CDF (Bernoulli b) Int
               where
@@ -76,7 +82,7 @@ $( replicateInstances ''Float realFloatTypes [d|
         instance Distribution (Bernoulli b) Bool 
               => Distribution (Bernoulli b) Float
               where
-                  rvar (Bernoulli p) = generalBernoulli 0 1 p
+                  rvarT (Bernoulli p) = generalBernoulli 0 1 p
         instance CDF (Bernoulli b) Bool
               => CDF (Bernoulli b) Float
               where
@@ -86,7 +92,7 @@ $( replicateInstances ''Float realFloatTypes [d|
 instance (Distribution (Bernoulli b) Bool, Integral a)
        => Distribution (Bernoulli b) (Ratio a)   
        where
-           rvar (Bernoulli p) = generalBernoulli 0 1 p
+           rvarT (Bernoulli p) = generalBernoulli 0 1 p
 instance (CDF (Bernoulli b) Bool, Integral a)
        => CDF (Bernoulli b) (Ratio a)   
        where
@@ -94,7 +100,7 @@ instance (CDF (Bernoulli b) Bool, Integral a)
 instance (Distribution (Bernoulli b) Bool, RealFloat a)
        => Distribution (Bernoulli b) (Complex a)
        where
-           rvar (Bernoulli p) = generalBernoulli 0 1 p
+           rvarT (Bernoulli p) = generalBernoulli 0 1 p
 instance (CDF (Bernoulli b) Bool, RealFloat a)
        => CDF (Bernoulli b) (Complex a)
        where

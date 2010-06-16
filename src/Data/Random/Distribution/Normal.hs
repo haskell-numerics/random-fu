@@ -1,12 +1,12 @@
 {-# LANGUAGE
     MultiParamTypeClasses, FlexibleInstances, FlexibleContexts,
-    UndecidableInstances, ForeignFunctionInterface, BangPatterns
+    UndecidableInstances, ForeignFunctionInterface, BangPatterns, 
+    RankNTypes
   #-}
-
 module Data.Random.Distribution.Normal
     ( Normal(..)
-    , normal
-    , stdNormal
+    , normal, normalT
+    , stdNormal, stdNormalT
     
     , doubleStdNormal
     , floatStdNormal
@@ -78,13 +78,13 @@ knuthPolarNormalPair = do
 -- |Draw from the tail of a normal distribution (the region beyond the provided value)
 {-# INLINE normalTail #-}
 normalTail :: (Distribution StdUniform a, Floating a, Ord a) =>
-              a -> RVar a
+              a -> RVarT m a
 normalTail r = go
     where
         go = do
-            !u <- stdUniform
+            !u <- stdUniformT
             let !x = log u / r
-            !v <- stdUniform
+            !v <- stdUniformT
             let !y = log v
             if x*x + y+y > 0
                 then go
@@ -94,7 +94,7 @@ normalTail r = go
 -- @logBase 2 c@ and the 'zGetIU' implementation.
 normalZ ::
   (RealFloat a, Erf a, Vector v a, Distribution Uniform a, Integral b) =>
-  b -> RVar (Int, a) -> Ziggurat v a
+  b -> (forall m. RVarT m (Int, a)) -> Ziggurat v a
 normalZ p = mkZigguratRec True normalF normalFInv normalFInt normalFVol (2^p)
 
 -- | Ziggurat target function (upper half of a non-normalized gaussian PDF)
@@ -130,21 +130,21 @@ normalFVol = sqrt (0.5 * pi)
 --
 -- As far as I know, this should be safe to use in any monomorphic
 -- @Distribution Normal@ instance declaration.
-realFloatStdNormal :: (RealFloat a, Erf a, Distribution Uniform a) => RVar a
+realFloatStdNormal :: (RealFloat a, Erf a, Distribution Uniform a) => RVarT m a
 realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggurat V.Vector a))
     where 
         p :: Int
         p = 6
         
+        getIU :: (Num a, Distribution Uniform a) => RVarT m (Int, a)
         getIU = do
             i <- getRandomPrim PrimWord8
-            u <- uniform (-1) 1
+            u <- uniformT (-1) 1
             return (fromIntegral i .&. (2^p-1), u)
 
 -- |A random variable sampling from the standard normal distribution
 -- over the 'Double' type.
-{-# NOINLINE doubleStdNormal #-}
-doubleStdNormal :: RVar Double
+doubleStdNormal :: RVarT m Double
 doubleStdNormal = runZiggurat doubleStdNormalZ
 
 -- doubleStdNormalC must not be over 2^12 if using wordToDoubleWithExcess
@@ -162,6 +162,7 @@ doubleStdNormalZ = mkZiggurat_ True
         getIU
         (normalTail doubleStdNormalR)
     where 
+        getIU :: RVarT m (Int, Double)
         getIU = do
             !w <- getRandomPrim PrimWord64
             let (u,i) = wordToDoubleWithExcess w
@@ -169,8 +170,7 @@ doubleStdNormalZ = mkZiggurat_ True
 
 -- |A random variable sampling from the standard normal distribution
 -- over the 'Float' type.
-{-# NOINLINE floatStdNormal #-}
-floatStdNormal :: RVar Float
+floatStdNormal :: RVarT m Float
 floatStdNormal = runZiggurat floatStdNormalZ
 
 -- floatStdNormalC must not be over 2^9 if using word32ToFloatWithExcess
@@ -188,6 +188,7 @@ floatStdNormalZ = mkZiggurat_ True
         getIU
         (normalTail floatStdNormalR)
     where
+        getIU :: RVarT m (Int, Float)
         getIU = do
             !w <- getRandomPrim PrimWord32
             let (u,i) = word32ToFloatWithExcess w
@@ -204,16 +205,14 @@ data Normal a
     | Normal a a -- mean, sd
 
 instance Distribution Normal Double where
-    {-# SPECIALIZE instance Distribution Normal Double #-}
-    rvar StdNormal = doubleStdNormal
-    rvar (Normal m s) = do
+    rvarT StdNormal = doubleStdNormal
+    rvarT (Normal m s) = do
         x <- doubleStdNormal
         return (x * s + m)
 
 instance Distribution Normal Float where
-    {-# SPECIALIZE instance Distribution Normal Float #-}
-    rvar StdNormal = floatStdNormal
-    rvar (Normal m s) = do
+    rvarT StdNormal = floatStdNormal
+    rvarT (Normal m s) = do
         x <- floatStdNormal
         return (x * s + m)
 
@@ -227,6 +226,14 @@ instance (Real a, Distribution Normal a) => CDF Normal a where
 stdNormal :: Distribution Normal a => RVar a
 stdNormal = rvar StdNormal
 
+-- |'stdNormalT' is a normal process with distribution 'StdNormal'.
+stdNormalT :: Distribution Normal a => RVarT m a
+stdNormalT = rvarT StdNormal
+
 -- |@normal m s@ is a random variable with distribution @'Normal' m s@.
 normal :: Distribution Normal a => a -> a -> RVar a
 normal m s = rvar (Normal m s)
+
+-- |@normalT m s@ is a random process with distribution @'Normal' m s@.
+normalT :: Distribution Normal a => a -> a -> RVarT m a
+normalT m s = rvarT (Normal m s)

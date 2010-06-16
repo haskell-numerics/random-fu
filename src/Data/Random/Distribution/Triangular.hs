@@ -29,13 +29,13 @@ data Triangular a = Triangular {
     deriving (Eq, Show)
 
 -- |Compute a triangular distribution for a 'Floating' type.
-floatingTriangular :: (Floating a, Ord a, Distribution StdUniform a) => a -> a -> a -> RVar a
+floatingTriangular :: (Floating a, Ord a, Distribution StdUniform a) => a -> a -> a -> RVarT m a
 floatingTriangular a b c
     | a > b     = floatingTriangular b a c
     | b > c     = floatingTriangular a c b
     | otherwise = do
         let p = (c-b)/(c-a)
-        u <- stdUniform
+        u <- stdUniformT
         let d   | u >= p    = a
                 | otherwise = c
             x   | u >= p    = (u - p) / (1 - p)
@@ -57,6 +57,6 @@ triangularCDF a b c x
     = 1
     
 instance (RealFloat a, Ord a, Distribution StdUniform a) => Distribution Triangular a where
-    rvar (Triangular a b c) = floatingTriangular a b c
+    rvarT (Triangular a b c) = floatingTriangular a b c
 instance (RealFrac a, Distribution Triangular a) => CDF Triangular a where
     cdf  (Triangular a b c) = triangularCDF a b c

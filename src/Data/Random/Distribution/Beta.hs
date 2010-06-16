@@ -17,13 +17,13 @@ import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
 import Data.Random.Distribution.Uniform
 
-{-# SPECIALIZE fractionalBeta :: Float  -> Float  -> RVar Float #-}
-{-# SPECIALIZE fractionalBeta :: Double -> Double -> RVar Double #-}
-fractionalBeta :: (Fractional a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVar a
-fractionalBeta 1 1 = stdUniform
+{-# SPECIALIZE fractionalBeta :: Float  -> Float  -> RVarT m Float #-}
+{-# SPECIALIZE fractionalBeta :: Double -> Double -> RVarT m Double #-}
+fractionalBeta :: (Fractional a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVarT m a
+fractionalBeta 1 1 = stdUniformT
 fractionalBeta a b = do
-    x <- gamma a 1
-    y <- gamma b 1
+    x <- gammaT a 1
+    y <- gammaT b 1
     return (x / (x + y))
 
 {-# SPECIALIZE beta :: Float  -> Float  -> RVar Float #-}
@@ -31,9 +31,14 @@ fractionalBeta a b = do
 beta :: Distribution Beta a => a -> a -> RVar a
 beta a b = rvar (Beta a b)
 
+{-# SPECIALIZE betaT :: Float  -> Float  -> RVarT m Float #-}
+{-# SPECIALIZE betaT :: Double -> Double -> RVarT m Double #-}
+betaT :: Distribution Beta a => a -> a -> RVarT m a
+betaT a b = rvarT (Beta a b)
+
 data Beta a = Beta a a
 
 $( replicateInstances ''Float realFloatTypes [d|
         instance Distribution Beta Float
-              where rvar (Beta a b) = fractionalBeta a b
+              where rvarT (Beta a b) = fractionalBeta a b
     |])

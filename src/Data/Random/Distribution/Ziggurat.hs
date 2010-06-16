@@ -1,5 +1,6 @@
 {-# LANGUAGE
         MultiParamTypeClasses,
+        RankNTypes,
         FlexibleInstances, FlexibleContexts,
         RecordWildCards, BangPatterns
   #-}
@@ -34,7 +35,6 @@ import Data.Random.RVar
 import Data.Vector.Generic as Vec
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as UV
-import Data.Function (fix)
 
 -- |A data structure containing all the data that is needed
 -- to implement Marsaglia & Tang's \"ziggurat\" algorithm for
@@ -73,18 +73,18 @@ data Ziggurat v t = Ziggurat {
         -- single random word (64 bits) can be efficiently converted to
         -- a double (using 52 bits) and a bin number (using up to 12 bits),
         -- for example.
-        zGetIU            :: !(RVar (Int, t)),
+        zGetIU            :: !(forall m. RVarT m (Int, t)),
         
         -- |The distribution for the final \"virtual\" bin
         -- (the ziggurat algorithm does not handle distributions
         -- that wander off to infinity, so another distribution is needed
         -- to handle the last \"bin\" that stretches to infinity)
-        zTailDist         :: (RVar t),
+        zTailDist         :: (forall m. RVarT m t),
         
         -- |A copy of the uniform RVar generator for the base type,
         -- so that @Distribution Uniform t@ is not needed when sampling
         -- from a Ziggurat (makes it a bit more self-contained).
-        zUniform          :: !(t -> t -> RVar t),
+        zUniform          :: !(forall m. t -> t -> RVarT m t),
         
         -- |The (one-sided antitone) PDF, not necessarily normalized
         zFunc             :: !(t -> t),
@@ -99,12 +99,12 @@ data Ziggurat v t = Ziggurat {
 
 -- |Sample from the distribution encoded in a 'Ziggurat' data structure.
 {-# INLINE runZiggurat #-}
-{-# SPECIALIZE runZiggurat :: Ziggurat UV.Vector Float  -> RVar Float #-}
-{-# SPECIALIZE runZiggurat :: Ziggurat UV.Vector Double -> RVar Double #-}
-{-# SPECIALIZE runZiggurat :: Ziggurat  V.Vector Float  -> RVar Float #-}
-{-# SPECIALIZE runZiggurat :: Ziggurat  V.Vector Double -> RVar Double #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat UV.Vector Float  -> RVarT m Float #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat UV.Vector Double -> RVarT m Double #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat  V.Vector Float  -> RVarT m Float #-}
+{-# SPECIALIZE runZiggurat :: Ziggurat  V.Vector Double -> RVarT m Double #-}
 runZiggurat :: (Num a, Ord a, Vector v a) =>
-               Ziggurat v a -> RVar a
+               Ziggurat v a -> RVarT m a
 runZiggurat !Ziggurat{..} = go
     where
         {-# NOINLINE go #-}
@@ -166,10 +166,10 @@ runZiggurat !Ziggurat{..} = go
 --  * an RVar sampling from the tail (the region where x > R)
 -- 
 {-# INLINE mkZiggurat_ #-}
-{-# SPECIALIZE mkZiggurat_ :: Bool -> (Float  ->  Float) -> (Float  ->  Float) -> Int -> Float  -> Float  -> RVar (Int,  Float) -> RVar Float  -> Ziggurat UV.Vector Float #-}
-{-# SPECIALIZE mkZiggurat_ :: Bool -> (Double -> Double) -> (Double -> Double) -> Int -> Double -> Double -> RVar (Int, Double) -> RVar Double -> Ziggurat UV.Vector Double #-}
-{-# SPECIALIZE mkZiggurat_ :: Bool -> (Float  ->  Float) -> (Float  ->  Float) -> Int -> Float  -> Float  -> RVar (Int,  Float) -> RVar Float  -> Ziggurat V.Vector Float #-}
-{-# SPECIALIZE mkZiggurat_ :: Bool -> (Double -> Double) -> (Double -> Double) -> Int -> Double -> Double -> RVar (Int, Double) -> RVar Double -> Ziggurat V.Vector Double #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Float  ->  Float) -> (Float  ->  Float) -> Int -> Float  -> Float  -> (forall m. RVarT m (Int,  Float)) -> (forall m. RVarT m Float ) -> Ziggurat UV.Vector Float #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Double -> Double) -> (Double -> Double) -> Int -> Double -> Double -> (forall m. RVarT m (Int, Double)) -> (forall m. RVarT m Double) -> Ziggurat UV.Vector Double #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Float  ->  Float) -> (Float  ->  Float) -> Int -> Float  -> Float  -> (forall m. RVarT m (Int,  Float)) -> (forall m. RVarT m Float ) -> Ziggurat V.Vector Float #-}
+{-# SPECIALIZE mkZiggurat_ :: Bool -> (Double -> Double) -> (Double -> Double) -> Int -> Double -> Double -> (forall m. RVarT m (Int, Double)) -> (forall m. RVarT m Double) -> Ziggurat V.Vector Double #-}
 mkZiggurat_ :: (RealFloat t, Vector v t,
                Distribution Uniform t) =>
               Bool
@@ -178,15 +178,15 @@ mkZiggurat_ :: (RealFloat t, Vector v t,
               -> Int
               -> t
               -> t
-              -> RVar (Int, t)
-              -> RVar t
+              -> (forall m. RVarT m (Int, t))
+              -> (forall m. RVarT m t)
               -> Ziggurat v t
 mkZiggurat_ m f fInv c r v getIU tailDist = Ziggurat
     { zTable_xs         = xs
     , zTable_y_ratios   = precomputeRatios xs
     , zTable_ys         = Vec.map f xs
     , zGetIU            = getIU
-    , zUniform          = uniform
+    , zUniform          = uniformT
     , zFunc             = f
     , zTailDist         = tailDist
     , zMirror           = m
@@ -209,8 +209,8 @@ mkZiggurat :: (RealFloat t, Vector v t,
               -> (t -> t)
               -> t
               -> Int
-              -> RVar (Int, t)
-              -> (t -> RVar t)
+              -> (forall m. RVarT m (Int, t))
+              -> (forall m. t -> RVarT m t)
               -> Ziggurat v t
 mkZiggurat m f fInv fInt fVol c getIU tailDist =
     mkZiggurat_ m f fInv c r v getIU (tailDist r) 
@@ -246,10 +246,12 @@ mkZigguratRec ::
   -> (t -> t)
   -> t
   -> Int
-  -> RVar (Int, t)
+  -> (forall m. RVarT m (Int, t))
   -> Ziggurat v t
 mkZigguratRec m f fInv fInt fVol c getIU = z
         where
+            fix :: ((forall m. a -> RVarT m a) -> (forall m. a -> RVarT m a)) -> (forall m. a -> RVarT m a)
+            fix f = f (fix f)
             z = mkZiggurat m f fInv fInt fVol c getIU (fix (mkTail m f fInv fInt fVol c getIU z))
 
 mkTail :: 
@@ -258,12 +260,12 @@ mkTail ::
     -> (a -> a) -> (a -> a) -> (a -> a)
     -> a
     -> Int
-    -> RVar (Int, a)
+    -> (forall m. RVarT m (Int, a))
     -> Ziggurat v a
-    -> (a -> RVar a)
-    -> (a -> RVar a)
+    -> (forall m. a -> RVarT m a)
+    -> (forall m. a -> RVarT m a)
 mkTail m f fInv fInt fVol c getIU typeRep nextTail r = do
-     x <- rvar (mkZiggurat m f' fInv' fInt' fVol' c getIU nextTail `asTypeOf` typeRep)
+     x <- rvarT (mkZiggurat m f' fInv' fInt' fVol' c getIU nextTail `asTypeOf` typeRep)
      return (x + r * signum x)
         where
             fIntR = fInt r

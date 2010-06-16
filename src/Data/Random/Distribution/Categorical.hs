@@ -21,10 +21,15 @@ import Data.Traversable (Traversable(traverse, sequenceA))
 import Data.List
 import Data.Function
 
--- |Construct a 'Categorical' distribution from a list of probabilities
+-- |Construct a 'Categorical' random variable from a list of probabilities
 -- and categories, where the probabilities all sum to 1.
 categorical :: Distribution (Categorical p) a => [(p,a)] -> RVar a
 categorical ps = rvar (Categorical ps)
+
+-- |Construct a 'Categorical' random process from a list of probabilities
+-- and categories, where the probabilities all sum to 1.
+categoricalT :: Distribution (Categorical p) a => [(p,a)] -> RVarT m a
+categoricalT ps = rvarT (Categorical ps)
 
 -- | Construct a 'Categorical' distribution from a list of weighted categories,
 -- where the weights do not necessarily sum to 1.
@@ -51,12 +56,12 @@ newtype Categorical p a = Categorical [(p, a)]
     deriving (Eq, Show)
 
 instance (Fractional p, Ord p, Distribution StdUniform p) => Distribution (Categorical p) a where
-    rvar (Categorical []) = fail "categorical distribution over empty set cannot be sampled"
-    rvar (Categorical ds) = do
+    rvarT (Categorical []) = fail "categorical distribution over empty set cannot be sampled"
+    rvarT (Categorical ds) = do
         let (ps, xs) = unzip ds
             cs = scanl1 (+) ps
         
-        u <- stdUniform
+        u <- stdUniformT
         getEvent u cs xs
         
         where
@@ -68,7 +73,7 @@ instance (Fractional p, Ord p, Distribution StdUniform p) => Distribution (Categ
             getEvent u cs0 xs0 = go 0 cs0 xs0
                 where
                     go lastC [] _
-                        | lastC > 0 = do {newU <- stdUniform; getEvent newU cs0 xs0}
+                        | lastC > 0 = do {newU <- stdUniformT; getEvent newU cs0 xs0}
                         | otherwise = fail "categorical distribution sampling error: total probablility not greater than zero"
                     go lastC (c:cs) (x:xs)
                         | c < lastC = fail "categorical distribution sampling error: negative probability for an event!"

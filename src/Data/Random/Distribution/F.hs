@@ -13,8 +13,8 @@ import Data.List
 data F t = F Int Int
 
 instance (Fractional t, Distribution Beta t) => Distribution F t where
-    rvar (F p q) = do
+    rvarT (F p q) = do
         let p' = fromIntegral p; q' = fromIntegral q
-        y <- beta (0.5*p') (0.5*q')
+        y <- betaT (0.5*p') (0.5*q')
         return (q'/p' * y/(1-y))
     

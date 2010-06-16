@@ -48,10 +48,10 @@ module Data.Random
       Sampleable(..), sample, sampleState, sampleStateT,
       
       -- * A few very common distributions
-      Uniform(..), uniform, 
-      StdUniform(..), stdUniform,
-      Normal(..), normal, stdNormal,
-      Gamma(..), gamma,
+      Uniform(..), uniform, uniformT,
+      StdUniform(..), stdUniform, stdUniformT,
+      Normal(..), normal, stdNormal, normalT, stdNormalT,
+      Gamma(..), gamma, gammaT,
       
       -- * Entropy Sources
       MonadRandom, RandomSource, StdRandom(..),
