@@ -81,6 +81,10 @@ getRandomPrimFromStdGenIO prim
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
+-- 
+-- See "Data.Random.Source.PureMT".'getRandomPrimFromMTRef' for more detailed
+-- usage hints - this function serves exactly the same purpose except for a
+-- 'StdGen' generator instead of a 'PureMT' generator.
 getRandomPrimFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> Prim a -> m a
 getRandomPrimFromRandomGenRef ref prim
@@ -116,6 +120,10 @@ getRandomPrimFromRandomGenRef ref prim
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
 -- which do precisely that, allowing an easy conversion of 'RVar's and
 -- other 'Distribution' instances to \"pure\" random variables.
+-- 
+-- Again, see "Data.Random.Source.PureMT".'getRandomPrimFromMTState' for more
+-- detailed usage hints - this function serves exactly the same purpose except 
+-- for a 'StdGen' generator instead of a 'PureMT' generator.
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Prim a -> State StdGen a #-}
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Monad m => Prim a -> StateT StdGen m a #-}
 getRandomPrimFromRandomGenState :: (RandomGen g, MonadState g m) => Prim a -> m a

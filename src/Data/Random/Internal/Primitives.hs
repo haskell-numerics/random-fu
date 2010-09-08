@@ -17,7 +17,7 @@
 -- to make the flexibility this system provides worth the overhead.  I hope
 -- this is not the case, but if it turns out to be a major problem, this
 -- system may disappear or be modified in significant ways.
-module Data.Random.Internal.Primitives (Prim(..), decomposePrimWhere) where
+module Data.Random.Internal.Primitives (Prim(..), getPrimWhere, decomposePrimWhere) where
 
 import Data.Random.Internal.Words
 import Data.Word
@@ -65,6 +65,20 @@ instance Show (Prim a) where
     showsPrec _p PrimDouble              = showString "PrimDouble"
     showsPrec  p (PrimNByteInteger n)    = showParen (p > 10) (showString "PrimNByteInteger " . showsPrec 11 n)
 
+-- |This function wraps up the most common calling convention for 'decomposePrimWhere'.
+-- Given a predicate identifying \"supported\" 'Prim's, and a (possibly partial) 
+-- function that maps those 'Prim's to implementations, derives a total function
+-- mapping all 'Prim's to implementations.
+{-# INLINE getPrimWhere #-}
+{-# SPECIALIZE getPrimWhere :: Monad m => (forall t. Prim t -> Bool) -> (forall t. Prim t -> m t) -> Prim Word8   -> m Word8   #-}
+{-# SPECIALIZE getPrimWhere :: Monad m => (forall t. Prim t -> Bool) -> (forall t. Prim t -> m t) -> Prim Word16  -> m Word16  #-}
+{-# SPECIALIZE getPrimWhere :: Monad m => (forall t. Prim t -> Bool) -> (forall t. Prim t -> m t) -> Prim Word32  -> m Word32  #-}
+{-# SPECIALIZE getPrimWhere :: Monad m => (forall t. Prim t -> Bool) -> (forall t. Prim t -> m t) -> Prim Word64  -> m Word64  #-}
+{-# SPECIALIZE getPrimWhere :: Monad m => (forall t. Prim t -> Bool) -> (forall t. Prim t -> m t) -> Prim Double  -> m Double  #-}
+{-# SPECIALIZE getPrimWhere :: Monad m => (forall t. Prim t -> Bool) -> (forall t. Prim t -> m t) -> Prim Integer -> m Integer #-}
+getPrimWhere :: Monad m => (forall t. Prim t -> Bool) -> (forall t. Prim t -> m t) -> Prim a -> m a
+getPrimWhere supported getPrim prim = runPromptM getPrim (decomposePrimWhere supported prim)
+
 -- |This is essentially a suite of interrelated default implementations,
 -- each definition making use of only \"supported\" primitives.  It _really_
 -- ought to be inlined to the point where the @supported@ predicate
@@ -74,7 +88,7 @@ instance Show (Prim a) where
 -- static set of "best" definitions for each required primitive in terms of 
 -- only supported primitives.
 -- 
--- Hopefully, when not inlined, it does not impose too much overhead.
+-- Hopefully it does not impose too much overhead when not inlined.
 {-# INLINE decomposePrimWhere #-}
 {-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Word8   -> Prompt Prim Word8   #-}
 {-# SPECIALIZE decomposePrimWhere :: (forall t. Prim t -> Bool) -> Prim Word16  -> Prompt Prim Word16  #-}
