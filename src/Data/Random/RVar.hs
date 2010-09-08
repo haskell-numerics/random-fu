@@ -49,11 +49,15 @@ import Control.Monad.Prompt (PromptT, runPromptT, prompt)
 -- 
 -- > logNormal = exp <$> stdNormal
 --
--- Once defined (in any style), there are a couple ways to sample 'RVar's:
+-- Once defined (in any style), there are several ways to sample 'RVar's:
 -- 
 -- * In a monad, using a 'RandomSource':
 -- 
 -- > sampleFrom DevRandom (uniform 1 100) :: IO Int
+-- 
+-- * In a monad, using a 'MonadRandom' instance:
+--
+-- > sample (uniform 1 100) :: State PureMT Int
 -- 
 -- * As a pure function transforming a functional RNG:
 -- 
