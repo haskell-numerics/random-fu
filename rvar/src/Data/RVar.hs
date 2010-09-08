@@ -18,12 +18,10 @@ module Data.RVar
     , runRVar
     , RVarT
     , runRVarT
-    , runRVarTWith
     ) where
 
 
 import Data.RVar.Internal.Primitives
-import Data.RVar.Lift as L
 
 import qualified Control.Monad.Trans.Class as T
 import Control.Applicative
@@ -71,7 +69,7 @@ type RVar = RVarT T.Identity
 -- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will
 -- be more convenient to use.
 runRVar :: Monad m => RVar a -> (forall t. Prim t -> m t) -> m a
-runRVar = runRVarT
+runRVar x = runRVarT x (return . T.runIdentity)
 
 -- |A random variable with access to operations in an underlying monad.  Useful
 -- examples include any form of state for implementing random processes with hysteresis,
@@ -129,36 +127,15 @@ newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 
 -- | \"Runs\" an 'RVarT', sampling the random variable it defines.
 -- 
--- The 'Lift' context allows random variables to be defined using a minimal
--- underlying functor ('Identity' is sufficient for \"conventional\" random
--- variables) and then sampled in any monad into which the underlying functor 
--- can be embedded (which, for 'Identity', is all monads).
--- 
--- The lifting is very important - without it, every 'RVar' would have
--- to either be given access to the full capability of the monad in which it
--- will eventually be sampled (which, incidentally, would also have to be 
--- monomorphic so you couldn't sample one 'RVar' in more than one monad)
--- or functions manipulating 'RVar's would have to use higher-ranked 
--- types to enforce the same kind of isolation and polymorphism.
--- 
--- For non-standard liftings or those where you would rather not introduce a
--- 'Lift' instance, see 'runRVarTWith'.
-{-# INLINE runRVarT #-}
-runRVarT :: (Monad m, Lift n m) => RVarT n a -> (forall t. Prim t -> m t) -> m a
-runRVarT (RVarT m) liftP = runPromptT return bindP bindN m
-    where
-        bindP prim cont = liftP prim >>= cont
-        bindN nExp cont = lift  nExp >>= cont
-
--- |Like 'runRVarT' but allowing a user-specified lift operation.  This 
+-- The first argument lifts the base monad into the sampling monad.  This 
 -- operation must obey the \"monad transformer\" laws:
 --
 -- > lift . return = return
 -- > lift (x >>= f) = (lift x) >>= (lift . f)
 --
--- One example of a useful non-standard lifting would be one that takes @State s@ to
--- another monad with a different state representation (such as @IO@ with the
--- state mapped to an @IORef@):
+-- One example of a useful non-standard lifting would be one that takes
+-- @State s@ to another monad with a different state representation (such as
+-- @IO@ with the state mapped to an @IORef@):
 --
 -- > embedState :: (Monad m) => m s -> (s -> m ()) -> State s a -> m a
 -- > embedState get put = \m -> do
@@ -166,9 +143,18 @@ runRVarT (RVarT m) liftP = runPromptT return bindP bindN m
 -- >     (res,s) <- return (runState m s)
 -- >     put s
 -- >     return res
-{-# INLINE runRVarTWith #-}
-runRVarTWith :: Monad m => RVarT n a -> (forall t. n t -> m t) -> (forall t. Prim t -> m t) -> m a
-runRVarTWith (RVarT m) liftN liftP = runPromptT return bindP bindN m
+--
+-- The lifting is very important - without it, every 'RVar' would have
+-- to either be given access to the full capability of the monad in which it
+-- will eventually be sampled (which, incidentally, would also have to be 
+-- monomorphic so you couldn't sample one 'RVar' in more than one monad)
+-- or functions manipulating 'RVar's would have to use higher-ranked 
+-- types to enforce the same kind of isolation and polymorphism.
+-- 
+-- The second argument evaluates a \"primitive\" random variate.
+{-# INLINE runRVarT #-}
+runRVarT :: Monad m => RVarT n a -> (forall t. n t -> m t) -> (forall t. Prim t -> m t) -> m a
+runRVarT (RVarT m) liftN liftP = runPromptT return bindP bindN m
     where
         bindP prim cont = liftP prim >>= cont
         bindN nExp cont = liftN nExp >>= cont
@@ -193,18 +179,6 @@ instance T.MonadTrans RVarT where
 
 instance MTL.MonadTrans RVarT where
     lift m = RVarT (MTL.lift m)
-
-instance Lift (RVarT T.Identity) (RVarT m) where
-    lift (RVarT m) = RVarT (runPromptT return bindP bindN m)
-        where
-            bindP prim  cont = prompt prim >>= cont
-            bindN idExp cont = cont (T.runIdentity idExp)
-
-instance Lift (RVarT MTL.Identity) (RVarT m) where
-    lift (RVarT m) = RVarT (runPromptT return bindP bindN m)
-        where
-            bindP prim  cont = prompt prim >>= cont
-            bindN idExp cont = cont (MTL.runIdentity idExp)
 
 instance T.MonadIO m => T.MonadIO (RVarT m) where
     liftIO = T.lift . T.liftIO

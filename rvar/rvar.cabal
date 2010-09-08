@@ -33,7 +33,6 @@ Library
   exposed-modules:      Data.RVar
                         Data.RVar.Internal.Primitives
                         Data.RVar.Internal.Words
-                        Data.RVar.Lift
     
   build-depends:        base            == 4.*,
                         MonadPrompt     == 1.0.*,

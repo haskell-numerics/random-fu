@@ -106,6 +106,7 @@ Library
                         syb,
                         tagged,
                         template-haskell,
+                        transformers,
                         vector
 
   if os(Windows)
