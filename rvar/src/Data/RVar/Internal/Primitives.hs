@@ -17,9 +17,9 @@
 -- to make the flexibility this system provides worth the overhead.  I hope
 -- this is not the case, but if it turns out to be a major problem, this
 -- system may disappear or be modified in significant ways.
-module Data.Random.Internal.Primitives (Prim(..), getPrimWhere, decomposePrimWhere) where
+module Data.RVar.Internal.Primitives (Prim(..), getPrimWhere, decomposePrimWhere) where
 
-import Data.Random.Internal.Words
+import Data.RVar.Internal.Words
 import Data.Word
 import Data.Bits
 import Data.Typeable

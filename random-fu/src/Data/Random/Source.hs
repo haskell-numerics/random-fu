@@ -11,6 +11,7 @@ module Data.Random.Source
     , Prim(..)
     ) where
 
+import Data.RVar
 import Data.Word
 
 import Data.Random.Internal.Primitives
@@ -37,6 +38,11 @@ class Monad m => MonadRandom m where
     -- semi-automatically extending a partial implementation to the full
     -- 'Prim' type.
     getRandomPrim :: Prim t -> m t
+
+instance MonadRandom (RVarT n) where
+    supportedPrims _ _ = True
+    getSupportedRandomPrim = prompt
+    getRandomPrim          = prompt
 
 -- |A source of entropy which can be used in the given monad.
 -- 

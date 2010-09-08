@@ -3,7 +3,7 @@
  -}
 
 -- |A few little functions I found myself writing inline over and over again.
-module Data.Random.Internal.Words where
+module Data.RVar.Internal.Words where
 
 import Foreign
 

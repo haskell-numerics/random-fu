@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.1.2
+version:                0.1.0.1
 stability:              provisional
 
 cabal-version:          >= 1.2
@@ -101,6 +101,7 @@ Library
                         mtl,
                         random,
                         random-shuffle,
+                        rvar == 0.2.*,
                         stateref >= 0.3 && < 0.4,
                         syb,
                         tagged,

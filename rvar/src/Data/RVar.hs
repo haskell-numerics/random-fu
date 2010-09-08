@@ -13,7 +13,7 @@
 -- in the standard Haskell monadic styles.  For examples, see the source for
 -- any of the 'Distribution' instances - they all are defined in terms of
 -- 'RVar's.
-module Data.Random.RVar
+module Data.RVar
     ( RVar
     , runRVar
     , RVarT
@@ -22,14 +22,17 @@ module Data.Random.RVar
     ) where
 
 
-import Data.Random.Internal.Primitives
-import Data.Random.Source
-import Data.Random.Lift as L
+import Data.RVar.Internal.Primitives
+import Data.RVar.Lift as L
 
-import qualified Control.Monad.Trans as T
+import qualified Control.Monad.Trans.Class as T
 import Control.Applicative
-import Control.Monad.Identity
-import Control.Monad.Prompt (PromptT, runPromptT, prompt)
+import Control.Monad (liftM, ap)
+import Control.Monad.Prompt (MonadPrompt(..), PromptT, runPromptT)
+import qualified Control.Monad.IO.Class as T
+import qualified Control.Monad.Trans as MTL
+import qualified Control.Monad.Identity as MTL
+import qualified Data.Functor.Identity as T
 
 -- |An opaque type modeling a \"random variable\" - a value 
 -- which depends on the outcome of some random event.  'RVar's 
@@ -62,12 +65,12 @@ import Control.Monad.Prompt (PromptT, runPromptT, prompt)
 -- * As a pure function transforming a functional RNG:
 -- 
 -- > sampleState (uniform 1 100) :: StdGen -> (Int, StdGen)
-type RVar = RVarT Identity
+type RVar = RVarT T.Identity
 
 -- |\"Run\" an 'RVar' - samples the random variable from the provided
 -- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will
 -- be more convenient to use.
-runRVar :: RandomSource m s => RVar a -> s -> m a
+runRVar :: Monad m => RVar a -> (forall t. Prim t -> m t) -> m a
 runRVar = runRVarT
 
 -- |A random variable with access to operations in an underlying monad.  Useful
@@ -141,11 +144,11 @@ newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 -- For non-standard liftings or those where you would rather not introduce a
 -- 'Lift' instance, see 'runRVarTWith'.
 {-# INLINE runRVarT #-}
-runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
-runRVarT (RVarT m) src = runPromptT return bindP bindN m
+runRVarT :: (Monad m, Lift n m) => RVarT n a -> (forall t. Prim t -> m t) -> m a
+runRVarT (RVarT m) liftP = runPromptT return bindP bindN m
     where
-        bindP prim cont = getRandomPrimFrom src prim >>= cont
-        bindN nExp cont = lift nExp >>= cont
+        bindP prim cont = liftP prim >>= cont
+        bindN nExp cont = lift  nExp >>= cont
 
 -- |Like 'runRVarT' but allowing a user-specified lift operation.  This 
 -- operation must obey the \"monad transformer\" laws:
@@ -164,10 +167,10 @@ runRVarT (RVarT m) src = runPromptT return bindP bindN m
 -- >     put s
 -- >     return res
 {-# INLINE runRVarTWith #-}
-runRVarTWith :: (RandomSource m s) => (forall t. n t -> m t) -> RVarT n a -> s -> m a
-runRVarTWith liftN (RVarT m) src = runPromptT return bindP bindN m
+runRVarTWith :: Monad m => RVarT n a -> (forall t. n t -> m t) -> (forall t. Prim t -> m t) -> m a
+runRVarTWith (RVarT m) liftN liftP = runPromptT return bindP bindN m
     where
-        bindP prim cont = getRandomPrimFrom src prim >>= cont
+        bindP prim cont = liftP prim >>= cont
         bindN nExp cont = liftN nExp >>= cont
 
 instance Functor (RVarT n) where
@@ -182,19 +185,35 @@ instance Applicative (RVarT n) where
     pure  = return
     (<*>) = ap
 
-instance T.MonadTrans RVarT where
-    lift m = RVarT (T.lift m)
+instance MonadPrompt Prim (RVarT n) where
+    prompt = RVarT . prompt
 
-instance Lift (RVarT Identity) (RVarT m) where
+instance T.MonadTrans RVarT where
+    lift m = RVarT (MTL.lift m)
+
+instance MTL.MonadTrans RVarT where
+    lift m = RVarT (MTL.lift m)
+
+instance Lift (RVarT T.Identity) (RVarT m) where
     lift (RVarT m) = RVarT (runPromptT return bindP bindN m)
         where
             bindP prim  cont = prompt prim >>= cont
-            bindN idExp cont = cont (runIdentity idExp)
+            bindN idExp cont = cont (T.runIdentity idExp)
+
+instance Lift (RVarT MTL.Identity) (RVarT m) where
+    lift (RVarT m) = RVarT (runPromptT return bindP bindN m)
+        where
+            bindP prim  cont = prompt prim >>= cont
+            bindN idExp cont = cont (MTL.runIdentity idExp)
 
 instance T.MonadIO m => T.MonadIO (RVarT m) where
     liftIO = T.lift . T.liftIO
 
 instance MonadRandom (RVarT n) where
+    supportedPrims _ _ = True
+    {-# INLINE getSupportedRandomPrim #-}
+    getSupportedRandomPrim p    = RVarT (prompt p)
+    {-# INLINE getRandomPrim #-}
     getRandomPrim p = RVarT (prompt p)
 
 -- I would really like to be able to do this, but I can't because of the

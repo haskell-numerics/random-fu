@@ -1,9 +1,10 @@
 {-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, IncoherentInstances #-}
 
-module Data.Random.Lift where
+module Data.RVar.Lift where
 
-import Control.Monad.Identity
-import qualified Control.Monad.Trans as T
+import qualified Data.Functor.Identity as T
+import qualified Control.Monad.Trans.Class as T
+import qualified Control.Monad.Identity as MTL
 
 -- | A class for \"liftable\" data structures. Conceptually
 -- an extension of 'T.MonadTrans' to allow deep lifting,
@@ -31,5 +32,12 @@ instance Lift m m where
 -- | This instance is incoherent with the other two. However,
 -- by the law @lift (return x) == return x@, the results
 -- must always be the same.
-instance Monad m => Lift Identity m where
-    lift = return . runIdentity
+instance Monad m => Lift T.Identity m where
+    lift = return . T.runIdentity
+
+-- | This instance is incoherent with the other two. However,
+-- by the law @lift (return x) == return x@, the results
+-- must always be the same.
+instance Monad m => Lift MTL.Identity m where
+    lift = return . MTL.runIdentity
+
