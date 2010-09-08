@@ -24,13 +24,11 @@ import Data.Word
 
 
 instance (Monad m1, ModifyRef (Ref m2 StdGen) m1 StdGen) => RandomSource m1 (Ref m2 StdGen) where
-    supportedPrimsFrom _ _ = True
-    getSupportedRandomPrimFrom = getRandomPrimFromRandomGenRef
+    getRandomPrimFrom = getRandomPrimFromRandomGenRef
 
 instance (Monad m, ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef   StdGen) where
     {-# SPECIALIZE instance RandomSource IO (IORef StdGen) #-}
-    supportedPrimsFrom _ _ = True
-    getSupportedRandomPrimFrom = getRandomPrimFromRandomGenRef
+    getRandomPrimFrom = getRandomPrimFromRandomGenRef
 
 -- Note that this instance is probably a Bad Idea.  STM allows random variables
 -- to interact in spooky quantum-esque ways - One transaction can 'retry' until
@@ -45,8 +43,7 @@ instance (Monad m, ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef
 instance (Monad m, ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef s StdGen) where
     {-# SPECIALIZE instance RandomSource (ST s) (STRef s StdGen) #-}
     {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s StdGen) #-}
-    supportedPrimsFrom _ _ = True
-    getSupportedRandomPrimFrom = getRandomPrimFromRandomGenRef
+    getRandomPrimFrom = getRandomPrimFromRandomGenRef
 
 getRandomPrimFromStdGenIO :: Prim a -> IO a
 getRandomPrimFromStdGenIO prim
@@ -128,8 +125,7 @@ getRandomPrimFromRandomGenRef ref prim
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Monad m => Prim a -> StateT StdGen m a #-}
 getRandomPrimFromRandomGenState :: (RandomGen g, MonadState g m) => Prim a -> m a
 getRandomPrimFromRandomGenState prim
-    | supported prim = genSupported prim
-    | otherwise = runPromptM genSupported (decomposePrimWhere supported prim)
+    = runPromptM genSupported (decomposePrimWhere supported prim)
     where 
         {-# INLINE genSupported #-}
         genSupported prim = genPrim prim getThing
@@ -167,18 +163,14 @@ getRandomPrimFromRandomGenState prim
                     return (f $! i)
 
 instance MonadRandom (State StdGen) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromRandomGenState
+    getRandomPrim = getRandomPrimFromRandomGenState
 
 instance Monad m => MonadRandom (StateT StdGen m) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromRandomGenState
+    getRandomPrim = getRandomPrimFromRandomGenState
 
 instance MonadRandom (S.State StdGen) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromRandomGenState
+    getRandomPrim = getRandomPrimFromRandomGenState
 
 instance Monad m => MonadRandom (S.StateT StdGen m) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromRandomGenState
+    getRandomPrim = getRandomPrimFromRandomGenState
 

@@ -10,6 +10,7 @@ module Data.Random.Source.DevRandom
     ) where
 
 import Data.Random.Source
+import Data.Random.Internal.Primitives
 
 import System.IO (openBinaryFile, hGetBuf, Handle, IOMode(..))
 import Foreign
@@ -36,18 +37,22 @@ dev DevRandom  = devRandom
 dev DevURandom = devURandom
 
 instance RandomSource IO DevRandom where
-    supportedPrimsFrom _ PrimWord8          = True
-    supportedPrimsFrom _ PrimWord32         = True
-    supportedPrimsFrom _ PrimWord64         = True
-    supportedPrimsFrom _ _ = False
-    
-    getSupportedRandomPrimFrom src PrimWord8  = allocaBytes 1 $ \buf -> do
-        1 <- hGetBuf (dev src) buf  1
-        peek buf
-    getSupportedRandomPrimFrom src PrimWord32  = allocaBytes 1 $ \buf -> do
-        4 <- hGetBuf (dev src) buf  4
-        peek (castPtr buf)
-    getSupportedRandomPrimFrom src PrimWord64  = allocaBytes 8 $ \buf -> do
-        8 <- hGetBuf (dev src) buf  8
-        peek (castPtr buf)
-    getSupportedRandomPrimFrom src prim = error ("getSupportedRandomPrimFrom/" ++ show src ++ ": unsupported prim requested: " ++ show prim)
+    getRandomPrimFrom src = getPrimWhere supported getPrim
+        where
+            supported :: Prim a -> Bool
+            supported PrimWord8          = True
+            supported PrimWord32         = True
+            supported PrimWord64         = True
+            supported _ = False
+            
+            getPrim :: Prim a -> IO a
+            getPrim PrimWord8  = allocaBytes 1 $ \buf -> do
+                1 <- hGetBuf (dev src) buf  1
+                peek buf
+            getPrim PrimWord32  = allocaBytes 1 $ \buf -> do
+                4 <- hGetBuf (dev src) buf  4
+                peek (castPtr buf)
+            getPrim PrimWord64  = allocaBytes 8 $ \buf -> do
+                8 <- hGetBuf (dev src) buf  8
+                peek (castPtr buf)
+            getPrim prim = error ("getRandomPrimFrom/" ++ show src ++ ": unsupported prim requested: " ++ show prim)

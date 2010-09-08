@@ -195,10 +195,6 @@ instance T.MonadIO m => T.MonadIO (RVarT m) where
     liftIO = T.lift . T.liftIO
 
 instance MonadRandom (RVarT n) where
-    supportedPrims _ _ = True
-    {-# INLINE getSupportedRandomPrim #-}
-    getSupportedRandomPrim p    = RVarT (prompt p)
-    {-# INLINE getRandomPrim #-}
     getRandomPrim p = RVarT (prompt p)
 
 -- I would really like to be able to do this, but I can't because of the

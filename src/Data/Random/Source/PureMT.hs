@@ -123,35 +123,28 @@ getRandomPrimFromMTState = getRandomPrimBy getThing
             return ws
 
 instance MonadRandom (State PureMT) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromMTState
+    getRandomPrim = getRandomPrimFromMTState
 
 instance MonadRandom (S.State PureMT) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromMTState
+    getRandomPrim = getRandomPrimFromMTState
 
 instance (Monad m1, ModifyRef (Ref m2 PureMT) m1 PureMT) => RandomSource m1 (Ref m2 PureMT) where
-    supportedPrimsFrom _ _ = True
-    getSupportedRandomPrimFrom = getRandomPrimFromMTRef
+    getRandomPrimFrom = getRandomPrimFromMTRef
     
 instance Monad m => MonadRandom (StateT PureMT m) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromMTState
+    getRandomPrim = getRandomPrimFromMTState
 
 instance Monad m => MonadRandom (S.StateT PureMT m) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = getRandomPrimFromMTState
+    getRandomPrim = getRandomPrimFromMTState
 
 instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
-    {-# SPECIALIZE instance RandomSource IO (IORef PureMT)#-}
-    supportedPrimsFrom _ _ = True
-    getSupportedRandomPrimFrom = getRandomPrimFromMTRef
+    {-# SPECIALIZE instance RandomSource IO (IORef PureMT) #-}
+    getRandomPrimFrom = getRandomPrimFromMTRef
     
 instance (Monad m, ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) where
     {-# SPECIALIZE instance RandomSource (ST s) (STRef s PureMT) #-}
     {-# SPECIALIZE instance RandomSource (S.ST s) (STRef s PureMT) #-}
-    supportedPrimsFrom _ _ = True
-    getSupportedRandomPrimFrom = getRandomPrimFromMTRef
+    getRandomPrimFrom = getRandomPrimFromMTRef
 
 -- Note that this instance is probably a Bad Idea.  STM allows random variables
 -- to interact in spooky quantum-esque ways - One transaction can 'retry' until
@@ -160,6 +153,5 @@ instance (Monad m, ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef
 -- instance (Monad m, ModifyRef (TVar PureMT) m PureMT) => RandomSource m (TVar PureMT) where
 --     {-# SPECIALIZE instance RandomSource IO  (TVar PureMT) #-}
 --     {-# SPECIALIZE instance RandomSource STM (TVar PureMT) #-}
---     supportedPrimsFrom _ _ = True
---     getSupportedRandomPrimFrom = getRandomPrimFromMTRef
+--     getRandomPrimFrom = getRandomPrimFromMTRef
     
