@@ -209,12 +209,8 @@ instance Lift (RVarT MTL.Identity) (RVarT m) where
 instance T.MonadIO m => T.MonadIO (RVarT m) where
     liftIO = T.lift . T.liftIO
 
-instance MonadRandom (RVarT n) where
-    supportedPrims _ _ = True
-    {-# INLINE getSupportedRandomPrim #-}
-    getSupportedRandomPrim p    = RVarT (prompt p)
-    {-# INLINE getRandomPrim #-}
-    getRandomPrim p = RVarT (prompt p)
+instance MTL.MonadIO m => MTL.MonadIO (RVarT m) where
+    liftIO = MTL.lift . MTL.liftIO
 
 -- I would really like to be able to do this, but I can't because of the
 -- blasted Eq and Show in Num's class context...

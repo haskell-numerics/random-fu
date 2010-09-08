@@ -14,6 +14,7 @@ module Data.Random.Source
 import Data.RVar
 import Data.Word
 
+import Control.Monad.Prompt
 import Data.Random.Internal.Primitives
 
 -- |A typeclass for monads with a chosen source of entropy.  For example,
@@ -40,8 +41,6 @@ class Monad m => MonadRandom m where
     getRandomPrim :: Prim t -> m t
 
 instance MonadRandom (RVarT n) where
-    supportedPrims _ _ = True
-    getSupportedRandomPrim = prompt
     getRandomPrim          = prompt
 
 -- |A source of entropy which can be used in the given monad.
