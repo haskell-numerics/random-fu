@@ -65,7 +65,8 @@ import Control.Monad.Prompt (PromptT, runPromptT, prompt)
 type RVar = RVarT Identity
 
 -- |\"Run\" an 'RVar' - samples the random variable from the provided
--- source of entropy.
+-- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will
+-- be more convenient to use.
 runRVar :: RandomSource m s => RVar a -> s -> m a
 runRVar = runRVarT
 
