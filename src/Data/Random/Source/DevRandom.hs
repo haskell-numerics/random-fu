@@ -41,6 +41,7 @@ instance RandomSource IO DevRandom where
         where
             supported :: Prim a -> Bool
             supported PrimWord8          = True
+            supported PrimWord16         = True
             supported PrimWord32         = True
             supported PrimWord64         = True
             supported _ = False
@@ -49,7 +50,10 @@ instance RandomSource IO DevRandom where
             getPrim PrimWord8  = allocaBytes 1 $ \buf -> do
                 1 <- hGetBuf (dev src) buf  1
                 peek buf
-            getPrim PrimWord32  = allocaBytes 1 $ \buf -> do
+            getPrim PrimWord16 = allocaBytes 2 $ \buf -> do
+                2 <- hGetBuf (dev src) buf  2
+                peek (castPtr buf)
+            getPrim PrimWord32  = allocaBytes 4 $ \buf -> do
                 4 <- hGetBuf (dev src) buf  4
                 peek (castPtr buf)
             getPrim PrimWord64  = allocaBytes 8 $ \buf -> do
