@@ -25,7 +25,7 @@ import Data.Word
 import Data.Bits
 import Data.Typeable
 
-import Data.RVar.Internal.Primitives
+import Data.RVar.Prim
 
 -- |This function wraps up the most common calling convention for 'decomposePrimWhere'.
 -- Given a predicate identifying \"supported\" 'Prim's, and a (possibly partial) 

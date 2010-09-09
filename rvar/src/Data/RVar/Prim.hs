@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs, DeriveDataTypeable #-}
-module Data.RVar.Internal.Primitives (Prim(..)) where
+module Data.RVar.Prim (Prim(..)) where
 
 import Data.Word
 import Data.Typeable

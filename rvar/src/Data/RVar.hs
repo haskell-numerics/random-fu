@@ -21,7 +21,7 @@ module Data.RVar
     ) where
 
 
-import Data.RVar.Internal.Primitives
+import Data.RVar.Prim
 
 import qualified Control.Monad.Trans.Class as T
 import Control.Applicative
@@ -65,9 +65,6 @@ import qualified Data.Functor.Identity as T
 -- > sampleState (uniform 1 100) :: StdGen -> (Int, StdGen)
 type RVar = RVarT T.Identity
 
--- |\"Run\" an 'RVar' - samples the random variable from the provided
--- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will
--- be more convenient to use.
 runRVar :: Monad m => RVar a -> (forall t. Prim t -> m t) -> m a
 runRVar x = runRVarT x (return . T.runIdentity)
 

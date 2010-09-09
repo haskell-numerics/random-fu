@@ -31,7 +31,7 @@ Library
   ghc-options:          -Wall
   hs-source-dirs:       src
   exposed-modules:      Data.RVar
-                        Data.RVar.Internal.Primitives
+                        Data.RVar.Prim
     
   build-depends:        base            == 4.*,
                         MonadPrompt     == 1.0.*,
