@@ -10,7 +10,6 @@ import Data.RVar hiding (runRVar, runRVarT)
 import qualified Data.RVar as R
 import qualified Data.Functor.Identity as T
 import qualified Control.Monad.Identity as MTL
-import Control.Monad.Prompt (prompt)
 
 -- |\"Run\" an 'RVar' - samples the random variable from the provided
 -- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will
@@ -52,10 +51,3 @@ runRVarT x src = R.runRVarT x lift (getRandomPrimFrom src)
 -- The second argument specifies a 'RandomSource' to use.
 runRVarTWith :: RandomSource m s => (forall t. n t -> m t) -> RVarT n a -> s -> m a
 runRVarTWith liftN x src = R.runRVarT x liftN (getRandomPrimFrom src)
-
-instance Lift (RVarT T.Identity) (RVarT m) where
-    lift x = R.runRVar x prompt
-
-instance Lift (RVarT MTL.Identity) (RVarT m) where
-    lift x = R.runRVarT x lift prompt 
-

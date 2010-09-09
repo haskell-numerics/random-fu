@@ -85,17 +85,12 @@ Library
     cpp-options:        -Dold_Fixed
     build-depends:      base >= 4 && <4.2
     
-  build-depends:        array,
-                        containers,
-                        monad-loops >= 0.3.0.1,
-                        MonadPrompt,
+  build-depends:        monad-loops >= 0.3.0.1,
                         mtl,
                         random-shuffle,
                         random-source == 0.2.*,
                         rvar == 0.2.*,
-                        stateref >= 0.3 && < 0.4,
                         syb,
-                        tagged,
                         template-haskell,
                         transformers,
                         vector
