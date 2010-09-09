@@ -12,7 +12,7 @@ import Foreign
 -- anything extra at runtime
 
 {-# INLINE buildWord16 #-}
--- |Build a word out of 8 bytes.  No promises are made regarding the order
+-- |Build a word out of 2 bytes.  No promises are made regarding the order
 -- in which the bytes are stuffed.  Note that this means that a 'RandomSource'
 -- or 'MonadRandom' making use of the default definition of 'getRandomWord', etc.,
 -- may return different random values on different platforms when started 
@@ -25,7 +25,7 @@ buildWord16 b0 b1
         peek (castPtr p)
 
 {-# INLINE buildWord32 #-}
--- |Build a word out of 8 bytes.  No promises are made regarding the order
+-- |Build a word out of 4 bytes.  No promises are made regarding the order
 -- in which the bytes are stuffed.  Note that this means that a 'RandomSource'
 -- or 'MonadRandom' making use of the default definition of 'getRandomWord', etc.,
 -- may return different random values on different platforms when started 
