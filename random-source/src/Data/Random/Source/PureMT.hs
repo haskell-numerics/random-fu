@@ -25,8 +25,8 @@ module Data.Random.Source.PureMT
     , module Data.Random.Source.PureMT 
     ) where
 
-import Data.Random.Internal.Primitives
 import Data.Random.Source
+
 import System.Random.Mersenne.Pure64
 
 import Data.StateRef

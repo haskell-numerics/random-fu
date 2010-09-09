@@ -10,8 +10,15 @@ maintainer:             James Cook <james.cook@usma.edu>
 
 description:            Various benchmarks for the random-fu library.
 
+flag split-random-fu
+
 Executable random-fu-bench
   main-is:              Bench.hs
-  build-depends:        base >= 4, criterion, random-fu, MonadRandom, mtl,
+  build-depends:        base >= 4, criterion, MonadRandom, mtl,
                         stateref, mersenne-random-pure64, mwc-random >= 0.5,
                         random, vector
+
+  if flag(split-random-fu)
+    build-depends:      random-fu, random-source
+  else
+    build-depends:      random-fu

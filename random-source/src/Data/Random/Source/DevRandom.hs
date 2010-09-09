@@ -10,7 +10,6 @@ module Data.Random.Source.DevRandom
     ) where
 
 import Data.Random.Source
-import Data.Random.Internal.Primitives
 
 import System.IO (openBinaryFile, hGetBuf, Handle, IOMode(..))
 import Foreign

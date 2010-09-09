@@ -1,0 +1,48 @@
+name:                   random-source
+version:                0.2
+stability:              provisional
+
+cabal-version:          >= 1.2
+build-type:             Simple
+
+author:                 James Cook <james.cook@usma.edu>
+maintainer:             James Cook <james.cook@usma.edu>
+license:                PublicDomain
+homepage:               http://code.haskell.org/~mokus/random-fu
+
+category:               Math
+synopsis:               Generic basis for random number generators
+description:            Random number generation based on entropy sources
+                        able to produce a small but well-defined set of
+                        primitive variates.  Also includes facilities for
+                        \"completing\" partial implementations, making it
+                        easy to define new entropy sources.
+
+Library
+  ghc-options:          -Wall
+  hs-source-dirs:       src
+  exposed-modules:      Data.Random.Source
+                        Data.Random.Source.MWC
+                        Data.Random.Source.PureMT
+                        Data.Random.Source.Std
+                        Data.Random.Source.StdGen
+                        Data.Random.Internal.Words
+  other-modules:        Data.Random.Source.Prim
+    
+  build-depends:        base >= 4 && <5,
+                        mersenne-random-pure64,
+                        MonadPrompt,
+                        mwc-random,
+                        mtl,
+                        random,
+                        random-shuffle,
+                        stateref >= 0.3 && < 0.4,
+                        syb,
+                        transformers
+
+  if os(Windows)
+    cpp-options:        -Dwindows
+    build-depends:      erf-native
+  else
+    build-depends:      erf
+    exposed-modules:    Data.Random.Source.DevRandom

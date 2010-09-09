@@ -21,7 +21,7 @@ module Data.RVar
     ) where
 
 
-import Data.RVar.Prim
+import Data.Random.Source (Prim, MonadRandom(..))
 
 import qualified Control.Monad.Trans.Class as T
 import Control.Applicative
@@ -163,6 +163,9 @@ instance Monad (RVarT n) where
     return x = RVarT (return $! x)
     fail s   = RVarT (fail s)
     (RVarT m) >>= k = RVarT (m >>= \x -> x `seq` unRVarT (k x))
+
+instance MonadRandom (RVarT n) where
+    getRandomPrim = RVarT . prompt
 
 instance Applicative (RVarT n) where
     pure  = return

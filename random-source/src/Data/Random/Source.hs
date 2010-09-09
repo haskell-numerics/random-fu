@@ -9,13 +9,12 @@ module Data.Random.Source
     ( MonadRandom(..)
     , RandomSource(..)
     , Prim(..)
+    , getPrimWhere
     ) where
 
-import Data.RVar
 import Data.Word
 
-import Control.Monad.Prompt
-import Data.Random.Internal.Primitives
+import Data.Random.Source.Prim
 
 -- |A typeclass for monads with a chosen source of entropy.  For example,
 -- 'RVar' is such a monad - the source from which it is (eventually) sampled
@@ -39,9 +38,6 @@ class Monad m => MonadRandom m where
     -- semi-automatically extending a partial implementation to the full
     -- 'Prim' type.
     getRandomPrim :: Prim t -> m t
-
-instance MonadRandom (RVarT n) where
-    getRandomPrim          = prompt
 
 -- |A source of entropy which can be used in the given monad.
 -- 

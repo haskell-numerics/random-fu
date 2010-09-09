@@ -10,7 +10,6 @@
 -- > instance RandomSource IO (Gen RealWorld)
 module Data.Random.Source.MWC where
 
-import Data.Random.Internal.Primitives
 import Data.Random.Internal.Words
 import Data.Random.Source
 import System.Random.MWC
