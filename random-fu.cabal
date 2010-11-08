@@ -2,7 +2,7 @@ name:                   random-fu
 version:                0.1.2
 stability:              provisional
 
-cabal-version:          >= 1.2
+cabal-version:          >= 1.6
 build-type:             Simple
 
 author:                 James Cook <james.cook@usma.edu>
