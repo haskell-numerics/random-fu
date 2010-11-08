@@ -52,6 +52,9 @@ description:            Random number generation based on modeling random
 Flag base4_2
     Description:        base-4.2 has an incompatible change in Data.Fixed (HasResolution)
 
+Flag mtl2
+    Description:        mtl-2 has State, etc., as "type" rather than "newtype"
+
 Library
   ghc-options:          -Wall -funbox-strict-fields -fno-method-sharing
   hs-source-dirs:       src
@@ -91,10 +94,15 @@ Library
   else
     cpp-options:        -Dold_Fixed
     build-depends:      base >= 4 && <4.2
-    
+  
+  if flag(mtl2)
+    build-depends:      mtl == 2.*
+    cpp-options:        -DMTL2
+  else
+    build-depends:      mtl == 1.*
+  
   build-depends:        array,
                         containers,
-                        mersenne-random-pure64,
                         monad-loops >= 0.3.0.1,
                         MonadPrompt,
                         mwc-random,

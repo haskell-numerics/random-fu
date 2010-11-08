@@ -1,4 +1,5 @@
 {-# LANGUAGE
+    CPP,
     BangPatterns,
     MultiParamTypeClasses,
     FlexibleContexts, FlexibleInstances,
@@ -122,11 +123,13 @@ getRandomPrimFromMTState = getRandomPrimBy getThing
             put newMt
             return ws
 
+#ifndef MTL2
 instance MonadRandom (State PureMT) where
     getRandomPrim = getRandomPrimFromMTState
 
 instance MonadRandom (S.State PureMT) where
     getRandomPrim = getRandomPrimFromMTState
+#endif
 
 instance (Monad m1, ModifyRef (Ref m2 PureMT) m1 PureMT) => RandomSource m1 (Ref m2 PureMT) where
     getRandomPrimFrom = getRandomPrimFromMTRef

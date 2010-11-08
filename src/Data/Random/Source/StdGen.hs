@@ -1,4 +1,5 @@
 {-# LANGUAGE
+    CPP,
     MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs,
     BangPatterns, RankNTypes
   #-}
@@ -162,13 +163,15 @@ getRandomPrimFromRandomGenState prim
                     put newGen
                     return (f $! i)
 
+#ifndef MTL2
 instance MonadRandom (State StdGen) where
     getRandomPrim = getRandomPrimFromRandomGenState
 
-instance Monad m => MonadRandom (StateT StdGen m) where
-    getRandomPrim = getRandomPrimFromRandomGenState
-
 instance MonadRandom (S.State StdGen) where
+    getRandomPrim = getRandomPrimFromRandomGenState
+#endif
+
+instance Monad m => MonadRandom (StateT StdGen m) where
     getRandomPrim = getRandomPrimFromRandomGenState
 
 instance Monad m => MonadRandom (S.StateT StdGen m) where
