@@ -38,10 +38,10 @@ integralBinomial = bin 0
         
             | otherwise = count k t
                 where
-                    count !k'  0    = return k'
-                    count !k' (n+1) = do
+                    count !k' 0         = return k'
+                    count !k' n | n > 0 = do
                         x <- stdUniformT
-                        count (if x < p then k' + 1 else k') n
+                        count (if x < p then k' + 1 else k') (n-1)
                     count _ _ = error "integralBinomial: negative number of trials specified"
 
 -- TODO: improve performance
