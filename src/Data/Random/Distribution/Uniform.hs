@@ -163,7 +163,7 @@ floatUniform :: Float -> Float -> RVarT m Float
 floatUniform 0 1 = floatStdUniform
 floatUniform a b = do
     x <- floatStdUniform
-    return (a + x * (b - a))
+    return (a*(1-x)*a + b*x)
 
 -- |@doubleUniform a b@ computes a uniform random 'Double' value in the range [a,b)
 {-# INLINE doubleUniform #-}
@@ -171,7 +171,7 @@ doubleUniform :: Double -> Double -> RVarT m Double
 doubleUniform 0 1 = doubleStdUniform
 doubleUniform a b = do
     x <- doubleStdUniform
-    return (a + x * (b - a))
+    return (a*(1-x)*a + b*x)
 
 -- |@realFloatUniform a b@ computes a uniform random value in the range [a,b) for
 -- any 'RealFloat' type
@@ -179,7 +179,7 @@ realFloatUniform :: RealFloat a => a -> a -> RVarT m a
 realFloatUniform 0 1 = realFloatStdUniform
 realFloatUniform a b = do
     x <- realFloatStdUniform
-    return (a + x * (b - a))
+    return (a*(1-x)*a + b*x)
 
 -- |@fixedUniform a b@ computes a uniform random 'Fixed' value in the range 
 -- [a,b), with any desired precision.
