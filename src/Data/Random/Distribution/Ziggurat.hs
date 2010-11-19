@@ -296,7 +296,7 @@ zigguratXs f fInv c r v = (xs, excess)
         x 0 = v / f r
         x 1 = r
         x i | i == c = 0
-        x (i+1) = next i
+        x i | i >  1 = next (i-1)
         x _ = error "zigguratXs: programming error! this case should be impossible!"
         
         next i = let x_i = xs!!i
