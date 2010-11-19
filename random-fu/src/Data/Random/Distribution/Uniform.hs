@@ -303,7 +303,7 @@ instance Distribution StdUniform Word where
 -- Integer has no StdUniform...
 
 $( replicateInstances ''Int (integralTypes \\ [''Integer]) [d|
-        instance CDF StdUniform Int         where cdf  ~StdUniform = boundedStdUniformCDF
+        instance CDF StdUniform Int         where cdf  ~StdUniform = integralUniformCDF minBound maxBound
     |])
 
 

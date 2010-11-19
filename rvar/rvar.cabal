@@ -26,14 +26,22 @@ description:            Random number generation based on modeling random
                         comparable to other Haskell libraries, but still
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
-                        
+
+Flag mtl2
+    Description:        mtl-2 has State, etc., as "type" rather than "newtype"
+
 Library
   ghc-options:          -Wall
   hs-source-dirs:       src
   exposed-modules:      Data.RVar
-    
+
+  if flag(mtl2)
+    build-depends:      mtl == 2.*
+    cpp-options:        -DMTL2
+  else
+    build-depends:      mtl == 1.1.*
+  
   build-depends:        base            == 4.*,
                         MonadPrompt     == 1.0.*,
-                        mtl             == 1.1.*,
                         random-source   == 0.2.*,
                         transformers    == 0.2.*

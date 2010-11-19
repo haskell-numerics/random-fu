@@ -1,7 +1,8 @@
 {-# LANGUAGE
     CPP,
     MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs,
-    BangPatterns, RankNTypes
+    BangPatterns, RankNTypes,
+    ScopedTypeVariables
   #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -80,12 +81,12 @@ getRandomPrimFromStdGenIO = getPrimWhere supported genPrim
 -- See "Data.Random.Source.PureMT".'getRandomPrimFromMTRef' for more detailed
 -- usage hints - this function serves exactly the same purpose except for a
 -- 'StdGen' generator instead of a 'PureMT' generator.
-getRandomPrimFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
+getRandomPrimFromRandomGenRef :: forall sr m g a. (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> Prim a -> m a
-getRandomPrimFromRandomGenRef ref = getPrimWhere supported (genPrim getThing)
+getRandomPrimFromRandomGenRef ref = getPrimWhere supported genPrim
     where 
         {-# INLINE supported #-}
-        supported :: Prim a -> Bool
+        supported :: forall t. Prim t -> Bool
         supported PrimWord8             = True
         supported PrimWord16            = True
         supported PrimWord32            = True
@@ -95,16 +96,17 @@ getRandomPrimFromRandomGenRef ref = getPrimWhere supported (genPrim getThing)
         supported _                     = False
         
         {-# INLINE genPrim #-}
-        genPrim :: (RandomGen g) => (forall b. (g -> (b, g)) -> (b -> a) -> c) -> Prim a -> c
-        genPrim f PrimWord8            = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
-        genPrim f PrimWord16           = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
-        genPrim f PrimWord32           = f (randomR (0, 0xffffffff))          (fromInteger)
-        genPrim f PrimWord64           = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
-        genPrim f PrimDouble           = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
-        genPrim f (PrimNByteInteger n) = f (randomR (0, iterate (*256) 1 !! n)) (id :: Integer -> Integer)
-        genPrim _ p = error ("getRandomPrimFromRandomGenRef: genPrim called for unsupported prim " ++ show p)
+        genPrim :: forall t. Prim t -> m t
+        genPrim PrimWord8            = getThing (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
+        genPrim PrimWord16           = getThing (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
+        genPrim PrimWord32           = getThing (randomR (0, 0xffffffff))          (fromInteger)
+        genPrim PrimWord64           = getThing (randomR (0, 0xffffffffffffffff))  (fromInteger)
+        genPrim PrimDouble           = getThing (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
+        genPrim (PrimNByteInteger n) = getThing (randomR (0, iterate (*256) 1 !! n)) (id :: Integer -> Integer)
+        genPrim p = error ("getRandomPrimFromRandomGenRef: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
+        getThing :: forall b t. (g -> (b, g)) -> (b -> t) -> m t
         getThing thing f = atomicModifyReference ref $ \(!oldMT) -> case thing oldMT of (!w, !newMT) -> (newMT, f w)
 
 
@@ -119,11 +121,11 @@ getRandomPrimFromRandomGenRef ref = getPrimWhere supported (genPrim getThing)
 -- for a 'StdGen' generator instead of a 'PureMT' generator.
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Prim a -> State StdGen a #-}
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Monad m => Prim a -> StateT StdGen m a #-}
-getRandomPrimFromRandomGenState :: (RandomGen g, MonadState g m) => Prim a -> m a
-getRandomPrimFromRandomGenState = getPrimWhere supported (genPrim getThing)
+getRandomPrimFromRandomGenState :: forall g m a. (RandomGen g, MonadState g m) => Prim a -> m a
+getRandomPrimFromRandomGenState = getPrimWhere supported genPrim
     where 
         {-# INLINE supported #-}
-        supported :: Prim a -> Bool
+        supported :: forall t. Prim t -> Bool
         supported PrimWord8             = True
         supported PrimWord16            = True
         supported PrimWord32            = True
@@ -133,20 +135,21 @@ getRandomPrimFromRandomGenState = getPrimWhere supported (genPrim getThing)
         supported _                     = False
         
         {-# INLINE genPrim #-}
-        genPrim :: (RandomGen g) => (forall b. (g -> (b, g)) -> (b -> a) -> c) -> Prim a -> c
-        genPrim f PrimWord8            = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
-        genPrim f PrimWord16           = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
-        genPrim f PrimWord32           = f (randomR (0, 0xffffffff))          (fromInteger)
-        genPrim f PrimWord64           = f (randomR (0, 0xffffffffffffffff))  (fromInteger)
-        genPrim f PrimDouble           = f (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
+        genPrim :: forall t. Prim t -> m t
+        genPrim PrimWord8            = getThing (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
+        genPrim PrimWord16           = getThing (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
+        genPrim PrimWord32           = getThing (randomR (0, 0xffffffff))          (fromInteger)
+        genPrim PrimWord64           = getThing (randomR (0, 0xffffffffffffffff))  (fromInteger)
+        genPrim PrimDouble           = getThing (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
           {- not using the Random Double instance for 2 reasons.  1st, it only generates 32 bits of entropy, when 
              a [0,1) Double has room for 52.  Second, it appears there's a bug where it can actually generate a 
              negative number in the case where randomIvalInteger returns minBound::Int32. -}
---        genPrim PrimDouble f = f (randomR (0, 1.0))  (id)
-        genPrim f (PrimNByteInteger n) = f (randomR (0, iterate (*256) 1 !! n)) id
-        genPrim _ p = error ("getRandomPrimFromRandomGenState: genPrim called for unsupported prim " ++ show p)
+--        genPrim PrimDouble = getThing (randomR (0, 1.0))  (id)
+        genPrim (PrimNByteInteger n) = getThing (randomR (0, iterate (*256) 1 !! n)) id
+        genPrim p = error ("getRandomPrimFromRandomGenState: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
+        getThing :: forall b t. (g -> (b, g)) -> (b -> t) -> m t
         getThing thing f = do
             !oldGen <- get
             case thing oldGen of

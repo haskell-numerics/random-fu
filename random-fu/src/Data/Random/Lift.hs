@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, IncoherentInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, IncoherentInstances, CPP #-}
 
 module Data.Random.Lift where
 
@@ -6,7 +6,10 @@ import Data.RVar
 import Data.Random.Source (getRandomPrim)
 import qualified Data.Functor.Identity as T
 import qualified Control.Monad.Trans.Class as T
+
+#ifndef MTL2
 import qualified Control.Monad.Identity as MTL
+#endif
 
 -- | A class for \"liftable\" data structures. Conceptually
 -- an extension of 'T.MonadTrans' to allow deep lifting,
@@ -37,15 +40,19 @@ instance Lift m m where
 instance Monad m => Lift T.Identity m where
     lift = return . T.runIdentity
 
+instance Lift (RVarT T.Identity) (RVarT m) where
+    lift x = runRVar x getRandomPrim
+
+#ifndef MTL2
+
 -- | This instance is incoherent with the other two. However,
 -- by the law @lift (return x) == return x@, the results
 -- must always be the same.
 instance Monad m => Lift MTL.Identity m where
     lift = return . MTL.runIdentity
 
-instance Lift (RVarT T.Identity) (RVarT m) where
-    lift x = runRVar x getRandomPrim
-
 instance Lift (RVarT MTL.Identity) (RVarT m) where
     lift x = runRVarT x lift getRandomPrim
+
+#endif
 

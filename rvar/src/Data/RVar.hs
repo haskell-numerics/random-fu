@@ -5,7 +5,9 @@
     RankNTypes,
     MultiParamTypeClasses,
     FlexibleInstances, 
-    GADTs
+    GADTs,
+    ScopedTypeVariables,
+    CPP
   #-}
 
 -- |Random variables.  An 'RVar' is a sampleable random variable.  Because
@@ -150,10 +152,13 @@ newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 -- 
 -- The second argument evaluates a \"primitive\" random variate.
 {-# INLINE runRVarT #-}
-runRVarT :: Monad m => RVarT n a -> (forall t. n t -> m t) -> (forall t. Prim t -> m t) -> m a
+runRVarT :: forall m n a. Monad m => RVarT n a -> (forall t. n t -> m t) -> (forall t. Prim t -> m t) -> m a
 runRVarT (RVarT m) liftN liftP = runPromptT return bindP bindN m
     where
+        bindP :: forall t. (Prim t -> (t -> m a) -> m a)
         bindP prim cont = liftP prim >>= cont
+        
+        bindN :: forall t. n t -> (t -> m a) -> m a
         bindN nExp cont = liftN nExp >>= cont
 
 instance Functor (RVarT n) where
@@ -177,14 +182,18 @@ instance MonadPrompt Prim (RVarT n) where
 instance T.MonadTrans RVarT where
     lift m = RVarT (MTL.lift m)
 
-instance MTL.MonadTrans RVarT where
-    lift m = RVarT (MTL.lift m)
-
 instance T.MonadIO m => T.MonadIO (RVarT m) where
     liftIO = T.lift . T.liftIO
 
+#ifndef MTL2
+
+instance MTL.MonadTrans RVarT where
+    lift m = RVarT (MTL.lift m)
+
 instance MTL.MonadIO m => MTL.MonadIO (RVarT m) where
     liftIO = MTL.lift . MTL.liftIO
+
+#endif
 
 -- I would really like to be able to do this, but I can't because of the
 -- blasted Eq and Show in Num's class context...

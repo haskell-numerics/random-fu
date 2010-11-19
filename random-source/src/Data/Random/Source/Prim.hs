@@ -226,18 +226,24 @@ decomposePrimWhere supported requested = decomp requested
         decomp (PrimNByteInteger 8) = do
             x <- decomp PrimWord64
             return $! toInteger x
-        decomp (PrimNByteInteger (n+8))  = do
-            x <- decomp PrimWord64
-            y <- decomp (PrimNByteInteger n)
-            return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
-        decomp (PrimNByteInteger (n+4))  = do
-            x <- decomp PrimWord32
-            y <- decomp (PrimNByteInteger n)
-            return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
-        decomp (PrimNByteInteger (n+2))  = do
-            x <- decomp PrimWord16
-            y <- decomp (PrimNByteInteger n)
-            return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+        decomp (PrimNByteInteger np8)
+            | np8 > 8 = do
+                let n = np8 - 8
+                x <- decomp PrimWord64
+                y <- decomp (PrimNByteInteger n)
+                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+        decomp (PrimNByteInteger np4)
+            | np4 > 4 = do
+                let n = np4 - 4
+                x <- decomp PrimWord32
+                y <- decomp (PrimNByteInteger n)
+                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+        decomp (PrimNByteInteger np2)
+            | np2 > 2 = do
+                let n = np2 - 2
+                x <- decomp PrimWord16
+                y <- decomp (PrimNByteInteger n)
+                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
 -- REDUNDANT CASE
 --        decomp (PrimNByteInteger (n+1))  = do
 --            x <- decomp PrimWord8

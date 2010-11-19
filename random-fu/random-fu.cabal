@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.1.0.1
+version:                0.2
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -94,13 +94,7 @@ Library
   else
     build-depends:      mtl == 1.*
   
-  build-depends:        array,
-                        containers,
-                        monad-loops >= 0.3.0.1,
-                        MonadPrompt,
-                        mwc-random,
-                        mtl,
-                        random,
+  build-depends:        monad-loops >= 0.3.0.1,
                         random-shuffle,
                         random-source == 0.2.*,
                         rvar == 0.2.*,
