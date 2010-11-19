@@ -90,7 +90,7 @@ data Ziggurat v t = Ziggurat {
         zFunc             :: !(t -> t),
         
         -- |A flag indicating whether the distribution should be
-        -- mirrored about the origin (the ziggurat algorithm it
+        -- mirrored about the origin (the ziggurat algorithm in
         -- its native form only samples from one-sided distributions.
         -- By mirroring, we can extend it to symmetric distributions
         -- such as the normal distribution)
