@@ -158,12 +158,17 @@ realStdUniformCDF x
     | x >= 1    = 1
     | otherwise = realToFrac x
 
+-- |(internal) basic linear interpolation; @lerp x y@ is a linear function whose
+-- value is @x@ at 0 and @y@ at 1
+lerp :: Num a => a -> a -> a -> a
+lerp x y a = (1-a)*x + a*y
+
 -- |@floatUniform a b@ computes a uniform random 'Float' value in the range [a,b)
 floatUniform :: Float -> Float -> RVarT m Float
 floatUniform 0 1 = floatStdUniform
 floatUniform a b = do
     x <- floatStdUniform
-    return (a*(1-x)*a + b*x)
+    return (lerp a b x)
 
 -- |@doubleUniform a b@ computes a uniform random 'Double' value in the range [a,b)
 {-# INLINE doubleUniform #-}
@@ -171,7 +176,7 @@ doubleUniform :: Double -> Double -> RVarT m Double
 doubleUniform 0 1 = doubleStdUniform
 doubleUniform a b = do
     x <- doubleStdUniform
-    return (a*(1-x)*a + b*x)
+    return (lerp a b x)
 
 -- |@realFloatUniform a b@ computes a uniform random value in the range [a,b) for
 -- any 'RealFloat' type
@@ -179,7 +184,7 @@ realFloatUniform :: RealFloat a => a -> a -> RVarT m a
 realFloatUniform 0 1 = realFloatStdUniform
 realFloatUniform a b = do
     x <- realFloatStdUniform
-    return (a*(1-x)*a + b*x)
+    return (lerp a b x)
 
 -- |@fixedUniform a b@ computes a uniform random 'Fixed' value in the range 
 -- [a,b), with any desired precision.
