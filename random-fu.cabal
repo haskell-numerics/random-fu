@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.1.2
+version:                0.1.4
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -103,10 +103,10 @@ Library
   
   build-depends:        array,
                         containers,
+                        mersenne-random-pure64,
                         monad-loops >= 0.3.0.1,
                         MonadPrompt,
                         mwc-random,
-                        mtl,
                         random,
                         random-shuffle,
                         stateref >= 0.3 && < 0.4,
