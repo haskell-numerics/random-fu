@@ -16,12 +16,12 @@ This package provides the backend for `RVarT`; arbitrary sources of entropy.  It
 random-fu
 ---------
 
-This package provides an end-user interface that defines random variables several standard distributions as well as some convenient interfaces for sampling them.
+This package provides an end-user interface that defines random variables following several standard distributions as well as some convenient interfaces for sampling them.
 
 Usage
 =====
 
-To use the system, you'll typically want import at least two modules: `Data.Random` for the main interface and a supported entropy source, such as `System.Random.MWC` from the mwc-random package.  You may also want to import one or more of the extra distributions provided in the Data.Random.Distribution heirarchy (uniform and normal are exported by Data.Random automatically).  Then, you can define random variables using `do` notation, sample them using `sampleFrom`, etc.  For example:
+To use the system, you'll typically want import at least two modules: `Data.Random` for the main interface and a supported entropy source, such as `System.Random.MWC` from the `mwc-random` package.  You may also want to import one or more of the extra distributions provided in the `Data.Random.Distribution` heirarchy (uniform and normal are exported by `Data.Random` automatically).  Then, you can define random variables using `do` notation, sample them using `sampleFrom`, etc.  For example:
 
     import Data.Random
     import System.Random.MWC (create)
