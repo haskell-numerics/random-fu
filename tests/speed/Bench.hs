@@ -66,11 +66,11 @@ main = do
                     sum' (take count xs :: [Double]) `seq` return ()
                 , bench "RVarT, State - sample replicateM" $ do
                     src <- newStdGen
-                    let xs = evalState (sample (replicateM count (uniform 10 50))) src
+                    let xs = evalState (runRVar (replicateM count (uniform 10 50)) StdRandom) src
                     (sum' xs :: Double) `seq` return ()
                 , bench "RVarT, State - replicateM sample" $ do
                     src <- newStdGen
-                    let xs = evalState (replicateM count (sample (uniform 10 50))) src
+                    let xs = evalState (replicateM count (runRVar (uniform 10 50) StdRandom)) src
                     (sum' xs :: Double) `seq` return ()
                 ]
             , bgroup "Int"
@@ -80,11 +80,11 @@ main = do
                     sum' (take count xs :: [Int]) `seq` return ()
                 , bench "RVarT, State - sample replicateM" $ do
                     src <- newStdGen
-                    let xs = evalState (sample (replicateM count (uniform 10 50))) src
+                    let xs = evalState (runRVar (replicateM count (uniform 10 50)) StdRandom) src
                     (sum' xs :: Int) `seq` return ()
                 , bench "RVarT, State - replicateM sample" $ do
                     src <- newStdGen
-                    let xs = evalState (replicateM count (sample (uniform 10 50))) src
+                    let xs = evalState (replicateM count (runRVar (uniform 10 50) StdRandom)) src
                     (sum' xs :: Int) `seq` return ()
                 ]
             ]
@@ -176,10 +176,14 @@ doubleSuite = suite
 intSuite :: (Distribution d Int, RandomSource IO s) => s -> Int -> String -> d Int -> Benchmark
 intSuite = suite
 
--- Ideally, these would all be the same speed
 suite :: (Storable t, Num t, Distribution d t, RandomSource IO s) => s -> Int -> String -> d t -> Benchmark
 suite src count name var = bgroup name 
-    [ bench "sum of samples (implicit rvar)" $ do
+    [ bench "single sample" $ do
+        x <- sampleFrom src var
+        x `seq` return () :: IO ()
+
+    -- Ideally, these would all be the same speed:
+    , bench "sum of samples (implicit rvar)" $ do
         x <- sumM count (sampleFrom src var)
         x `seq` return () :: IO ()
 
