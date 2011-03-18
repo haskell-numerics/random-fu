@@ -8,7 +8,7 @@ build-type:             Simple
 author:                 James Cook <james.cook@usma.edu>
 maintainer:             James Cook <james.cook@usma.edu>
 license:                PublicDomain
-homepage:               http://code.haskell.org/~mokus/random-fu
+homepage:               https://github.com/mokus0/random-fu
 
 category:               Math
 synopsis:               Generic basis for random number generators
