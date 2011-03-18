@@ -283,33 +283,40 @@ $( replicateInstances ''Int integralTypes [d|
         instance CDF Uniform Int            where cdf   (Uniform a b) = integralUniformCDF a b
     |])
 
-instance Distribution StdUniform Word8      where rvarT ~StdUniform = getRandomPrim PrimWord8
-instance Distribution StdUniform Word16     where rvarT ~StdUniform = getRandomPrim PrimWord16
-instance Distribution StdUniform Word32     where rvarT ~StdUniform = getRandomPrim PrimWord32
-instance Distribution StdUniform Word64     where rvarT ~StdUniform = getRandomPrim PrimWord64
+instance Distribution StdUniform Word8      where rvarT _ = getRandomPrim PrimWord8
+instance Distribution StdUniform Word16     where rvarT _ = getRandomPrim PrimWord16
+instance Distribution StdUniform Word32     where rvarT _ = getRandomPrim PrimWord32
+instance Distribution StdUniform Word64     where rvarT _ = getRandomPrim PrimWord64
 
-instance Distribution StdUniform Int8       where rvarT ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord8
-instance Distribution StdUniform Int16      where rvarT ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord16
-instance Distribution StdUniform Int32      where rvarT ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord32
-instance Distribution StdUniform Int64      where rvarT ~StdUniform = fromIntegral `fmap` getRandomPrim PrimWord64
+instance Distribution StdUniform Int8       where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord8
+instance Distribution StdUniform Int16      where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord16
+instance Distribution StdUniform Int32      where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord32
+instance Distribution StdUniform Int64      where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord64
 
 instance Distribution StdUniform Int where
-    rvar ~StdUniform =
+    rvar _ =
         $(if toInteger (maxBound :: Int) > toInteger (maxBound :: Int32)
             then [|fromIntegral `fmap` getRandomPrim PrimWord64|]
             else [|fromIntegral `fmap` getRandomPrim PrimWord32|])
 
 instance Distribution StdUniform Word where
-    rvar ~StdUniform =
+    rvar _ =
         $(if toInteger (maxBound :: Word) > toInteger (maxBound :: Word32)
             then [|fromIntegral `fmap` getRandomPrim PrimWord64|]
             else [|fromIntegral `fmap` getRandomPrim PrimWord32|])
 
 -- Integer has no StdUniform...
 
-$( replicateInstances ''Int (integralTypes \\ [''Integer]) [d|
-        instance CDF StdUniform Int         where cdf  ~StdUniform = integralUniformCDF minBound maxBound
-    |])
+instance CDF StdUniform Word8   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word16  where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word32  where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word64  where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word    where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int8    where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int16   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int32   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int64   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int     where cdf _ = integralUniformCDF minBound maxBound
 
 
 instance Distribution Uniform Float         where rvarT (Uniform a b) = floatUniform  a b
