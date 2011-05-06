@@ -26,6 +26,7 @@ Library
   ghc-options:          -Wall
   hs-source-dirs:       src
   exposed-modules:      Data.Random.Source
+                        Data.Random.Source.IO
                         Data.Random.Source.MWC
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
