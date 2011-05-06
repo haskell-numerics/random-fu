@@ -1,4 +1,5 @@
 {-# LANGUAGE
+        TemplateHaskell,
         MultiParamTypeClasses,
         FlexibleInstances,
         GADTs
@@ -15,45 +16,22 @@ import Data.Random.Source
 import System.Random.MWC
 import Control.Monad.ST
 
-instance RandomSource (ST s) (Gen s) where
-    getRandomPrimFrom src = getPrimWhere supported (getPrim src)
-        where
-            {-# INLINE supported #-}
-            supported :: Prim a -> Bool
-            supported PrimWord8  = True
-            supported PrimWord16 = True
-            supported PrimWord32 = True
-            supported PrimWord64 = True
-            supported PrimDouble = True
-            supported _ = False
-    
-            {-# INLINE getPrim #-}
-            getPrim :: Gen s -> Prim a -> ST s a
-            getPrim gen PrimWord8    = uniform gen
-            getPrim gen PrimWord16   = uniform gen
-            getPrim gen PrimWord32   = uniform gen
-            getPrim gen PrimWord64   = uniform gen
-            getPrim gen PrimDouble   = fmap wordToDouble (uniform gen)
-            getPrim   _ p            = error ("getRandomPrimFrom/Gen s: unsupported prim requested: " ++ show p)
+$(randomSource
+    [d| instance RandomSource (ST s) (Gen s) |]
+    [d|
+            getWord8  = uniform
+            getWord16 = uniform
+            getWord32 = uniform
+            getWord64 = uniform
+            getDouble = fmap wordToDouble . uniform
+     |])
 
-instance RandomSource IO (Gen RealWorld) where
-    getRandomPrimFrom src = getPrimWhere supported (getPrim src)
-        where
-            {-# INLINE supported #-}
-            supported :: Prim a -> Bool
-            supported PrimWord8  = True
-            supported PrimWord16 = True
-            supported PrimWord32 = True
-            supported PrimWord64 = True
-            supported PrimDouble = True
-            supported _ = False
-    
-            {-# INLINE getPrim #-}
-            getPrim :: Gen RealWorld -> Prim a -> IO a
-            getPrim gen PrimWord8    = uniform gen
-            getPrim gen PrimWord16   = uniform gen
-            getPrim gen PrimWord32   = uniform gen
-            getPrim gen PrimWord64   = uniform gen
-            getPrim gen PrimDouble   = fmap wordToDouble (uniform gen)
-            getPrim   _ p            = error ("getRandomPrimFrom/Gen RealWorld: unsupported prim requested: " ++ show p)
-
+$(randomSource
+    [d| instance RandomSource IO (Gen RealWorld) |]
+    [d|
+            getWord8  = uniform
+            getWord16 = uniform
+            getWord32 = uniform
+            getWord64 = uniform
+            getDouble = fmap wordToDouble . uniform
+     |])

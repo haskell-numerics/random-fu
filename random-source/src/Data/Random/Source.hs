@@ -1,8 +1,5 @@
-{-
- -      ``Data/Random/Source''
- -}
 {-# LANGUAGE
-    MultiParamTypeClasses, FlexibleInstances, GADTs
+    MultiParamTypeClasses, FlexibleInstances, TemplateHaskell, GADTs
   #-}
 
 module Data.Random.Source
@@ -10,11 +7,13 @@ module Data.Random.Source
     , RandomSource(..)
     , Prim(..)
     , getPrimWhere
+    , monadRandom, randomSource
     ) where
 
 import Data.Word
 
 import Data.Random.Source.Prim
+import Data.Random.Source.TH
 
 -- |A typeclass for monads with a chosen source of entropy.  For example,
 -- 'RVar' is such a monad - the source from which it is (eventually) sampled
@@ -38,6 +37,7 @@ class Monad m => MonadRandom m where
     -- semi-automatically extending a partial implementation to the full
     -- 'Prim' type.
     getRandomPrim :: Prim t -> m t
+    getRandomPrim = error "getRandomPrim not implemented"
 
 -- |A source of entropy which can be used in the given monad.
 -- 
@@ -49,53 +49,24 @@ class Monad m => RandomSource m s where
     -- semi-automatically extending a partial implementation to the full
     -- 'Prim' type.
     getRandomPrimFrom :: s -> Prim t -> m t
+    getRandomPrimFrom = error "getRandomPrimFrom not implemented"
 
-instance Monad m => RandomSource m (m Word8) where
-    getRandomPrimFrom f = getPrimWhere supported (getPrim f)
-        where
-            supported :: Prim a -> Bool
-            supported PrimWord8 = True
-            supported _ = False
-            
-            getPrim :: m Word8 -> Prim a -> m a
-            getPrim f PrimWord8 = f
+$(randomSource
+    [d| instance Monad m => RandomSource m (m Word8) |]
+    [d| getWord8 = id |])
 
-instance Monad m => RandomSource m (m Word16) where
-    getRandomPrimFrom f = getPrimWhere supported (getPrim f)
-        where
-            supported :: Prim a -> Bool
-            supported PrimWord16 = True
-            supported _ = False
-            
-            getPrim :: m Word16 -> Prim a -> m a
-            getPrim f PrimWord16 = f
+$(randomSource
+    [d| instance Monad m => RandomSource m (m Word16) |]
+    [d| getWord16 = id |])
 
-instance Monad m => RandomSource m (m Word32) where
-    getRandomPrimFrom f = getPrimWhere supported (getPrim f)
-        where
-            supported :: Prim a -> Bool
-            supported PrimWord32 = True
-            supported _ = False
-            
-            getPrim :: m Word32 -> Prim a -> m a
-            getPrim f PrimWord32 = f
+$(randomSource
+    [d| instance Monad m => RandomSource m (m Word32) |]
+    [d| getWord32 = id |])
 
-instance Monad m => RandomSource m (m Word64) where
-    getRandomPrimFrom f = getPrimWhere supported (getPrim f)
-        where
-            supported :: Prim a -> Bool
-            supported PrimWord64 = True
-            supported _ = False
-            
-            getPrim :: m Word64 -> Prim a -> m a
-            getPrim f PrimWord64 = f
+$(randomSource
+    [d| instance Monad m => RandomSource m (m Word64) |]
+    [d| getWord64 = id |])
 
-instance Monad m => RandomSource m (m Double) where
-    getRandomPrimFrom f = getPrimWhere supported (getPrim f)
-        where
-            supported :: Prim a -> Bool
-            supported PrimDouble = True
-            supported _ = False
-            
-            getPrim :: m Double -> Prim a -> m a
-            getPrim f PrimDouble = f
+$(randomSource
+    [d| instance Monad m => RandomSource m (m Double) |]
+    [d| getDouble = id |])

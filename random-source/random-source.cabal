@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.2
+version:                0.2.0.1
 stability:              provisional
 
 cabal-version:          >= 1.2
@@ -32,6 +32,7 @@ Library
                         Data.Random.Source.StdGen
                         Data.Random.Internal.Words
   other-modules:        Data.Random.Source.Prim
+                        Data.Random.Source.TH
     
   if flag(mtl2)
     build-depends:      mtl == 2.*
@@ -47,6 +48,7 @@ Library
                         random-shuffle,
                         stateref >= 0.3 && < 0.4,
                         syb,
+                        template-haskell,
                         transformers
 
   if os(Windows)
