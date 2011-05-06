@@ -48,7 +48,6 @@ import Data.Random.RVar
 import Data.Fixed
 import Data.Word
 import Data.Int
-import Data.List
 
 import Control.Monad.Loops
 
@@ -77,7 +76,7 @@ integralUniform' !l !u
         (bytes, nPossible) = bytesNeeded m
         nReject = nPossible `mod` m
         
-        !prim = getRandomPrim (PrimNByteInteger bytes)
+        !prim = getRandomNByteInteger bytes
         !shift = \(!z) -> l + (fromInteger $! (z `mod` m))
         
         loop = do
@@ -121,13 +120,13 @@ boundedEnumStdUniformCDF = enumUniformCDF minBound maxBound
 -- |Compute a uniform random 'Float' value in the range [0,1)
 floatStdUniform :: RVarT m Float
 floatStdUniform = do
-    x <- getRandomPrim PrimWord32
+    x <- getRandomWord32
     return (word32ToFloat x)
 
 -- |Compute a uniform random 'Double' value in the range [0,1)
 {-# INLINE doubleStdUniform #-}
 doubleStdUniform :: RVarT m Double
-doubleStdUniform = getRandomPrim PrimDouble
+doubleStdUniform = getRandomDouble
 
 -- |Compute a uniform random value in the range [0,1) for any 'RealFloat' type 
 realFloatStdUniform :: RealFloat a => RVarT m a
@@ -283,27 +282,27 @@ $( replicateInstances ''Int integralTypes [d|
         instance CDF Uniform Int            where cdf   (Uniform a b) = integralUniformCDF a b
     |])
 
-instance Distribution StdUniform Word8      where rvarT _ = getRandomPrim PrimWord8
-instance Distribution StdUniform Word16     where rvarT _ = getRandomPrim PrimWord16
-instance Distribution StdUniform Word32     where rvarT _ = getRandomPrim PrimWord32
-instance Distribution StdUniform Word64     where rvarT _ = getRandomPrim PrimWord64
+instance Distribution StdUniform Word8      where rvarT _ = getRandomWord8
+instance Distribution StdUniform Word16     where rvarT _ = getRandomWord16
+instance Distribution StdUniform Word32     where rvarT _ = getRandomWord32
+instance Distribution StdUniform Word64     where rvarT _ = getRandomWord64
 
-instance Distribution StdUniform Int8       where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord8
-instance Distribution StdUniform Int16      where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord16
-instance Distribution StdUniform Int32      where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord32
-instance Distribution StdUniform Int64      where rvarT _ = fromIntegral `fmap` getRandomPrim PrimWord64
+instance Distribution StdUniform Int8       where rvarT _ = fromIntegral `fmap` getRandomWord8
+instance Distribution StdUniform Int16      where rvarT _ = fromIntegral `fmap` getRandomWord16
+instance Distribution StdUniform Int32      where rvarT _ = fromIntegral `fmap` getRandomWord32
+instance Distribution StdUniform Int64      where rvarT _ = fromIntegral `fmap` getRandomWord64
 
 instance Distribution StdUniform Int where
     rvar _ =
         $(if toInteger (maxBound :: Int) > toInteger (maxBound :: Int32)
-            then [|fromIntegral `fmap` getRandomPrim PrimWord64|]
-            else [|fromIntegral `fmap` getRandomPrim PrimWord32|])
+            then [|fromIntegral `fmap` getRandomWord64|]
+            else [|fromIntegral `fmap` getRandomWord32|])
 
 instance Distribution StdUniform Word where
     rvar _ =
         $(if toInteger (maxBound :: Word) > toInteger (maxBound :: Word32)
-            then [|fromIntegral `fmap` getRandomPrim PrimWord64|]
-            else [|fromIntegral `fmap` getRandomPrim PrimWord32|])
+            then [|fromIntegral `fmap` getRandomWord64|]
+            else [|fromIntegral `fmap` getRandomWord32|])
 
 -- Integer has no StdUniform...
 
@@ -324,10 +323,10 @@ instance Distribution Uniform Double        where rvarT (Uniform a b) = doubleUn
 instance CDF Uniform Float                  where cdf   (Uniform a b) = realUniformCDF a b
 instance CDF Uniform Double                 where cdf   (Uniform a b) = realUniformCDF a b
 
-instance Distribution StdUniform Float      where rvarT ~StdUniform = floatStdUniform
-instance Distribution StdUniform Double     where rvarT ~StdUniform = getRandomPrim PrimDouble; rvarT ~StdUniform = getRandomPrim PrimDouble
-instance CDF StdUniform Float               where cdf   ~StdUniform = realStdUniformCDF
-instance CDF StdUniform Double              where cdf   ~StdUniform = realStdUniformCDF
+instance Distribution StdUniform Float      where rvarT _ = floatStdUniform
+instance Distribution StdUniform Double     where rvarT _ = getRandomDouble
+instance CDF StdUniform Float               where cdf   _ = realStdUniformCDF
+instance CDF StdUniform Double              where cdf   _ = realStdUniformCDF
 
 instance HasResolution r => 
          Distribution Uniform (Fixed r)     where rvarT (Uniform a b) = fixedUniform  a b
@@ -348,7 +347,7 @@ $( replicateInstances ''Char [''Char, ''Bool, ''Ordering] [d|
 
 instance Distribution StdUniform ()         where rvarT ~StdUniform = return ()
 instance CDF StdUniform ()                  where cdf   ~StdUniform = return 1
-instance Distribution StdUniform Bool       where rvarT ~StdUniform = fmap even (getRandomPrim PrimWord8)
+instance Distribution StdUniform Bool       where rvarT ~StdUniform = fmap even (getRandomWord8)
 instance CDF StdUniform Bool                where cdf   ~StdUniform = boundedEnumStdUniformCDF
 
 instance Distribution StdUniform Char       where rvarT ~StdUniform = boundedEnumStdUniform

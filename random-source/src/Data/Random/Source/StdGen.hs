@@ -14,9 +14,9 @@
 module Data.Random.Source.StdGen where
 
 import Data.Random.Internal.Words
-import Data.Random.Source
+import Data.Random.Internal.Source
+import Data.Random.Internal.Prim
 import System.Random
-import Control.Monad.Prompt
 import Control.Monad.State
 import qualified Control.Monad.ST.Strict as S
 import qualified Control.Monad.State.Strict as S
@@ -57,7 +57,6 @@ getRandomPrimFromStdGenIO = getPrimWhere supported genPrim
         supported PrimWord64            = True
         supported PrimDouble            = True
         supported (PrimNByteInteger _)  = True
-        supported _                     = False
         
         -- based on reading the source of the "random" library's implementation, I do
         -- not believe that the randomRIO (0,1) implementation for Double is capable of producing
@@ -73,7 +72,6 @@ getRandomPrimFromStdGenIO = getPrimWhere supported genPrim
         genPrim PrimWord64           = fmap fromInteger                   (randomRIO (0, 0xffffffffffffffff))
         genPrim PrimDouble           = fmap (wordToDouble . fromInteger)  (randomRIO (0, 0xffffffffffffffff))
         genPrim (PrimNByteInteger n) = randomRIO (0, iterate (*256) 1 !! n)
-        genPrim p = error ("getRandomPrimFromStdGenIO: genPrim called for unsupported prim " ++ show p)
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
@@ -93,7 +91,6 @@ getRandomPrimFromRandomGenRef ref = getPrimWhere supported genPrim
         supported PrimWord64            = True
         supported PrimDouble            = True
         supported (PrimNByteInteger _)  = True
-        supported _                     = False
         
         {-# INLINE genPrim #-}
         genPrim :: forall t. Prim t -> m t
@@ -103,7 +100,6 @@ getRandomPrimFromRandomGenRef ref = getPrimWhere supported genPrim
         genPrim PrimWord64           = getThing (randomR (0, 0xffffffffffffffff))  (fromInteger)
         genPrim PrimDouble           = getThing (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
         genPrim (PrimNByteInteger n) = getThing (randomR (0, iterate (*256) 1 !! n)) (id :: Integer -> Integer)
-        genPrim p = error ("getRandomPrimFromRandomGenRef: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
         getThing :: forall b t. (g -> (b, g)) -> (b -> t) -> m t
@@ -132,7 +128,6 @@ getRandomPrimFromRandomGenState = getPrimWhere supported genPrim
         supported PrimWord64            = True
         supported PrimDouble            = True
         supported (PrimNByteInteger _)  = True
-        supported _                     = False
         
         {-# INLINE genPrim #-}
         genPrim :: forall t. Prim t -> m t
@@ -146,7 +141,6 @@ getRandomPrimFromRandomGenState = getPrimWhere supported genPrim
              negative number in the case where randomIvalInteger returns minBound::Int32. -}
 --        genPrim PrimDouble = getThing (randomR (0, 1.0))  (id)
         genPrim (PrimNByteInteger n) = getThing (randomR (0, iterate (*256) 1 !! n)) id
-        genPrim p = error ("getRandomPrimFromRandomGenState: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
         getThing :: forall b t. (g -> (b, g)) -> (b -> t) -> m t

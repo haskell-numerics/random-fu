@@ -5,11 +5,9 @@ module Data.Random.RVar
     ) where
 
 import Data.Random.Lift
-import Data.Random.Source
+import Data.Random.Internal.Source
 import Data.RVar hiding (runRVar, runRVarT)
 import qualified Data.RVar as R
-import qualified Data.Functor.Identity as T
-import qualified Control.Monad.Identity as MTL
 
 -- |\"Run\" an 'RVar' - samples the random variable from the provided
 -- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will

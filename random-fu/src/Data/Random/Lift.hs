@@ -3,7 +3,6 @@
 module Data.Random.Lift where
 
 import Data.RVar
-import Data.Random.Source (getRandomPrim)
 import qualified Data.Functor.Identity as T
 import qualified Control.Monad.Trans.Class as T
 
@@ -41,7 +40,7 @@ instance Monad m => Lift T.Identity m where
     lift = return . T.runIdentity
 
 instance Lift (RVarT T.Identity) (RVarT m) where
-    lift x = runRVar x getRandomPrim
+    lift x = runRVar x getPrim
 
 #ifndef MTL2
 

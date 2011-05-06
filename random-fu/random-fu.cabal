@@ -96,7 +96,7 @@ Library
   
   build-depends:        monad-loops >= 0.3.0.1,
                         random-shuffle,
-                        random-source == 0.2.*,
+                        random-source == 0.3.*,
                         rvar == 0.2.*,
                         syb,
                         template-haskell,

@@ -36,7 +36,7 @@ shuffleNofM :: Int -> Int -> [a] -> RVar [a]
 shuffleNofM 0 _ _ = return []
 shuffleNofM n m xs
     | n > m     = error "shuffleNofM: n > m"
-    | otherwise = do
+    | n >= 0    = do
         is <- sequence [uniform 0 i | i <- take n [m-1, m-2 ..1]]
         return (take n $ SRS.shuffle (take m xs) is)
 shuffleNofM _ _ _ = error "shuffleNofM: negative length specified"

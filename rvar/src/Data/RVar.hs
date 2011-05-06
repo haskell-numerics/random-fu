@@ -16,14 +16,15 @@
 -- any of the 'Distribution' instances - they all are defined in terms of
 -- 'RVar's.
 module Data.RVar
-    ( RVar
+    ( Prim(..), getPrim
+    , RVar
     , runRVar
     , RVarT
     , runRVarT
     ) where
 
 
-import Data.Random.Source (Prim, MonadRandom(..))
+import Data.Random.Internal.Source (Prim(..), MonadRandom(..))
 
 import qualified Control.Monad.Trans.Class as T
 import Control.Applicative
@@ -33,6 +34,9 @@ import qualified Control.Monad.IO.Class as T
 import qualified Control.Monad.Trans as MTL
 import qualified Control.Monad.Identity as MTL
 import qualified Data.Functor.Identity as T
+
+getPrim :: Prim a -> RVarT m a
+getPrim = RVarT . prompt
 
 -- |An opaque type modeling a \"random variable\" - a value 
 -- which depends on the outcome of some random event.  'RVar's 

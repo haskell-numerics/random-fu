@@ -6,7 +6,8 @@ import Data.Char
 import Data.Generics
 import Data.List
 import Data.Maybe
-import Data.Random.Source.Prim
+import Data.Random.Internal.Source
+import Data.Random.Internal.Prim
 import Data.Word
 import Language.Haskell.TH
     ( Q
@@ -247,8 +248,8 @@ monadRandom instQ declsQ = do
     getPrim     <- newName "getPrim"
     getPrimD    <- mkGetPrimD getPrim cxt m decls
     
-    let getRandomPrim = mkName "getRandomPrim"
-        getRandomPrimD = ValD (VarP getRandomPrim)
+    let getRandomPrimName = 'getRandomPrim
+        getRandomPrimD = ValD (VarP getRandomPrimName)
             (NormalB (foldl1 AppE [VarE 'getPrimWhere, VarE supported, VarE getPrim]))
             (supportedD ++ getPrimD)
     
@@ -274,8 +275,8 @@ randomSource instQ declsQ = do
     getPrimFromD    <- mkGetPrimFromD getPrimFrom cxt m s decls
     
     src  <- newName "src"
-    let getRandomPrimFrom = mkName "getRandomPrimFrom"
-        getRandomPrimFromD = FunD getRandomPrimFrom
+    let getRandomPrimFromName = 'getRandomPrimFrom
+        getRandomPrimFromD = FunD getRandomPrimFromName
             [ Clause [VarP src]
                 (NormalB (AppE (AppE (VarE 'getPrimWhere) (VarE supported)) (AppE (VarE getPrimFrom) (VarE src))))
                 (supportedD ++ getPrimFromD)

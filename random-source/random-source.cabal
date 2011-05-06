@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.2.0.1
+version:                0.3
 stability:              provisional
 
 cabal-version:          >= 1.2
@@ -31,7 +31,8 @@ Library
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
                         Data.Random.Internal.Words
-  other-modules:        Data.Random.Source.Prim
+                        Data.Random.Internal.Source
+  other-modules:        Data.Random.Internal.Prim
                         Data.Random.Source.TH
     
   if flag(mtl2)

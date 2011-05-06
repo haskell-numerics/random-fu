@@ -23,18 +23,11 @@ module Data.Random.Source.PureMT
     ( PureMT, newPureMT, pureMT
     ) where
 
-import Data.Random.Source
-import Data.Random.Source
-
-import System.Random.Mersenne.Pure64
-
-import Data.StateRef
-
 import Control.Monad.State
-#ifndef MTL2
-import qualified Control.Monad.ST.Strict as S
-#endif
 import qualified Control.Monad.State.Strict as S
+import Data.Random.Source
+import Data.StateRef
+import System.Random.Mersenne.Pure64
 
 {-# INLINE withMTRef #-}
 withMTRef :: (Monad m, ModifyRef sr m PureMT) => (PureMT -> (t, PureMT)) -> sr -> m t

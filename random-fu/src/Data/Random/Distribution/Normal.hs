@@ -138,7 +138,7 @@ realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggu
         
         getIU :: (Num a, Distribution Uniform a) => RVarT m (Int, a)
         getIU = do
-            i <- getRandomPrim PrimWord8
+            i <- getRandomWord8
             u <- uniformT (-1) 1
             return (fromIntegral i .&. (2^p-1), u)
 
@@ -164,7 +164,7 @@ doubleStdNormalZ = mkZiggurat_ True
     where 
         getIU :: RVarT m (Int, Double)
         getIU = do
-            !w <- getRandomPrim PrimWord64
+            !w <- getRandomWord64
             let (u,i) = wordToDoubleWithExcess w
             return $! (fromIntegral i .&. (doubleStdNormalC-1), u+u-1)
 
@@ -190,7 +190,7 @@ floatStdNormalZ = mkZiggurat_ True
     where
         getIU :: RVarT m (Int, Float)
         getIU = do
-            !w <- getRandomPrim PrimWord32
+            !w <- getRandomWord32
             let (u,i) = word32ToFloatWithExcess w
             return (fromIntegral i .&. (floatStdNormalC-1), u+u-1)
 
