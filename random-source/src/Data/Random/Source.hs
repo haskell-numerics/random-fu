@@ -26,7 +26,7 @@ import Data.Word
 
 import Data.Random.Internal.Source
 import Data.Random.Internal.Prim
-import Data.Random.Source.TH
+import Data.Random.Internal.TH
 
 getRandomWord8 :: MonadRandom m => m Word8
 getRandomWord8 = getRandomPrim PrimWord8

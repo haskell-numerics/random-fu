@@ -34,7 +34,7 @@ Library
                         Data.Random.Internal.Words
                         Data.Random.Internal.Source
   other-modules:        Data.Random.Internal.Prim
-                        Data.Random.Source.TH
+                        Data.Random.Internal.TH
     
   if flag(mtl2)
     build-depends:      mtl == 2.*

@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, GADTs, RankNTypes #-}
-module Data.Random.Source.TH (monadRandom, randomSource) where
+module Data.Random.Internal.TH (monadRandom, randomSource) where
 
 import Control.Monad
 import Data.Char
@@ -41,15 +41,11 @@ methodName GetNByteInteger  = mkName "getNByteInteger"
 
 nameToMethod :: Name -> Maybe Method
 nameToMethod name
-    | maybe True (== "Data.Random.Source.TH") (nameModule name)
-    = lookup (mkName (nameBase name))
+    = lookup name
         [ (n, m) 
         | m <- allMethods
         , let n = methodName m
         ]
-    
-    | otherwise
-    = Nothing
 
 maybeForall :: Cxt -> [Name] -> Type -> Type
 maybeForall _   [] = id
