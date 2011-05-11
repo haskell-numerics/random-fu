@@ -45,54 +45,47 @@ withMTState thing = do
 #ifndef MTL2
 
 $(monadRandom
-    [d| instance MonadRandom (State PureMT) |]
-    [d|
-        getWord64 = withMTState randomWord64
-        getDouble = withMTState randomDouble
+    [d| instance MonadRandom (State PureMT) |] where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
      |])
 
 $(monadRandom
-    [d| instance MonadRandom (S.State PureMT) |]
-    [d|
-        getWord64 = withMTState randomWord64
-        getDouble = withMTState randomDouble
+    [d| instance MonadRandom (S.State PureMT) where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
      |])
 
 #endif
 
 $(randomSource
-    [d| instance (Monad m1, ModifyRef (Ref m2 PureMT) m1 PureMT) => RandomSource m1 (Ref m2 PureMT) |]
-    [d|
-        getWord64 = withMTRef randomWord64
-        getDouble = withMTRef randomDouble
+    [d| instance (Monad m1, ModifyRef (Ref m2 PureMT) m1 PureMT) => RandomSource m1 (Ref m2 PureMT) where
+            getRandomWord64From = withMTRef randomWord64
+            getRandomDoubleFrom = withMTRef randomDouble
     |])
 
 $(monadRandom
-    [d| instance Monad m => MonadRandom (StateT PureMT m) |]
-    [d|
-        getWord64 = withMTState randomWord64
-        getDouble = withMTState randomDouble
+    [d| instance Monad m => MonadRandom (StateT PureMT m) where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
      |])
 
 $(monadRandom
-    [d| instance Monad m => MonadRandom (S.StateT PureMT m) |]
-    [d|
-        getWord64 = withMTState randomWord64
-        getDouble = withMTState randomDouble
+    [d| instance Monad m => MonadRandom (S.StateT PureMT m) where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
      |])
 
 $(randomSource
-    [d| instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) |]
-    [d|
-        getWord64 = withMTRef randomWord64
-        getDouble = withMTRef randomDouble
+    [d| instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
+            getRandomWord64From = withMTRef randomWord64
+            getRandomDoubleFrom = withMTRef randomDouble
      |])
 
 $(randomSource
-    [d| instance (Monad m, ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) |]
-    [d|
-        getWord64 = withMTRef randomWord64
-        getDouble = withMTRef randomDouble
+    [d| instance (Monad m, ModifyRef (STRef s PureMT) m PureMT) => RandomSource m (STRef s PureMT) where
+            getRandomWord64From = withMTRef randomWord64
+            getRandomDoubleFrom = withMTRef randomDouble
      |])
 
 -- Note that this instance is probably a Bad Idea.  STM allows random variables

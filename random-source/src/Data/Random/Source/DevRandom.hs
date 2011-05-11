@@ -33,18 +33,17 @@ dev DevRandom  = devRandom
 dev DevURandom = devURandom
 
 $(randomSource
-    [d| instance RandomSource IO DevRandom |]
-    [d|
-            getWord8 src = allocaBytes 1 $ \buf -> do
+    [d| instance RandomSource IO DevRandom where
+            getRandomWord8From src = allocaBytes 1 $ \buf -> do
                 1 <- hGetBuf (dev src) buf  1
                 peek buf
-            getWord16 src = allocaBytes 2 $ \buf -> do
+            getRandomWord16From src = allocaBytes 2 $ \buf -> do
                 2 <- hGetBuf (dev src) buf  2
                 peek (castPtr buf)
-            getWord32 src = allocaBytes 4 $ \buf -> do
+            getRandomWord32From src = allocaBytes 4 $ \buf -> do
                 4 <- hGetBuf (dev src) buf  4
                 peek (castPtr buf)
-            getWord64 src = allocaBytes 8 $ \buf -> do
+            getRandomWord64From src = allocaBytes 8 $ \buf -> do
                 8 <- hGetBuf (dev src) buf  8
                 peek (castPtr buf)
      |])

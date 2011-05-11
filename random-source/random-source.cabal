@@ -43,6 +43,7 @@ Library
     build-depends:      mtl == 1.*
   
   build-depends:        base >= 4 && <5,
+                        flexible-defaults,
                         mersenne-random-pure64,
                         MonadPrompt,
                         mwc-random,

@@ -17,21 +17,19 @@ import System.Random.MWC
 import Control.Monad.ST
 
 $(randomSource
-    [d| instance RandomSource (ST s) (Gen s) |]
-    [d|
-            getWord8  = uniform
-            getWord16 = uniform
-            getWord32 = uniform
-            getWord64 = uniform
-            getDouble = fmap wordToDouble . uniform
+    [d| instance RandomSource (ST s) (Gen s) where
+            getRandomWord8From  = uniform
+            getRandomWord16From = uniform
+            getRandomWord32From = uniform
+            getRandomWord64From = uniform
+            getRandomDoubleFrom = fmap wordToDouble . uniform
      |])
 
 $(randomSource
-    [d| instance RandomSource IO (Gen RealWorld) |]
-    [d|
-            getWord8  = uniform
-            getWord16 = uniform
-            getWord32 = uniform
-            getWord64 = uniform
-            getDouble = fmap wordToDouble . uniform
+    [d| instance RandomSource IO (Gen RealWorld) where
+            getRandomWord8From  = uniform
+            getRandomWord16From = uniform
+            getRandomWord32From = uniform
+            getRandomWord64From = uniform
+            getRandomDoubleFrom = fmap wordToDouble . uniform
      |])

@@ -1,23 +1,22 @@
-{-# LANGUAGE TemplateHaskell, GADTs, RankNTypes #-}
+{-# LANGUAGE TemplateHaskell, GADTs #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Data.Random.Internal.TH (monadRandom, randomSource) where
 
-import Control.Monad
-import Data.Char
+import Data.Bits
 import Data.Generics
 import Data.List
 import Data.Maybe
+import Data.Monoid
 import Data.Random.Internal.Source
-import Data.Random.Internal.Prim
-import Data.Word
+import Data.Random.Internal.Words
 import Language.Haskell.TH
-    ( Q
-    , Name, mkName, newName, nameBase, nameModule
-    , Exp(..), Match(..), Pat(..), Lit(..)
-    , Dec(..), Body(..), Clause(..)
-    , Type(..), TyVarBndr(..), Cxt)
+import qualified Language.Haskell.TH.FlexibleDefaults as FD
+
+import Control.Monad.Reader
 
 data Method
-    = GetWord8
+    = GetPrim
+    | GetWord8
     | GetWord16
     | GetWord32
     | GetWord64
@@ -28,255 +27,429 @@ data Method
 allMethods :: [Method]
 allMethods = [minBound .. maxBound]
 
-allMethodNames :: [Name]
-allMethodNames = map methodName allMethods
+data Context
+    = Generic
+    | RandomSource
+    | MonadRandom
+    deriving (Eq, Ord, Enum, Bounded, Read, Show)
 
-methodName :: Method -> Name
-methodName GetWord8         = mkName "getWord8"
-methodName GetWord16        = mkName "getWord16"
-methodName GetWord32        = mkName "getWord32"
-methodName GetWord64        = mkName "getWord64"
-methodName GetDouble        = mkName "getDouble"
-methodName GetNByteInteger  = mkName "getNByteInteger"
+methodNameBase :: Context -> Method -> String
+methodNameBase c n = nameBase (methodName c n)
 
-nameToMethod :: Name -> Maybe Method
-nameToMethod name
+methodName :: Context -> Method -> Name
+methodName Generic      GetPrim          = mkName "getPrim"
+methodName Generic      GetWord8         = mkName "getWord8"
+methodName Generic      GetWord16        = mkName "getWord16"
+methodName Generic      GetWord32        = mkName "getWord32"
+methodName Generic      GetWord64        = mkName "getWord64"
+methodName Generic      GetDouble        = mkName "getDouble"
+methodName Generic      GetNByteInteger  = mkName "getNByteInteger"
+methodName RandomSource GetPrim          = 'getRandomPrimFrom
+methodName RandomSource GetWord8         = 'getRandomWord8From
+methodName RandomSource GetWord16        = 'getRandomWord16From
+methodName RandomSource GetWord32        = 'getRandomWord32From
+methodName RandomSource GetWord64        = 'getRandomWord64From
+methodName RandomSource GetDouble        = 'getRandomDoubleFrom
+methodName RandomSource GetNByteInteger  = 'getRandomNByteIntegerFrom
+methodName MonadRandom  GetPrim          = 'getRandomPrim
+methodName MonadRandom  GetWord8         = 'getRandomWord8
+methodName MonadRandom  GetWord16        = 'getRandomWord16
+methodName MonadRandom  GetWord32        = 'getRandomWord32
+methodName MonadRandom  GetWord64        = 'getRandomWord64
+methodName MonadRandom  GetDouble        = 'getRandomDouble
+methodName MonadRandom  GetNByteInteger  = 'getRandomNByteInteger
+
+isMethodName :: Context -> Name -> Bool
+isMethodName c n = isJust (nameToMethod c n)
+
+nameToMethod :: Context -> Name -> Maybe Method
+nameToMethod c name
     = lookup name
         [ (n, m) 
         | m <- allMethods
-        , let n = methodName m
+        , let n = methodName c m
         ]
 
-maybeForall :: Cxt -> [Name] -> Type -> Type
-maybeForall _   [] = id
-maybeForall cxt vs = ForallT (map PlainTV vs) cxt
 
-arrow :: Type -> Type -> Type
-arrow x y = AppT (AppT ArrowT x) y
+-- 'Context'-sensitive version of the FlexibleDefaults DSL
+scoreBy :: (a -> b) -> ReaderT Context (FD.Defaults a) t -> ReaderT Context (FD.Defaults b) t
+scoreBy f = mapReaderT (FD.scoreBy f)
 
-arrows :: [Type] -> Type
-arrows = foldr1 arrow
+method :: Method -> ReaderT Context (FD.Function s) t -> ReaderT Context (FD.Defaults s) t
+method m f = do
+    c <- ask
+    mapReaderT (FD.function (methodNameBase c m)) f
 
-implementedMethods :: [Dec] -> [Method]
-implementedMethods decls = nub $ catMaybes
-    [ nameToMethod name
-    | decl <- decls
-    , name <- declaredValueNames decl
-    ]
+requireMethod :: Method -> ReaderT Context (FD.Defaults s) ()
+requireMethod m = do
+    c <- ask
+    lift (FD.requireFunction (methodNameBase c m))
 
-declaredValueNames :: Dec -> [Name]
-declaredValueNames (FunD n _)    = [n]
-declaredValueNames (ValD p _ _)  = matchedNames p
-declaredValueNames _ = []
+implementation :: ReaderT Context (FD.Implementation s) (Q [Dec]) -> ReaderT Context (FD.Function s) ()
+implementation = mapReaderT FD.implementation
 
-matchedNames :: Pat -> [Name]
-matchedNames (VarP n)           = [n]
-matchedNames (TupP ps)          = concatMap matchedNames ps
-matchedNames (InfixP p1 _ p2)   = matchedNames p1 ++ matchedNames p2
-matchedNames (TildeP p)         = matchedNames p
-matchedNames (BangP p)          = matchedNames p
-matchedNames (AsP n p)          = n : matchedNames p
-matchedNames (RecP _ fs)        = concatMap (matchedNames . snd) fs
-matchedNames (ListP ps)         = concatMap matchedNames ps
-matchedNames (SigP p _)         = matchedNames p
-matchedNames (ViewP _ p)        = matchedNames p
-matchedNames _                  = []
+score :: s -> ReaderT Context (FD.Implementation s) ()
+score = lift . FD.score
 
-monadRandomDeclSigs :: Cxt -> Type -> [Name] -> [Method] -> [Dec]
-monadRandomDeclSigs  cxt m   vs methods = declSigsBy id        cxt m vs methods
-randomSourceDeclSigs :: Cxt -> Type -> Type -> [Name] -> [Method] -> [Dec]
-randomSourceDeclSigs cxt m s vs methods = declSigsBy (arrow s) cxt m vs methods
+cost :: Num s => s -> ReaderT Context (FD.Implementation s) ()
+cost = lift . FD.cost
 
-declSigsBy :: (Type -> Type)
-             -> Cxt
-             -> Type
-             -> [Name]
-             -> [Method]
-             -> [Dec]
-declSigsBy f cxt m vs methods =
-    [ SigD n . maybeForall cxt vs . f . methodSig $ method
-    | method <- methods
-    , let n = methodName method
-    ] where
-        methodSig GetWord8         = arrows [AppT m (ConT ''Word8)]
-        methodSig GetWord16        = arrows [AppT m (ConT ''Word16)]
-        methodSig GetWord32        = arrows [AppT m (ConT ''Word32)]
-        methodSig GetWord64        = arrows [AppT m (ConT ''Word64)]
-        methodSig GetDouble        = arrows [AppT m (ConT ''Double)]
-        methodSig GetNByteInteger  = arrows [ConT ''Int, AppT m (ConT ''Integer)]
+dependsOn :: Method -> ReaderT Context (FD.Implementation s) ()
+dependsOn m = do
+    c <- ask
+    lift (FD.dependsOn (methodNameBase c m))
 
-primPat :: Bool -> Method -> Pat
-primPat _    GetWord8         = ConP 'PrimWord8        []
-primPat _    GetWord16        = ConP 'PrimWord16       []
-primPat _    GetWord32        = ConP 'PrimWord32       []
-primPat _    GetWord64        = ConP 'PrimWord64       []
-primPat _    GetDouble        = ConP 'PrimDouble       []
-primPat used GetNByteInteger  = ConP 'PrimNByteInteger [if used then VarP (mkName "i") else WildP]
+replace :: (a -> Maybe a) -> (a -> a)
+replace = ap fromMaybe
 
-primPatArgs :: Method -> [Exp]
-primPatArgs GetWord8         = []
-primPatArgs GetWord16        = []
-primPatArgs GetWord32        = []
-primPatArgs GetWord64        = []
-primPatArgs GetDouble        = []
-primPatArgs GetNByteInteger  = [VarE (mkName "i")]
+replaceMethodName :: (Method -> Name) -> Name -> Name
+replaceMethodName f = replace (fmap f . nameToMethod Generic)
 
-generalizeVars :: Data a => a -> a
-generalizeVars = everywhere (mkT generalizeVarName)
+changeContext :: Context -> Context -> Name -> Name
+changeContext c1 c2 = replace (fmap (methodName c2) . nameToMethod c1)
 
-tyVars :: Data a => a -> [Name]
-tyVars = nub . everything (++) (mkQ [] (\it -> if isTyVar it then [it] else []))
+-- map all occurrences of generic method names to the proper local ones
+-- and introduce a 'src' parameter where needed if the Context is RandomSource
+specialize :: Monad m => Q [Dec] -> ReaderT Context m (Q [Dec])
+specialize decQ = do
+    c <- ask
+    let specializeDec = everywhere (mkT (changeContext Generic c))
+    if c == RandomSource
+        then return $ do
+                src <- newName "_src"
+                decs <- decQ
+                return (map (addSrcParam src) . specializeDec $ decs)
+        else return (fmap specializeDec decQ)
 
-isTyVar :: Name -> Bool
-isTyVar n = 
-    let base = nameBase n
-     in case nameModule n of
-            Nothing 
-                | not (null base) && isLower (head base)
-                -> True
-            _  -> False
-
-generalizeVarName :: Name -> Name
-generalizeVarName n 
-    | isTyVar n = mkName (nameBase n)
-    | otherwise = n
-
--- reify a (Method -> Bool) predicate to a (Prim a -> Bool) predicate.
-mkSupportedD :: Name -> [Method] -> Q [Dec]
-mkSupportedD name methods = do
-    a    <- newName "a"
-    let supportedT = ForallT [PlainTV a] [] 
-            (arrows [AppT (ConT ''Prim) (VarT a), ConT ''Bool])
-    
-    return
-        [ SigD name supportedT
-        , FunD name 
-            [ Clause [primPat False m] (NormalB implemented) []
-            | m <- allMethods
-            , let implemented 
-                    | m `elem` methods  = ConE 'True
-                    | otherwise         = ConE 'False
-            ]
-        ]
-
-mkGetPrimFromD :: Name -> Cxt -> Type -> Type -> [Dec] -> Q [Dec]
-mkGetPrimFromD name cxt m s decls = do
-    a    <- newName "a"
-    let msVars = nub (tyVars m ++ tyVars s)
+addSrcParam :: Name -> Dec -> Dec
+addSrcParam src
+    = everywhere (mkT expandDecs) 
+    . everywhere (mkT expandExps)
+    where
+        srcP = VarP src
+        srcE = VarE src
         
-        getPrimFromT = ForallT (map PlainTV (a : msVars)) cxt 
-            (arrows [s, AppT (ConT ''Prim) (VarT a), AppT m (VarT a)])
-    
-    p    <- newName "p"
-    src  <- newName "src"
-    
-    let methods = implementedMethods decls
-        exhaustive = all (`elem` methods) allMethods
-        makeExhaustive
-            | exhaustive = id
-            | otherwise  = (++ [defaultCase])
-        thErrorString = "Error in Template Haskell function " ++ show 'randomSource
-        defaultCase = Match WildP (NormalB (AppE (VarE 'error) (LitE (StringL thErrorString)))) []
-    
-    return
-        [ SigD name getPrimFromT
-        , FunD name 
-            [ Clause [VarP src, VarP p] 
-                (NormalB (CaseE (VarE p)
-                    ( makeExhaustive
-                        [ Match (primPat True method)
-                            (NormalB (foldl AppE (VarE (methodName method)) (VarE src : primPatArgs method)))
-                            []
-                            | method <- methods
-                        ])))
-                (randomSourceDeclSigs cxt m s msVars methods ++ decls)
-            ]
-        ]
-
-mkGetPrimD :: Name -> Cxt -> Type -> [Dec] -> Q [Dec]
-mkGetPrimD name cxt m decls = do
-    a    <- newName "a"
-    let mVars = tyVars m
+        expandDecs (ValD (VarP n) body decs)
+            | isMethodName RandomSource n
+            = FunD n [Clause [srcP] body decs]
+        expandDecs (FunD n clauses)
+            | isMethodName RandomSource n
+            = FunD n [Clause (srcP : ps) body decs | Clause ps body decs <- clauses]
         
-        getPrimFromT = ForallT (map PlainTV (a : mVars)) cxt 
-            (arrows [AppT (ConT ''Prim) (VarT a), AppT m (VarT a)])
-    
-    p    <- newName "p"
-    
-    let methods = implementedMethods decls
-        exhaustive = all (`elem` methods) allMethods
-        makeExhaustive
-            | exhaustive = id
-            | otherwise  = (++ [defaultCase])
-        thErrorString = "Error in Template Haskell function " ++ show 'monadRandom
-        defaultCase = Match WildP (NormalB (AppE (VarE 'error) (LitE (StringL thErrorString)))) []
-    
-    return
-        [ SigD name getPrimFromT
-        , FunD name 
-            [ Clause [VarP p] 
-                (NormalB (CaseE (VarE p)
-                    ( makeExhaustive [ Match (primPat True method)
-                            (NormalB (foldl AppE (VarE (methodName method)) (primPatArgs method)))
-                            []
-                        | method <- methods
-                        ])))
-                (monadRandomDeclSigs cxt m mVars methods ++ decls)
-            ]
-        ]
+        expandDecs other = other
+        
+        expandExps e@(VarE n)
+            | isMethodName RandomSource n   = AppE e srcE
+        expandExps other = other
 
-monadRandom :: Q [Dec] -> Q [Dec] -> Q [Dec]
-monadRandom instQ declsQ = do
-    inst <- instQ
-    (cxt, ty, m) <- case inst of
-            [InstanceD cxt ty@(AppT (ConT cls) m) []]
-                | nameBase cls == "MonadRandom" -> return (generalizeVars cxt, generalizeVars ty, generalizeVars m)
-            _ -> fail "monadRandom: first parameter must consist solely of an empty MonadRandom instance declaration"
-    
-    decls <- declsQ
-    let methods = implementedMethods decls
-    when (null methods) $
-        fail ("monadRandom: second parameter must define at least one of: " ++ show allMethodNames)
-    
-    supported   <- newName "supported"
-    supportedD  <- mkSupportedD supported methods
-    
-    getPrim     <- newName "getPrim"
-    getPrimD    <- mkGetPrimD getPrim cxt m decls
-    
-    let getRandomPrimName = 'getRandomPrim
-        getRandomPrimD = ValD (VarP getRandomPrimName)
-            (NormalB (foldl1 AppE [VarE 'getPrimWhere, VarE supported, VarE getPrim]))
-            (supportedD ++ getPrimD)
-    
-    return [InstanceD cxt ty [getRandomPrimD]]
+-- dummy expressions which will be remapped by 'specialize'
+dummy :: Method -> ExpQ
+dummy = return . VarE . methodName Generic
 
-randomSource :: Q [Dec] -> Q [Dec] -> Q [Dec]
-randomSource instQ declsQ = do
-    inst <- instQ
-    (cxt, ty, m, s) <- case inst of
-            [InstanceD cxt ty@(AppT (AppT (ConT cls) m) s) []]
-                | nameBase cls == "RandomSource" -> return (generalizeVars cxt, generalizeVars ty, generalizeVars m, generalizeVars s)
-            _ -> fail "randomSource: first parameter must consist solely of an empty RandomSource instance declaration"
-    
-    decls <- declsQ
-    let methods = implementedMethods decls
-    when (null methods) $
-        fail ("randomSource: second parameter must define at least one of: " ++ show allMethodNames)
-    
-    supported       <- newName "supported"
-    supportedD      <- mkSupportedD supported methods
-    
-    getPrimFrom     <- newName "getPrimFrom"
-    getPrimFromD    <- mkGetPrimFromD getPrimFrom cxt m s decls
-    
-    src  <- newName "src"
-    let getRandomPrimFromName = 'getRandomPrimFrom
-        getRandomPrimFromD = FunD getRandomPrimFromName
-            [ Clause [VarP src]
-                (NormalB (AppE (AppE (VarE 'getPrimWhere) (VarE supported)) (AppE (VarE getPrimFrom) (VarE src))))
-                (supportedD ++ getPrimFromD)
-            ]
-    
-    return [InstanceD cxt ty [getRandomPrimFromD]]
+getPrim, getWord8, getWord16, 
+    getWord32, getWord64, getDouble, 
+    getNByteInteger :: ExpQ
+getPrim             = dummy GetPrim
+getWord8            = dummy GetWord8
+getWord16           = dummy GetWord16
+getWord32           = dummy GetWord32
+getWord64           = dummy GetWord64
+getDouble           = dummy GetDouble
+getNByteInteger     = dummy GetNByteInteger
 
+intIs64 :: Bool
+intIs64 = toInteger (maxBound :: Int) > 2^32
+
+-- The defaulting rules for RandomSource and MonadRandom.  Costs are rates of
+-- entropy waste (bits consumed per bit requested) plus the occasional ad-hoc
+-- penalty where it seems appropriate.
+
+-- TODO: figure out a clean way to break these up for individual testing.
+-- Also analyze to see which of these can never be selected (I suspect that set is non-empty)
+defaults :: Context -> FD.Defaults (Sum Double) ()
+defaults = runReaderT $
+    scoreBy Sum $ do
+        method GetPrim $ do
+            implementation $ do
+                mapM_ dependsOn (allMethods \\ [GetPrim])
+                specialize
+                    [d| getPrim PrimWord8               = $getWord8
+                        getPrim PrimWord16              = $getWord16
+                        getPrim PrimWord32              = $getWord32
+                        getPrim PrimWord64              = $getWord64
+                        getPrim PrimDouble              = $getDouble
+                        getPrim (PrimNByteInteger n)    = $getNByteInteger n
+                     |]
+        
+        scoreBy (/8) $
+            method GetWord8 $ do
+                implementation $ do
+                    dependsOn GetPrim
+                    specialize [d| getWord8 = $getPrim PrimWord8 |]
+                
+                implementation $ do
+                    cost 1
+                    dependsOn GetNByteInteger
+                    specialize [d| getWord8 = liftM fromInteger ($getNByteInteger 1) |]
+                
+                implementation $ do
+                    cost 8
+                    dependsOn GetWord16
+                    specialize [d| getWord8 = liftM fromIntegral $getWord16 |]
+                
+                implementation $ do
+                    cost 24
+                    dependsOn GetWord32
+                    specialize [d| getWord8 = liftM fromIntegral $getWord32 |]
+                
+                implementation $ do
+                    cost 56
+                    dependsOn GetWord64
+                    specialize [d| getWord8 = liftM fromIntegral $getWord64 |]
+                
+                implementation $ do
+                    cost 64
+                    dependsOn GetDouble
+                    specialize [d| getWord8 = liftM (truncate . (256*)) $getDouble |]
+                
+        scoreBy (/16) $
+            method GetWord16 $ do
+                implementation $ do
+                    dependsOn GetPrim
+                    specialize [d| getWord16 = $getPrim PrimWord16 |]
+                
+                implementation $ do
+                    cost 1
+                    dependsOn GetNByteInteger
+                    specialize [d| getWord16 = liftM fromInteger ($getNByteInteger 2) |]
+                
+                implementation $ do
+                    dependsOn GetWord8
+                    specialize 
+                        [d|
+                            getWord16 = do
+                                a <- $getWord8
+                                b <- $getWord8
+                                return (buildWord16 a b)
+                         |]
+                
+                implementation $ do
+                    cost 16
+                    dependsOn GetWord32
+                    specialize [d| getWord16 = liftM fromIntegral $getWord32 |]
+                
+                implementation $ do
+                    cost 48
+                    dependsOn GetWord64
+                    specialize [d| getWord16 = liftM fromIntegral $getWord64 |]
+                
+                implementation $ do
+                    cost 64
+                    dependsOn GetDouble
+                    specialize [d| getWord16 = liftM (truncate . (65536*)) $getDouble |]
+        
+        scoreBy (/32) $
+            method GetWord32 $ do
+                implementation $ do
+                    dependsOn GetPrim
+                    specialize [d| getWord32 = $getPrim PrimWord32 |]
+                
+                implementation $ do
+                    cost 1
+                    dependsOn GetNByteInteger
+                    specialize [d| getWord32 = liftM fromInteger ($getNByteInteger 4) |]
+                
+                implementation $ do
+                    cost 0.1
+                    dependsOn GetWord8
+                    specialize 
+                        [d|
+                            getWord32 = do
+                                a <- $getWord8
+                                b <- $getWord8
+                                c <- $getWord8
+                                d <- $getWord8
+                                return (buildWord32 a b c d)
+                         |]
+                
+                implementation $ do
+                    dependsOn GetWord16
+                    specialize 
+                        [d|
+                            getWord32 = do
+                                a <- $getWord16
+                                b <- $getWord16
+                                return (buildWord32' a b)
+                         |]
+                
+                implementation $ do
+                    cost 32
+                    dependsOn GetWord64
+                    specialize [d| getWord32 = liftM fromIntegral $getWord64 |]
+                
+                implementation $ do
+                    cost 64
+                    dependsOn GetDouble
+                    specialize [d| getWord32 = liftM (truncate . (4294967296*)) $getDouble |]
+        
+        scoreBy (/64) $
+            method GetWord64 $ do
+                implementation $ do
+                    dependsOn GetPrim
+                    specialize [d| getWord64 = $getPrim PrimWord64 |]
+                
+                implementation $ do
+                    cost 1
+                    dependsOn GetNByteInteger
+                    specialize [d| getWord64 = liftM fromInteger ($getNByteInteger 8) |]
+                
+                implementation $ do
+                    cost 0.2
+                    dependsOn GetWord8
+                    specialize 
+                        [d|
+                            getWord64 = do
+                                a <- $getWord8
+                                b <- $getWord8
+                                c <- $getWord8
+                                d <- $getWord8
+                                e <- $getWord8
+                                f <- $getWord8
+                                g <- $getWord8
+                                h <- $getWord8
+                                return (buildWord64 a b c d e f g h)
+                         |]
+                
+                implementation $ do
+                    cost 0.1
+                    dependsOn GetWord16
+                    specialize 
+                        [d|
+                            getWord64 = do
+                                a <- $getWord16
+                                b <- $getWord16
+                                c <- $getWord16
+                                d <- $getWord16
+                                return (buildWord64' a b c d)
+                         |]
+                
+                implementation $ do
+                    dependsOn GetWord32
+                    specialize 
+                        [d|
+                            getWord64 = do
+                                a <- $getWord32
+                                b <- $getWord32
+                                return (buildWord64'' a b)
+                         |]
+        
+        scoreBy (/52) $
+            method GetDouble $ do
+                implementation $ do
+                    dependsOn GetPrim
+                    specialize [d| getDouble = $getPrim PrimDouble |]
+                
+                implementation $ do
+                    cost 12
+                    dependsOn GetWord64
+                    specialize 
+                        [d|
+                            getDouble = do
+                                w <- $getWord64
+                                return (wordToDouble w)
+                         |]
+        
+        method GetNByteInteger $ do
+            implementation $ do
+                dependsOn GetPrim
+                specialize [d| getNByteInteger n = $getPrim (PrimNByteInteger n) |]
+            
+            implementation $ do
+                when intIs64 (cost 1e-2)
+                dependsOn GetWord8
+                dependsOn GetWord16
+                dependsOn GetWord32
+                specialize
+                    [d|
+                        getNByteInteger 1 = do
+                            x <- $getWord8
+                            return $! toInteger x
+                        getNByteInteger 2 = do
+                            x <- $getWord16
+                            return $! toInteger x
+                        getNByteInteger 4 = do
+                            x <- $getWord32
+                            return $! toInteger x
+                        getNByteInteger np4
+                            | np4 > 4 = do
+                                let n = np4 - 4
+                                x <- $getWord32
+                                y <- $(dummy GetNByteInteger) n
+                                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+                        getNByteInteger np2
+                            | np2 > 2 = do
+                                let n = np2 - 2
+                                x <- $getWord16
+                                y <- $(dummy GetNByteInteger) n
+                                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+                        getNByteInteger _ = return 0
+                      |]
+                    
+            implementation $ do
+                when (not intIs64) (cost 1e-2)
+                dependsOn GetWord8
+                dependsOn GetWord16
+                dependsOn GetWord32
+                dependsOn GetWord64
+                specialize
+                    [d|
+                        getNByteInteger 1 = do
+                            x <- $getWord8
+                            return $! toInteger x
+                        getNByteInteger 2 = do
+                            x <- $getWord16
+                            return $! toInteger x
+                        getNByteInteger 4 = do
+                            x <- $getWord32
+                            return $! toInteger x
+                        getNByteInteger 8 = do
+                            x <- $getWord64
+                            return $! toInteger x
+                        getNByteInteger np8
+                            | np8 > 8 = do
+                                let n = np8 - 8
+                                x <- $getWord64
+                                y <- $(dummy GetNByteInteger) n
+                                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+                        getNByteInteger np4
+                            | np4 > 4 = do
+                                let n = np4 - 4
+                                x <- $getWord32
+                                y <- $(dummy GetNByteInteger) n
+                                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+                        getNByteInteger np2
+                            | np2 > 2 = do
+                                let n = np2 - 2
+                                x <- $getWord16
+                                y <- $(dummy GetNByteInteger) n
+                                return $! (toInteger x `shiftL` (n `shiftL` 3)) .|. y
+                        getNByteInteger _ = return 0
+                      |]
+                    
+
+randomSource :: Q [Dec] -> Q [Dec]
+randomSource = FD.withDefaults (defaults RandomSource)
+
+monadRandom :: Q [Dec] -> Q [Dec]
+monadRandom = FD.withDefaults (defaults MonadRandom)
+
+-- -- This is nice in theory, but under GHC 7 it never typechecks; without generalizing the let-bound
+-- -- functions, it gets absurd errors like "cannot match 'm Int' with 'IO t'".  Probably need
+-- -- to mechanically specialize the supplied signature to create a signature for every other
+-- -- let-bound function.
+-- primFunction :: Q Type -> Q [Dec] -> ExpQ
+-- primFunction getPrimType decsQ = do
+--     getPrimSig <- sigD (mkName (methodName Generic GetPrim)) getPrimType
+--     decs <- decsQ >>= FD.implementDefaults (defaults Generic)
+--     f <- getPrim
+--     return (LetE (getPrimSig : decs) f)
