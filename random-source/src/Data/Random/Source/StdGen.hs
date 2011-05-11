@@ -15,7 +15,6 @@ module Data.Random.Source.StdGen where
 
 import Data.Random.Internal.Words
 import Data.Random.Internal.Source
-import Data.Random.Internal.Prim
 import System.Random
 import Control.Monad.State
 import qualified Control.Monad.ST.Strict as S
@@ -47,23 +46,8 @@ instance (Monad m, ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef
     getRandomPrimFrom = getRandomPrimFromRandomGenRef
 
 getRandomPrimFromStdGenIO :: Prim a -> IO a
-getRandomPrimFromStdGenIO = getPrimWhere supported genPrim
+getRandomPrimFromStdGenIO = genPrim
     where 
-        {-# INLINE supported #-}
-        supported :: Prim a -> Bool
-        supported PrimWord8             = True
-        supported PrimWord16            = True
-        supported PrimWord32            = True
-        supported PrimWord64            = True
-        supported PrimDouble            = True
-        supported (PrimNByteInteger _)  = True
-        
-        -- based on reading the source of the "random" library's implementation, I do
-        -- not believe that the randomRIO (0,1) implementation for Double is capable of producing
-        -- the value 0.  Therefore, I'm not using it.  If this is an incorrect reading on
-        -- my part, or if this changes, then feel free to change the implementation.
-        -- Same goes for the other getRandomDouble... functions here.
-
         {-# INLINE genPrim #-}
         genPrim :: Prim a -> IO a
         genPrim PrimWord8            = fmap fromIntegral                  (randomRIO (0, 0xff) :: IO Int)
@@ -81,17 +65,8 @@ getRandomPrimFromStdGenIO = getPrimWhere supported genPrim
 -- 'StdGen' generator instead of a 'PureMT' generator.
 getRandomPrimFromRandomGenRef :: forall sr m g a. (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> Prim a -> m a
-getRandomPrimFromRandomGenRef ref = getPrimWhere supported genPrim
+getRandomPrimFromRandomGenRef ref = genPrim
     where 
-        {-# INLINE supported #-}
-        supported :: forall t. Prim t -> Bool
-        supported PrimWord8             = True
-        supported PrimWord16            = True
-        supported PrimWord32            = True
-        supported PrimWord64            = True
-        supported PrimDouble            = True
-        supported (PrimNByteInteger _)  = True
-        
         {-# INLINE genPrim #-}
         genPrim :: forall t. Prim t -> m t
         genPrim PrimWord8            = getThing (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
@@ -118,17 +93,8 @@ getRandomPrimFromRandomGenRef ref = getPrimWhere supported genPrim
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Prim a -> State StdGen a #-}
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Monad m => Prim a -> StateT StdGen m a #-}
 getRandomPrimFromRandomGenState :: forall g m a. (RandomGen g, MonadState g m) => Prim a -> m a
-getRandomPrimFromRandomGenState = getPrimWhere supported genPrim
+getRandomPrimFromRandomGenState = genPrim
     where 
-        {-# INLINE supported #-}
-        supported :: forall t. Prim t -> Bool
-        supported PrimWord8             = True
-        supported PrimWord16            = True
-        supported PrimWord32            = True
-        supported PrimWord64            = True
-        supported PrimDouble            = True
-        supported (PrimNByteInteger _)  = True
-        
         {-# INLINE genPrim #-}
         genPrim :: forall t. Prim t -> m t
         genPrim PrimWord8            = getThing (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)

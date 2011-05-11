@@ -29,9 +29,6 @@ import Data.Word
 class Monad m => MonadRandom m where
     -- |Generate a random value corresponding to the specified primitive.
     -- The 'Prim' type has many variants, and is also somewhat unstable.
-    -- 'getPrimWhere' is a useful function for abstracting over the type,
-    -- semi-automatically extending a partial implementation to the full
-    -- 'Prim' type.
     getRandomPrim :: Prim t -> m t
     getRandomPrim PrimWord8             = getRandomWord8
     getRandomPrim PrimWord16            = getRandomWord16
@@ -66,9 +63,6 @@ class Monad m => MonadRandom m where
 class Monad m => RandomSource m s where
     -- |Generate a random value corresponding to the specified primitive.
     -- The 'Prim' type has many variants, and is also somewhat unstable.
-    -- 'getPrimWhere' is a useful function for abstracting over the type,
-    -- semi-automatically extending a partial implementation to the full
-    -- 'Prim' type.
     getRandomPrimFrom :: s -> Prim t -> m t
     getRandomPrimFrom src PrimWord8             = getRandomWord8From  src
     getRandomPrimFrom src PrimWord16            = getRandomWord16From src
