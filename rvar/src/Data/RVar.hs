@@ -16,15 +16,27 @@
 -- any of the 'Distribution' instances - they all are defined in terms of
 -- 'RVar's.
 module Data.RVar
-    ( RVar
-    , runRVar
+    ( RandomSource
+    , MonadRandom
+        ( getRandomWord8
+        , getRandomWord16
+        , getRandomWord32
+        , getRandomWord64
+        , getRandomDouble
+        , getRandomNByteInteger
+        )
+    
+    , RVar
+    , runRVar, sampleRVar
+    
     , RVarT
-    , runRVarT
-    , runRVarTWith
+    , runRVarT, sampleRVarT
+    , runRVarTWith, sampleRVarTWith
     ) where
 
 
 import Data.Random.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
+import Data.Random.Source ({-instances-})
 
 import qualified Control.Monad.Trans.Class as T
 import Control.Applicative
@@ -57,22 +69,27 @@ import qualified Data.Functor.Identity as T
 -- 
 -- * In a monad, using a 'RandomSource':
 -- 
--- > sampleFrom DevRandom (uniform 1 100) :: IO Int
+-- > runRVar (uniform 1 100) DevRandom :: IO Int
 -- 
 -- * In a monad, using a 'MonadRandom' instance:
 --
--- > sample (uniform 1 100) :: State PureMT Int
+-- > sampleRVar (uniform 1 100) :: State PureMT Int
 -- 
 -- * As a pure function transforming a functional RNG:
 -- 
 -- > sampleState (uniform 1 100) :: StdGen -> (Int, StdGen)
+--
+-- (where @sampleState = runState . sampleRVar@)
 type RVar = RVarT T.Identity
 
 -- |\"Run\" an 'RVar' - samples the random variable from the provided
--- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will
--- be more convenient to use.
+-- source of entropy.
 runRVar :: RandomSource m s => RVar a -> s -> m a
 runRVar = runRVarTWith (return . T.runIdentity)
+
+-- |@sampleRVar x@ is equivalent to @runRVar x 'StdRandom'@.
+sampleRVar :: MonadRandom m => RVar a -> m a
+sampleRVar = sampleRVarTWith (return . T.runIdentity)
 
 -- |A random variable with access to operations in an underlying monad.  Useful
 -- examples include any form of state for implementing random processes with hysteresis,
@@ -94,12 +111,12 @@ runRVar = runRVarTWith (return . T.runIdentity)
 -- >         
 -- >     return x
 --
--- To run the random walk, it must first be initialized, and then it can be sampled as usual:
+-- To run the random walk it must first be initialized, after which it can be sampled as usual:
 --
 -- > do
 -- >     rw <- rwalkIO
--- >     x <- sampleFrom DevURandom rw
--- >     y <- sampleFrom DevURandom rw
+-- >     x <- sampleRVarT rw
+-- >     y <- sampleRVarT rw
 -- >     ...
 --
 -- The same random-walk process as above can be implemented using MTL types
@@ -114,22 +131,21 @@ runRVar = runRVarTWith (return . T.runIdentity)
 -- >     MTL.lift (put new)
 -- >     return new
 -- 
--- Invocation is straightforward (although a bit noisy) if you're used 
--- to MTL, but there is a gotcha lurking here: @sample@ and 'runRVarT' 
--- inherit the extreme generality of 'lift', so there will almost always
--- need to be an explicit type signature lurking somewhere in any client 
--- code making use of 'RVarT' with MTL types.  In this example, the 
--- inferred type of @start@ would be too general to be practical, so the
--- signature for @rwalk@  explicitly fixes it to 'Double'.  Alternatively, 
--- in this case @sample@ could be replaced with
--- @\\x -> runRVarTWith MTL.lift x StdRandom@.
+-- Invocation is straightforward (although a bit noisy) if you're used to MTL:
 -- 
 -- > rwalk :: Int -> Double -> StdGen -> ([Double], StdGen)
--- > rwalk count start gen = evalState (runStateT (sample (replicateM count rwalkState)) gen) start
+-- > rwalk count start gen = 
+-- >     flip evalState start .
+-- >         flip runStateT gen .
+-- >             sampleRVarTWith MTL.lift $
+-- >                 replicateM count rwalkState
 newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 
 runRVarT :: RandomSource m s => RVarT m a -> s -> m a
 runRVarT = runRVarTWith id
+
+sampleRVarT :: MonadRandom m => RVarT m a -> m a
+sampleRVarT = sampleRVarTWith id
 
 -- | \"Runs\" an 'RVarT', sampling the random variable it defines.
 -- 
@@ -156,14 +172,22 @@ runRVarT = runRVarTWith id
 -- monomorphic so you couldn't sample one 'RVar' in more than one monad)
 -- or functions manipulating 'RVar's would have to use higher-ranked 
 -- types to enforce the same kind of isolation and polymorphism.
--- 
--- The second argument evaluates a \"primitive\" random variate.
 {-# INLINE runRVarTWith #-}
 runRVarTWith :: forall m n s a. RandomSource m s => (forall t. n t -> m t) -> RVarT n a -> s -> m a
 runRVarTWith liftN (RVarT m) src = runPromptT return bindP bindN m
     where
         bindP :: forall t. (Prim t -> (t -> m a) -> m a)
         bindP prim cont = getRandomPrimFrom src prim >>= cont
+        
+        bindN :: forall t. n t -> (t -> m a) -> m a
+        bindN nExp cont = liftN nExp >>= cont
+
+-- |@sampleRVarTWith lift x@ is equivalent to @runRVarTWith lift x 'StdRandom'@.
+sampleRVarTWith :: forall m n a. MonadRandom m => (forall t. n t -> m t) -> RVarT n a -> m a
+sampleRVarTWith liftN (RVarT m) = runPromptT return bindP bindN m
+    where
+        bindP :: forall t. (Prim t -> (t -> m a) -> m a)
+        bindP prim cont = getRandomPrim prim >>= cont
         
         bindN :: forall t. n t -> (t -> m a) -> m a
         bindN nExp cont = liftN nExp >>= cont
@@ -201,14 +225,3 @@ instance MTL.MonadIO m => MTL.MonadIO (RVarT m) where
     liftIO = MTL.lift . MTL.liftIO
 
 #endif
-
--- I would really like to be able to do this, but I can't because of the
--- blasted Eq and Show in Num's class context...
--- instance (Applicative m, Num a) => Num (RVarT m a) where
---     (+) = liftA2 (+)
---     (-) = liftA2 (-)
---     (*) = liftA2 (*)
---     negate = liftA negate
---     signum = liftA signum
---     abs = liftA abs
---     fromInteger = pure . fromInteger
