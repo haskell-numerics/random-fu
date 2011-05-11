@@ -16,15 +16,15 @@
 -- any of the 'Distribution' instances - they all are defined in terms of
 -- 'RVar's.
 module Data.RVar
-    ( Prim(..), getPrim
-    , RVar
+    ( RVar
     , runRVar
     , RVarT
     , runRVarT
+    , runRVarTWith
     ) where
 
 
-import Data.Random.Internal.Source (Prim(..), MonadRandom(..))
+import Data.Random.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
 
 import qualified Control.Monad.Trans.Class as T
 import Control.Applicative
@@ -34,9 +34,6 @@ import qualified Control.Monad.IO.Class as T
 import qualified Control.Monad.Trans as MTL
 import qualified Control.Monad.Identity as MTL
 import qualified Data.Functor.Identity as T
-
-getPrim :: Prim a -> RVarT m a
-getPrim = RVarT . prompt
 
 -- |An opaque type modeling a \"random variable\" - a value 
 -- which depends on the outcome of some random event.  'RVar's 
@@ -71,8 +68,11 @@ getPrim = RVarT . prompt
 -- > sampleState (uniform 1 100) :: StdGen -> (Int, StdGen)
 type RVar = RVarT T.Identity
 
-runRVar :: Monad m => RVar a -> (forall t. Prim t -> m t) -> m a
-runRVar x = runRVarT x (return . T.runIdentity)
+-- |\"Run\" an 'RVar' - samples the random variable from the provided
+-- source of entropy.  Typically 'sample', 'sampleFrom' or 'sampleState' will
+-- be more convenient to use.
+runRVar :: RandomSource m s => RVar a -> s -> m a
+runRVar = runRVarTWith (return . T.runIdentity)
 
 -- |A random variable with access to operations in an underlying monad.  Useful
 -- examples include any form of state for implementing random processes with hysteresis,
@@ -128,6 +128,9 @@ runRVar x = runRVarT x (return . T.runIdentity)
 -- > rwalk count start gen = evalState (runStateT (sample (replicateM count rwalkState)) gen) start
 newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 
+runRVarT :: RandomSource m s => RVarT m a -> s -> m a
+runRVarT = runRVarTWith id
+
 -- | \"Runs\" an 'RVarT', sampling the random variable it defines.
 -- 
 -- The first argument lifts the base monad into the sampling monad.  This 
@@ -147,7 +150,7 @@ newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 -- >     put s
 -- >     return res
 --
--- The lifting is very important - without it, every 'RVar' would have
+-- The ability to lift is very important - without it, every 'RVar' would have
 -- to either be given access to the full capability of the monad in which it
 -- will eventually be sampled (which, incidentally, would also have to be 
 -- monomorphic so you couldn't sample one 'RVar' in more than one monad)
@@ -155,12 +158,12 @@ newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 -- types to enforce the same kind of isolation and polymorphism.
 -- 
 -- The second argument evaluates a \"primitive\" random variate.
-{-# INLINE runRVarT #-}
-runRVarT :: forall m n a. Monad m => RVarT n a -> (forall t. n t -> m t) -> (forall t. Prim t -> m t) -> m a
-runRVarT (RVarT m) liftN liftP = runPromptT return bindP bindN m
+{-# INLINE runRVarTWith #-}
+runRVarTWith :: forall m n s a. RandomSource m s => (forall t. n t -> m t) -> RVarT n a -> s -> m a
+runRVarTWith liftN (RVarT m) src = runPromptT return bindP bindN m
     where
         bindP :: forall t. (Prim t -> (t -> m a) -> m a)
-        bindP prim cont = liftP prim >>= cont
+        bindP prim cont = getRandomPrimFrom src prim >>= cont
         
         bindN :: forall t. n t -> (t -> m a) -> m a
         bindN nExp cont = liftN nExp >>= cont
