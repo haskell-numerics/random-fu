@@ -11,9 +11,16 @@
 -- values (the pure pseudorandom generator provided by the System.Random
 -- module in the \"random\" package), as well as instances for some common
 -- cases.
-module Data.Random.Source.StdGen where
+module Data.Random.Source.StdGen
+    ( StdGen
+    , mkStdGen
+    , newStdGen
+    
+    , getRandomPrimFromStdGenIO
+    , getRandomPrimFromRandomGenRef
+    , getRandomPrimFromRandomGenState
+    ) where
 
-import Data.Random.Internal.Words
 import Data.Random.Internal.Source
 import System.Random
 import Control.Monad.State
@@ -46,16 +53,10 @@ instance (Monad m, ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef
     getRandomPrimFrom = getRandomPrimFromRandomGenRef
 
 getRandomPrimFromStdGenIO :: Prim a -> IO a
-getRandomPrimFromStdGenIO = genPrim
-    where 
-        {-# INLINE genPrim #-}
-        genPrim :: Prim a -> IO a
-        genPrim PrimWord8            = fmap fromIntegral                  (randomRIO (0, 0xff) :: IO Int)
-        genPrim PrimWord16           = fmap fromIntegral                  (randomRIO (0, 0xffff) :: IO Int)
-        genPrim PrimWord32           = fmap fromInteger                   (randomRIO (0, 0xffffffff))
-        genPrim PrimWord64           = fmap fromInteger                   (randomRIO (0, 0xffffffffffffffff))
-        genPrim PrimDouble           = fmap (wordToDouble . fromInteger)  (randomRIO (0, 0xffffffffffffffff))
-        genPrim (PrimNByteInteger n) = randomRIO (0, iterate (*256) 1 !! n)
+getRandomPrimFromStdGenIO 
+    = getStdRandom
+    . runState
+    . getRandomPrim
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
@@ -63,22 +64,17 @@ getRandomPrimFromStdGenIO = genPrim
 -- See "Data.Random.Source.PureMT".'getRandomPrimFromMTRef' for more detailed
 -- usage hints - this function serves exactly the same purpose except for a
 -- 'StdGen' generator instead of a 'PureMT' generator.
-getRandomPrimFromRandomGenRef :: forall sr m g a. (Monad m, ModifyRef sr m g, RandomGen g) =>
+getRandomPrimFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> Prim a -> m a
-getRandomPrimFromRandomGenRef ref = genPrim
-    where 
-        {-# INLINE genPrim #-}
-        genPrim :: forall t. Prim t -> m t
-        genPrim PrimWord8            = getThing (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
-        genPrim PrimWord16           = getThing (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
-        genPrim PrimWord32           = getThing (randomR (0, 0xffffffff))          (fromInteger)
-        genPrim PrimWord64           = getThing (randomR (0, 0xffffffffffffffff))  (fromInteger)
-        genPrim PrimDouble           = getThing (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
-        genPrim (PrimNByteInteger n) = getThing (randomR (0, iterate (*256) 1 !! n)) (id :: Integer -> Integer)
-        
-        {-# INLINE getThing #-}
-        getThing :: forall b t. (g -> (b, g)) -> (b -> t) -> m t
-        getThing thing f = atomicModifyReference ref $ \(!oldMT) -> case thing oldMT of (!w, !newMT) -> (newMT, f w)
+getRandomPrimFromRandomGenRef ref 
+    = atomicModifyReference' ref 
+    . runState 
+    . getRandomPrimFromRandomGenState
+
+atomicModifyReference' :: (ModifyRef sr m g, RandomGen g) => sr -> (g -> (a, g)) -> m a
+atomicModifyReference' ref getR =
+    atomicModifyReference ref (swap' . getR)
+        where swap' (!a,!b) = (b,a)
 
 
 -- |Similarly, @getRandomWordFromRandomGenState x@ can be used in any \"state\"
