@@ -8,7 +8,7 @@ import Data.Maybe
 
 summarizeObservations events observations = M.unionWith (+) zeros freqs
     where 
-        zeros = M.fromList         [(evt, 0) | evt <- observations]
+        zeros = M.fromList         [(evt, 0) | evt <- events]
         freqs = M.fromListWith (+) [(evt, 1) | evt <- observations]
 
 chiSquareStatistic pmf n freqs = sum
