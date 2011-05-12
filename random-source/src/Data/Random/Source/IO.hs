@@ -12,18 +12,10 @@ instance MonadRandom IO where
 
 #else
 
-import Control.Concurrent.MVar
-import Control.Monad.Primitive (RealWorld)
 import Data.Random.Source.MWC
 import System.Random.MWC
-import System.IO.Unsafe
-
--- Is MWC already threadsafe?  I don't know.
-{-# NOINLINE globalMWC #-}
-globalMWC :: MVar (Gen RealWorld)
-globalMWC = unsafePerformIO (create >>= newMVar)
 
 instance MonadRandom IO where
-    getRandomPrim p = withMVar globalMWC (flip getRandomPrimFrom p)
+    getRandomPrim = withSystemRandom . (flip getRandomPrimFrom :: Prim t -> Gen RealWorld -> IO t)
 
 #endif
