@@ -9,7 +9,11 @@
 -- 
 -- > instance RandomSource (ST s) (Gen s)
 -- > instance RandomSource IO (Gen RealWorld)
-module Data.Random.Source.MWC where
+module Data.Random.Source.MWC
+    ( Gen, RealWorld
+    , create, initialize
+    , save, restore
+    ) where
 
 import Data.Random.Internal.Words
 import Data.Random.Source
