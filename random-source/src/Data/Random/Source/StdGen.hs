@@ -71,7 +71,7 @@ getRandomPrimFromRandomGenRef ref
     . runState 
     . getRandomPrimFromRandomGenState
 
-atomicModifyReference' :: (ModifyRef sr m g, RandomGen g) => sr -> (g -> (a, g)) -> m a
+atomicModifyReference' :: ModifyRef sr m a => sr -> (a -> (b, a)) -> m b
 atomicModifyReference' ref getR =
     atomicModifyReference ref (swap' . getR)
         where swap' (!a,!b) = (b,a)

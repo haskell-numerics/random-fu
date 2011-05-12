@@ -1,22 +1,7 @@
 {-# LANGUAGE GADTs, RankNTypes, DeriveDataTypeable #-}
--- |This is an experimental interface to support an extensible set of primitives,
--- where a RandomSource will be able to support whatever subset of them they want
--- and have well-founded defaults generated automatically for any unsupported
--- primitives.
---
--- The purpose, in case it's not clear, is to decouple the implementations of
--- entropy sources from any particular set of primitives, so that implementors
--- of random variates can make use of a large number of primitives, supported
--- on all entropy sources, while the burden on entropy-source implementors
--- is only to provide one or two basic primitives of their choice.
--- 
--- One challenge I foresee with this interface is optimization - different 
--- compilers or even different versions of GHC may treat this interface 
--- radically differently, making it very hard to achieve reliable performance
--- on all platforms.  It may even be that no compiler optimizes sufficiently
--- to make the flexibility this system provides worth the overhead.  I hope
--- this is not the case, but if it turns out to be a major problem, this
--- system may disappear or be modified in significant ways.
+-- |This is an internal interface to support the 'RVar' abstraction.  It
+-- reifies the operations provided by both MonadRandom and RandomSource in a
+-- uniform and efficient way, as functions of type @Prim a -> m a@.
 module Data.Random.Internal.Prim (Prim(..)) where
 
 import Data.Word
@@ -24,10 +9,10 @@ import Data.Typeable
 
 -- |A 'Prompt' GADT describing a request for a primitive random variate.
 -- Random variable definitions will request their entropy via these prompts,
--- and entropy sources will satisfy some or all of them.  The 'decomposePrimWhere'
--- function extends an entropy source's incomplete definition to a complete 
--- definition, essentially defining a very flexible implementation-defaulting
--- system.
+-- and entropy sources will satisfy those requests.  The functions in
+-- "Data.Random.Internal.TH" extend incomplete entropy-source definitions
+-- to complete ones, essentially defining a very flexible 
+-- implementation-defaulting system.
 -- 
 -- Some possible future additions:
 --    PrimFloat :: Prim Float
@@ -35,6 +20,7 @@ import Data.Typeable
 --    PrimPair :: Prim a -> Prim b -> Prim (a :*: b)
 --    PrimNormal :: Prim Double
 --    PrimChoice :: [(Double :*: a)] -> Prim a
+--    PrimBytes  :: !Int -> Prim ByteString
 --
 -- Unfortunately, I cannot get Haddock to accept my comments about the 
 -- data constructors, but hopefully they should be reasonably self-explanatory.
@@ -49,7 +35,7 @@ data Prim a where
     PrimWord64          :: Prim Word64
     -- A double-precision float U, uniformly distributed 0 <= U < 1
     PrimDouble          :: Prim Double
-    -- A uniformly distributed 'Integer' 0 <= U < 2^(8*n)
+    -- A uniformly distributed 'Integer' 0 <= U < 256^n
     PrimNByteInteger    :: !Int -> Prim Integer
     deriving (Typeable)
 

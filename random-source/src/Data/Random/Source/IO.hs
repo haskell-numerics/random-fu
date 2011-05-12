@@ -1,5 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+-- |For convenience, this module defines an instance of 'MonadRandom' for the 'IO' monad.
+-- On Windows it uses "Data.Random.Source.MWC" and on other platforms it uses
+-- "Data.Random.Source.DevRandom".
 module Data.Random.Source.IO () where
 
 import Data.Random.Internal.Source

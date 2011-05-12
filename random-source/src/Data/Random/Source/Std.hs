@@ -12,7 +12,7 @@ import Data.Random.Internal.Source
 -- |A token representing the \"standard\" entropy source in a 'MonadRandom'
 -- monad.  Its sole purpose is to make the following true (when the types check):
 --
--- > sampleFrom StdRandom === sample
+-- > runRVar x StdRandom === sampleRVar
 data StdRandom = StdRandom
 
 instance MonadRandom m => RandomSource m StdRandom where

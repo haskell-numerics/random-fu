@@ -21,11 +21,15 @@
 -- users might need.
 module Data.Random.Source.PureMT 
     ( PureMT, newPureMT, pureMT
+    
+    , getRandomPrimFromMTRef
+    , getRandomPrimFromMTState
     ) where
 
 import Control.Monad.State
 import qualified Control.Monad.State.Strict as S
-import Data.Random.Source
+import Data.Random.Internal.Source
+import Data.Random.Internal.TH
 import Data.StateRef
 import System.Random.Mersenne.Pure64
 
@@ -97,3 +101,17 @@ $(randomSource
 --     {-# SPECIALIZE instance RandomSource STM (TVar PureMT) #-}
 --     getRandomPrimFrom = getRandomPrimFromMTRef
     
+getRandomPrimFromMTRef :: ModifyRef sr m PureMT => sr -> Prim a -> m a
+getRandomPrimFromMTRef ref
+    = atomicModifyReference' ref 
+    . runState 
+    . getRandomPrimFromMTState
+
+atomicModifyReference' :: ModifyRef sr m a => sr -> (a -> (b, a)) -> m b
+atomicModifyReference' ref getR =
+    atomicModifyReference ref (swap' . getR)
+        where swap' (!a,!b) = (b,a)
+
+getRandomPrimFromMTState :: Monad m => Prim a -> StateT PureMT m a
+getRandomPrimFromMTState = getRandomPrim
+

@@ -7,7 +7,7 @@ import Data.Generics
 import Data.List
 import Data.Maybe
 import Data.Monoid
-import Data.Random.Internal.Source
+import Data.Random.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
 import Data.Random.Internal.Words
 import Language.Haskell.TH
 import qualified Language.Haskell.TH.FlexibleDefaults as FD
@@ -437,9 +437,35 @@ defaults = runReaderT $
                       |]
                     
 
+-- |Complete a possibly-incomplete 'RandomSource' implementation.  It is 
+-- recommended that this macro be used even if the implementation is currently
+-- complete, as the 'RandomSource' class may be extended at any time.
+--
+-- To use 'randomSource', just wrap your instance declaration as follows (and
+-- enable the TemplateHaskell, MultiParamTypeClasses and GADTs language
+-- extensions, as well as any others required by your instances, such as
+-- FlexibleInstances):
+--
+-- > $(randomSource [d|
+-- >         instance RandomSource FooM Bar where
+-- >             {- at least one RandomSource function... -}
+-- >     |])
 randomSource :: Q [Dec] -> Q [Dec]
 randomSource = FD.withDefaults (defaults RandomSource)
 
+-- |Complete a possibly-incomplete 'MonadRandom' implementation.  It is 
+-- recommended that this macro be used even if the implementation is currently
+-- complete, as the 'MonadRandom' class may be extended at any time.
+--
+-- To use 'monadRandom', just wrap your instance declaration as follows (and
+-- enable the TemplateHaskell and GADTs language extensions):
+--
+-- > $(monadRandom [d|
+-- >         instance MonadRandom FooM where
+-- >             getRandomDouble = return pi
+-- >             getRandomWord16 = return 4
+-- >             {- etc... -}
+-- >     |])
 monadRandom :: Q [Dec] -> Q [Dec]
 monadRandom = FD.withDefaults (defaults MonadRandom)
 
