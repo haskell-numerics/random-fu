@@ -161,7 +161,7 @@ intIs64 :: Bool
 intIs64 = toInteger (maxBound :: Int) > 2^32
 
 -- The defaulting rules for RandomSource and MonadRandom.  Costs are rates of
--- entropy waste (bits consumed per bit requested) plus the occasional ad-hoc
+-- entropy waste (bits discarded per bit requested) plus the occasional ad-hoc
 -- penalty where it seems appropriate.
 
 -- TODO: figure out a clean way to break these up for individual testing.
