@@ -99,6 +99,12 @@ dependsOn m = do
     c <- ask
     lift (FD.dependsOn (methodNameBase c m))
 
+inline :: ReaderT Context (FD.Implementation s) ()
+inline = lift FD.inline
+
+noinline :: ReaderT Context (FD.Implementation s) ()
+noinline = lift FD.noinline
+
 replace :: (a -> Maybe a) -> (a -> a)
 replace = ap fromMaybe
 
