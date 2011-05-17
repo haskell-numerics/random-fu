@@ -295,14 +295,14 @@ instance Distribution StdUniform Int64      where rvarT _ = fromIntegral `fmap` 
 instance Distribution StdUniform Int where
     rvar _ =
         $(if toInteger (maxBound :: Int) > toInteger (maxBound :: Int32)
-            then [|fromIntegral `fmap` getRandomWord64|]
-            else [|fromIntegral `fmap` getRandomWord32|])
+            then [|fromIntegral `fmap` getRandomWord64 :: RVar Int|]
+            else [|fromIntegral `fmap` getRandomWord32 :: RVar Int|])
 
 instance Distribution StdUniform Word where
     rvar _ =
         $(if toInteger (maxBound :: Word) > toInteger (maxBound :: Word32)
-            then [|fromIntegral `fmap` getRandomWord64|]
-            else [|fromIntegral `fmap` getRandomWord32|])
+            then [|fromIntegral `fmap` getRandomWord64 :: RVar Word|]
+            else [|fromIntegral `fmap` getRandomWord32 :: RVar Word|])
 
 -- Integer has no StdUniform...
 

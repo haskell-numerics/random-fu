@@ -218,7 +218,7 @@ mkZiggurat m f fInv fInt fVol c getIU tailDist =
             (r,v) = findBin0 c f fInv fInt fVol
 
 -- |Build a lazy recursive ziggurat.  Uses a lazily-constructed ziggurat
--- as its tail distribution (with another as its tail, ad nauseum).
+-- as its tail distribution (with another as its tail, ad nauseam).
 -- 
 -- Arguments:
 -- 
@@ -251,7 +251,7 @@ mkZigguratRec ::
 mkZigguratRec m f fInv fInt fVol c getIU = z
         where
             fix :: ((forall m. a -> RVarT m a) -> (forall m. a -> RVarT m a)) -> (forall m. a -> RVarT m a)
-            fix f = f (fix f)
+            fix g = g (fix g)
             z = mkZiggurat m f fInv fInt fVol c getIU (fix (mkTail m f fInv fInt fVol c getIU z))
 
 mkTail :: 
