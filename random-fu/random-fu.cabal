@@ -64,6 +64,7 @@ Library
                         Data.Random.Distribution.Beta
                         Data.Random.Distribution.Binomial
                         Data.Random.Distribution.Categorical
+                        Data.Random.Distribution.ChiSquare
                         Data.Random.Distribution.Dirichlet
                         Data.Random.Distribution.Exponential
                         Data.Random.Distribution.Gamma
@@ -94,7 +95,8 @@ Library
   else
     build-depends:      mtl == 1.*
   
-  build-depends:        monad-loops >= 0.3.0.1,
+  build-depends:        gamma,
+                        monad-loops >= 0.3.0.1,
                         random-shuffle,
                         random-source == 0.3.*,
                         rvar == 0.2.*,
