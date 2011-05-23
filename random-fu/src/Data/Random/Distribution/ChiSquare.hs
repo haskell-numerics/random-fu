@@ -12,16 +12,19 @@ import Data.List
 
 import Math.Gamma (p)
 
-chiSquare :: Distribution ChiSquare t => Int -> RVar t
+chiSquare :: Distribution ChiSquare t => Integer -> RVar t
 chiSquare = rvar . ChiSquare
 
-chiSquareT :: Distribution ChiSquare t => Int -> RVarT m t
+chiSquareT :: Distribution ChiSquare t => Integer -> RVarT m t
 chiSquareT = rvarT . ChiSquare
 
-newtype ChiSquare b = ChiSquare Int
+newtype ChiSquare b = ChiSquare Integer
 
 instance (Fractional t, Distribution Gamma t) => Distribution ChiSquare t where
-    rvarT (ChiSquare n) = gammaT (0.5 * fromIntegral n) 2
+    rvarT (ChiSquare 0) = return 0
+    rvarT (ChiSquare n)
+        | n > 0     = gammaT (0.5 * fromInteger n) 2
+        | otherwise = fail "chi-square distribution: degrees of freedom must be positive"
 
 instance (Real t, Distribution ChiSquare t) => CDF ChiSquare t where
-    cdf (ChiSquare n) x = p (0.5 * fromIntegral n) (0.5 * realToFrac x)
+    cdf (ChiSquare n) x = p (0.5 * fromInteger n) (0.5 * realToFrac x)
