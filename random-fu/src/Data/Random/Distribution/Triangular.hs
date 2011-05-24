@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Triangular''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,

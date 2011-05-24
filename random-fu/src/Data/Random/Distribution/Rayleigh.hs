@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Rayleigh''
- -}
 {-# LANGUAGE
         MultiParamTypeClasses, 
         FlexibleInstances, FlexibleContexts,

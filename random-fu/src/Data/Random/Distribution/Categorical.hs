@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Categorical''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts

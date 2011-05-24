@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Bernoulli''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
