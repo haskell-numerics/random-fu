@@ -18,6 +18,7 @@ description:            Random number generation based on entropy sources
                         \"completing\" partial implementations, making it
                         easy to define new entropy sources.
 
+tested-with:            GHC == 6.12.1, GHC == 7.0.2
 
 Flag mtl2
     Description:        mtl-2 has State, etc., as "type" rather than "newtype"

@@ -1,5 +1,6 @@
 {-# LANGUAGE
-    MultiParamTypeClasses, FlexibleInstances, TemplateHaskell, GADTs, RankNTypes
+    TemplateHaskell, GADTs, RankNTypes,
+    MultiParamTypeClasses, FlexibleInstances, FlexibleContexts
   #-}
 
 module Data.Random.Internal.Source

@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, GADTs #-}
-{-# OPTIONS_GHC -fno-warn-type-defaults #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults -fno-warn-missing-signatures #-}
 module Data.Random.Internal.TH (monadRandom, randomSource) where
 
 import Data.Bits
@@ -127,6 +127,10 @@ specialize decQ = do
                 return (map (addSrcParam src) . specializeDec $ decs)
         else return (fmap specializeDec decQ)
 
+stripTypeSigs :: Q [Dec] -> Q [Dec]
+stripTypeSigs = fmap (filter (not . isSig))
+    where isSig SigD{} = True; isSig _ = False
+
 addSrcParam :: Name -> Dec -> Dec
 addSrcParam src
     = everywhere (mkT expandDecs) 
@@ -178,8 +182,14 @@ defaults = runReaderT $
         method GetPrim $ do
             implementation $ do
                 mapM_ dependsOn (allMethods \\ [GetPrim])
-                specialize
-                    [d| getPrim PrimWord8               = $getWord8
+                
+                -- GHC 6 requires type signatures for GADT matches, even
+                -- inside [d||].  This code is evaluated at more than one type, though,
+                -- and at its eventual splice site the signature actually isn't even allowed.
+                -- So, there's a dummy signature here which is immediately stripped out.
+                specialize . stripTypeSigs $
+                    [d| getPrim :: Prim a -> m a
+                        getPrim PrimWord8               = $getWord8
                         getPrim PrimWord16              = $getWord16
                         getPrim PrimWord32              = $getWord32
                         getPrim PrimWord64              = $getWord64
