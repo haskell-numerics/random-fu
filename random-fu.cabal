@@ -52,6 +52,11 @@ description:            Random number generation based on modeling random
 Tested-with:            GHC == 6.10.4, GHC == 6.12.1, GHC == 6.12.3,
                         GHC == 7.0.1, GHC == 7.0.2
 
+source-repository head
+  type:                 git
+  location:             https://github.com/mokus0/random-fu.git
+  branch:               v0.1-series
+
 Flag base4_2
     Description:        base-4.2 has an incompatible change in Data.Fixed (HasResolution)
 
