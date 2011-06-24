@@ -29,26 +29,11 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
                         
-                        Warning to anyone upgrading from \"< 0.1\": 'Discrete'
-                        has been renamed 'Categorical', the entropy source 
-                        classes have been redesigned, and many things are no
-                        longer exported from the root module "Data.Random"
-                        (In particular, DevRandom - this is not available on 
-                        windows, so it will likely move to its own package 
-                        eventually so that client code dependencies on it will 
-                        be made explicit).
+                        Warning to anyone upgrading from \"< 0.2\": The old
+                        random-fu package has been split into three parts: 
+                        random-source, rvar, and this new random-fu.  The
+                        end-user interface is mostly the same.
                         
-                        Support for "base" packages earlier than version 4
-                        (and thus GHC releases earlier than 6.10) has been 
-                        dropped, as too many of this package's dependencies do
-                        not support older versions.
-                        
-                        The "Data.Random" module itself should now have a
-                        relatively stable interface, but the other modules
-                        are still subject to change.  Specifically, I am 
-                        considering hiding data constructors for most or all 
-                        of the distributions.
-
 tested-with:            GHC == 6.10.4, GHC == 6.12.1, GHC == 6.12.3,
                         GHC == 7.0.1, GHC == 7.0.2
 
