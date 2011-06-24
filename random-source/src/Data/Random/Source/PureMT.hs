@@ -81,7 +81,7 @@ $(monadRandom
      |])
 
 $(randomSource
-    [d| instance (Monad m, ModifyRef (IORef PureMT) m PureMT) => RandomSource m (IORef PureMT) where
+    [d| instance (MonadIO m) => RandomSource m (IORef PureMT) where
             getRandomWord64From = withMTRef randomWord64
             getRandomDoubleFrom = withMTRef randomDouble
      |])

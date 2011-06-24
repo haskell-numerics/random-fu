@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Uniform''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses, FunctionalDependencies,
     FlexibleContexts, FlexibleInstances, 

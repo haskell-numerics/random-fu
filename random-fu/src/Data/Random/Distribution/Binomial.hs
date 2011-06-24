@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Binomial''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,

@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Internal/TH''
- -}
 {-# LANGUAGE
         TemplateHaskell
   #-}

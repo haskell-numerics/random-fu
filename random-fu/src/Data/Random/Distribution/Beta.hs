@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Beta''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,

@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Exponential''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,

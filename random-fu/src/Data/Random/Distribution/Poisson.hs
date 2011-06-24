@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Distribution/Poisson''
- -}
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts, UndecidableInstances,

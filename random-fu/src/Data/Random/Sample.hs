@@ -1,6 +1,3 @@
-{-
- -      ``Data/Random/Sample''
- -}
 {-# LANGUAGE
         MultiParamTypeClasses,
         FlexibleInstances, FlexibleContexts, 
