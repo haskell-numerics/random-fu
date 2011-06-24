@@ -4,7 +4,8 @@
     MultiParamTypeClasses,
     FlexibleContexts, FlexibleInstances,
     UndecidableInstances,
-    GADTs, RankNTypes
+    GADTs, RankNTypes,
+    ScopedTypeVariables
   #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -80,10 +81,13 @@ getRandomPrimBy getThing = getPrimWhere supported (\prim -> getThing (genPrim pr
 -- >     src <- newIORef (pureMT 1234)          -- OR: newPureMT >>= newIORef
 -- >     x <- sampleFrom src (uniform 0 100)    -- OR: runRVar (uniform 0 100) src
 -- >     print x
-getRandomPrimFromMTRef :: (Monad m, ModifyRef sr m PureMT) => sr -> Prim a -> m a
+getRandomPrimFromMTRef ::
+    forall sr m t.
+    (Monad m, ModifyRef sr m PureMT) => sr -> Prim t -> m t
 getRandomPrimFromMTRef ref = getRandomPrimBy getThing
     where
         {-# INLINE getThing #-}
+        getThing :: forall a. (PureMT -> (a, PureMT)) -> m a
         getThing thing = atomicModifyReference ref $ \(!oldMT) -> 
             case thing oldMT of (!w, !newMT) -> (newMT, w)
             
@@ -113,10 +117,14 @@ getRandomPrimFromMTRef ref = getRandomPrimBy getThing
 -- 
 -- Of course, the initial 'PureMT' state could also be obtained by any other
 -- convenient means, such as 'newPureMT' if you don't care what seed is used.
-getRandomPrimFromMTState :: MonadState PureMT m => Prim a -> m a
+getRandomPrimFromMTState :: 
+    forall m t.
+    MonadState PureMT m 
+    => Prim t -> m t
 getRandomPrimFromMTState = getRandomPrimBy getThing
     where
         {-# INLINE getThing #-}
+        getThing :: forall a. (PureMT -> (a, PureMT)) -> m a
         getThing thing = do
             !mt <- get
             let (!ws, !newMt) = thing mt

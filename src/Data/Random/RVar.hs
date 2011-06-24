@@ -5,7 +5,8 @@
     RankNTypes,
     MultiParamTypeClasses,
     FlexibleInstances, 
-    GADTs
+    GADTs,
+    ScopedTypeVariables
   #-}
 
 -- |Random variables.  An 'RVar' is a sampleable random variable.  Because
@@ -141,10 +142,15 @@ newtype RVarT m a = RVarT { unRVarT :: PromptT Prim m a }
 -- For non-standard liftings or those where you would rather not introduce a
 -- 'Lift' instance, see 'runRVarTWith'.
 {-# INLINE runRVarT #-}
-runRVarT :: (Lift n m, RandomSource m s) => RVarT n a -> s -> m a
+runRVarT :: 
+    forall n m s a.
+    (Lift n m, RandomSource m s) 
+    => RVarT n a -> s -> m a
 runRVarT (RVarT m) src = runPromptT return bindP bindN m
     where
+        bindP :: forall t x. Prim t -> (t -> m x) -> m x
         bindP prim cont = getRandomPrimFrom src prim >>= cont
+        bindN :: forall t x. n t    -> (t -> m x) -> m x
         bindN nExp cont = lift nExp >>= cont
 
 -- |Like 'runRVarT' but allowing a user-specified lift operation.  This 
@@ -164,10 +170,15 @@ runRVarT (RVarT m) src = runPromptT return bindP bindN m
 -- >     put s
 -- >     return res
 {-# INLINE runRVarTWith #-}
-runRVarTWith :: (RandomSource m s) => (forall t. n t -> m t) -> RVarT n a -> s -> m a
+runRVarTWith :: 
+    forall n m s a.
+    (RandomSource m s) 
+    => (forall t. n t -> m t) -> RVarT n a -> s -> m a
 runRVarTWith liftN (RVarT m) src = runPromptT return bindP bindN m
     where
+        bindP :: forall t x. Prim t -> (t -> m x) -> m x
         bindP prim cont = getRandomPrimFrom src prim >>= cont
+        bindN :: forall t x. n t    -> (t -> m x) -> m x
         bindN nExp cont = liftN nExp >>= cont
 
 instance Functor (RVarT n) where
@@ -188,7 +199,9 @@ instance T.MonadTrans RVarT where
 instance Lift (RVarT Identity) (RVarT m) where
     lift (RVarT m) = RVarT (runPromptT return bindP bindN m)
         where
+            bindP :: Prim a     -> (a -> PromptT Prim m b) -> PromptT Prim m b
             bindP prim  cont = prompt prim >>= cont
+            bindN :: Identity a -> (a -> PromptT Prim m b) -> PromptT Prim m b
             bindN idExp cont = cont (runIdentity idExp)
 
 instance T.MonadIO m => T.MonadIO (RVarT m) where

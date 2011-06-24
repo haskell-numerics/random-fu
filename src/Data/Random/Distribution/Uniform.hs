@@ -307,10 +307,16 @@ instance Distribution StdUniform Word where
 
 -- Integer has no StdUniform...
 
-$( replicateInstances ''Int (integralTypes \\ [''Integer]) [d|
-        instance CDF StdUniform Int         where cdf  ~StdUniform = boundedStdUniformCDF
-    |])
-
+instance CDF StdUniform Word8   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word16  where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word32  where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word64  where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Word    where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int8    where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int16   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int32   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int64   where cdf _ = integralUniformCDF minBound maxBound
+instance CDF StdUniform Int     where cdf _ = integralUniformCDF minBound maxBound
 
 instance Distribution Uniform Float         where rvarT (Uniform a b) = floatUniform  a b
 instance Distribution Uniform Double        where rvarT (Uniform a b) = doubleUniform a b

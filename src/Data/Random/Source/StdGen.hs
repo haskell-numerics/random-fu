@@ -1,7 +1,8 @@
 {-# LANGUAGE
     CPP,
     MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs,
-    BangPatterns, RankNTypes
+    BangPatterns, RankNTypes,
+    ScopedTypeVariables
   #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -83,14 +84,16 @@ getRandomPrimFromStdGenIO prim
 -- See "Data.Random.Source.PureMT".'getRandomPrimFromMTRef' for more detailed
 -- usage hints - this function serves exactly the same purpose except for a
 -- 'StdGen' generator instead of a 'PureMT' generator.
-getRandomPrimFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
-                                  sr -> Prim a -> m a
+getRandomPrimFromRandomGenRef :: 
+    forall sr m g t.
+    (Monad m, ModifyRef sr m g, RandomGen g) =>
+    sr -> Prim t -> m t
 getRandomPrimFromRandomGenRef ref prim
     | supported prim = genPrim prim getThing
     | otherwise = runPromptM (getRandomPrimFromRandomGenRef ref) (decomposePrimWhere supported prim)
     where 
         {-# INLINE supported #-}
-        supported :: Prim a -> Bool
+        supported :: forall a. Prim a -> Bool
         supported PrimWord8             = True
         supported PrimWord16            = True
         supported PrimWord32            = True
@@ -100,7 +103,7 @@ getRandomPrimFromRandomGenRef ref prim
         supported _                     = False
         
         {-# INLINE genPrim #-}
-        genPrim :: (RandomGen g) => Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
+        genPrim :: forall a c g. (RandomGen g) => Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
         genPrim PrimWord8            f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
         genPrim PrimWord16           f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
         genPrim PrimWord32           f = f (randomR (0, 0xffffffff))          (fromInteger)
@@ -110,6 +113,7 @@ getRandomPrimFromRandomGenRef ref prim
         genPrim p _ = error ("getRandomPrimFromRandomGenRef: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
+        getThing :: forall a b. (g -> (a, g)) -> (a -> b) -> m b
         getThing thing f = atomicModifyReference ref $ \(!oldMT) -> case thing oldMT of (!w, !newMT) -> (newMT, f w)
 
 
@@ -124,11 +128,15 @@ getRandomPrimFromRandomGenRef ref prim
 -- for a 'StdGen' generator instead of a 'PureMT' generator.
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Prim a -> State StdGen a #-}
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Monad m => Prim a -> StateT StdGen m a #-}
-getRandomPrimFromRandomGenState :: (RandomGen g, MonadState g m) => Prim a -> m a
+getRandomPrimFromRandomGenState :: 
+    forall g m t.
+    (RandomGen g, MonadState g m) 
+    => Prim t -> m t
 getRandomPrimFromRandomGenState prim
     = runPromptM genSupported (decomposePrimWhere supported prim)
     where 
         {-# INLINE genSupported #-}
+        genSupported :: forall a. Prim a -> m a
         genSupported prim = genPrim prim getThing
         
         {-# INLINE supported #-}
@@ -142,7 +150,7 @@ getRandomPrimFromRandomGenState prim
         supported _                     = False
         
         {-# INLINE genPrim #-}
-        genPrim :: (RandomGen g) => Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
+        genPrim :: Prim a -> (forall b. (g -> (b, g)) -> (b -> a) -> c) -> c
         genPrim PrimWord8            f = f (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
         genPrim PrimWord16           f = f (randomR (0, 0xffff))              (fromIntegral :: Int -> Word16)
         genPrim PrimWord32           f = f (randomR (0, 0xffffffff))          (fromInteger)
@@ -156,6 +164,7 @@ getRandomPrimFromRandomGenState prim
         genPrim p _ = error ("getRandomPrimFromRandomGenState: genPrim called for unsupported prim " ++ show p)
         
         {-# INLINE getThing #-}
+        getThing :: forall a b. (g -> (a, g)) -> (a -> b) -> m b
         getThing thing f = do
             !oldGen <- get
             case thing oldGen of

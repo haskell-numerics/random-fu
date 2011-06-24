@@ -49,6 +49,9 @@ description:            Random number generation based on modeling random
                         considering hiding data constructors for most or all 
                         of the distributions.
 
+Tested-with:            GHC == 6.10.4, GHC == 6.12.1, GHC == 6.12.3,
+                        GHC == 7.0.1, GHC == 7.0.2
+
 Flag base4_2
     Description:        base-4.2 has an incompatible change in Data.Fixed (HasResolution)
 
@@ -114,7 +117,7 @@ Library
                         tagged,
                         template-haskell,
                         vector
-
+  
   if os(Windows)
     cpp-options:        -Dwindows
     build-depends:      erf-native
