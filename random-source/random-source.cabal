@@ -19,7 +19,11 @@ description:            Random number generation based on entropy sources
                         easy to define new entropy sources in a way that
                         is naturally forward-compatible.
 
-tested-with:            GHC == 6.12.1, GHC == 7.0.2
+tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.1, 
+                        GHC == 6.12.3, GHC == 7.0.1, GHC == 7.0.2
+
+Flag splitBase
+    Description:        base-4 and above do not include syb
 
 Flag mtl2
     Description:        mtl-2 has State, etc., as "type" rather than "newtype"
@@ -29,7 +33,6 @@ Library
   hs-source-dirs:       src
   exposed-modules:      Data.Random.Source
                         Data.Random.Source.IO
-                        Data.Random.Source.MWC
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
@@ -37,6 +40,17 @@ Library
                         Data.Random.Internal.Source
   other-modules:        Data.Random.Internal.Prim
                         Data.Random.Internal.TH
+  
+  if impl(ghc >= 6.10)
+    -- mwc-random depends on vector, which doesn't build on GHC < 6.10.
+    -- I considered breaking this module out into another package, but I
+    -- think this is sufficient; anyone compiling something which wants
+    -- this module has pretty much no hope of working on earlier GHCs anyway,
+    -- because the mwc-random library won't have built successfully.
+    -- And if they want to get their hands dirty fixing that, altering
+    -- this cabal file is hardly any additional effort.
+    exposed-modules:    Data.Random.Source.MWC
+    build-depends:      mwc-random
     
   if flag(mtl2)
     build-depends:      mtl == 2.*
@@ -44,18 +58,18 @@ Library
   else
     build-depends:      mtl == 1.*
   
-  build-depends:        base >= 4 && <5,
-                        flexible-defaults,
+  if flag(splitBase)
+    build-depends:      base >= 4 && <5, syb
+  else
+    build-depends:      base >= 3 && <4
+  
+  build-depends:        flexible-defaults,
                         mersenne-random-pure64,
-                        mwc-random,
                         random,
                         stateref >= 0.3 && < 0.4,
-                        syb,
                         template-haskell
 
   if os(Windows)
     cpp-options:        -Dwindows
-    build-depends:      erf-native
   else
-    build-depends:      erf
     exposed-modules:    Data.Random.Source.DevRandom
