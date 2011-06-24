@@ -27,6 +27,9 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
 
+tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.1,
+                        GHC == 6.12.3, GHC == 7.0.1, GHC == 7.0.2
+
 Flag mtl2
     Description:        mtl-2 has State, etc., as "type" rather than "newtype"
 
@@ -41,7 +44,7 @@ Library
   else
     build-depends:      mtl == 1.1.*
   
-  build-depends:        base            == 4.*,
+  build-depends:        base            >= 3 && <5,
                         MonadPrompt     == 1.0.*,
                         random-source   == 0.3.*,
                         transformers    == 0.2.*
