@@ -16,14 +16,12 @@
 -- 'RandomSource' (if it were, it would always give the same \"random\"
 -- values).  Some form of mutable state must be used, such as an 'IORef',
 -- 'State' monad, etc..  A few default instances are provided by this module
--- along with more-general functions ('getRandomPrimFromMTRef' and
--- 'getRandomPrimFromMTState') usable as implementations for new cases
--- users might need.
+-- along with a more-general function ('getRandomPrimFromMTRef') usable as
+-- an implementation for new cases users might need.
 module Data.Random.Source.PureMT 
     ( PureMT, newPureMT, pureMT
     
     , getRandomPrimFromMTRef
-    , getRandomPrimFromMTState
     ) where
 
 import Control.Monad.State
@@ -100,18 +98,39 @@ $(randomSource
 --     {-# SPECIALIZE instance RandomSource IO  (TVar PureMT) #-}
 --     {-# SPECIALIZE instance RandomSource STM (TVar PureMT) #-}
 --     getRandomPrimFrom = getRandomPrimFromMTRef
-    
+
+
+-- |Given a mutable reference to a 'PureMT' generator, we can implement
+-- 'RandomSource' for it in any monad in which the reference can be modified.
+-- 
+-- Typically this would be used to define a new 'RandomSource' instance for
+-- some new reference type or new monad in which an existing reference type
+-- can be modified atomically.  As an example, the following instance could
+-- be used to describe how 'IORef' 'PureMT' can be a 'RandomSource' in the
+-- 'IO' monad:
+-- 
+-- > instance RandomSource IO (IORef PureMT) where
+-- >     supportedPrimsFrom _ _ = True
+-- >     getSupportedRandomPrimFrom = getRandomPrimFromMTRef
+-- 
+-- (note that there is actually a more general instance declared already
+-- covering this as a a special case, so there's no need to repeat this
+-- declaration anywhere)
+-- 
+-- Example usage (using some functions from "Data.Random" in the random-fu 
+-- package):
+-- 
+-- > main = do
+-- >     src <- newIORef (pureMT 1234)          -- OR: newPureMT >>= newIORef
+-- >     x <- runRVar (uniform 0 100) src :: IO Double
+-- >     print x
 getRandomPrimFromMTRef :: ModifyRef sr m PureMT => sr -> Prim a -> m a
 getRandomPrimFromMTRef ref
     = atomicModifyReference' ref 
     . runState 
-    . getRandomPrimFromMTState
+    . getRandomPrim
 
 atomicModifyReference' :: ModifyRef sr m a => sr -> (a -> (b, a)) -> m b
 atomicModifyReference' ref getR =
     atomicModifyReference ref (swap' . getR)
         where swap' (!a,!b) = (b,a)
-
-getRandomPrimFromMTState :: Monad m => Prim a -> StateT PureMT m a
-getRandomPrimFromMTState = getRandomPrim
-
