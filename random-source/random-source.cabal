@@ -16,7 +16,8 @@ description:            Random number generation based on entropy sources
                         able to produce a small but well-defined set of
                         primitive variates.  Also includes facilities for
                         \"completing\" partial implementations, making it
-                        easy to define new entropy sources.
+                        easy to define new entropy sources in a way that
+                        is naturally forward-compatible.
 
 
 Flag mtl2
