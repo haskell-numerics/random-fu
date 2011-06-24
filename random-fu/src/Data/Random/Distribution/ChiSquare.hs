@@ -7,8 +7,6 @@ module Data.Random.Distribution.ChiSquare where
 import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
-import Control.Monad
-import Data.List
 
 import Math.Gamma (p)
 
