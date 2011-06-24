@@ -2,7 +2,7 @@ name:                   random-source
 version:                0.3
 stability:              provisional
 
-cabal-version:          >= 1.2
+cabal-version:          >= 1.6
 build-type:             Simple
 
 author:                 James Cook <james.cook@usma.edu>
@@ -21,6 +21,11 @@ description:            Random number generation based on entropy sources
 
 tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.1, 
                         GHC == 6.12.3, GHC == 7.0.1, GHC == 7.0.2
+
+source-repository head
+  type:                 git
+  location:             https://github.com/mokus0/random-fu.git
+  subdir:               random-source
 
 Flag splitBase
     Description:        base-4 and above do not include syb

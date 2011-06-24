@@ -2,7 +2,7 @@ name:                   rvar
 version:                0.2
 stability:              stable
 
-cabal-version:          >= 1.2
+cabal-version:          >= 1.6
 build-type:             Simple
 
 author:                 James Cook <james.cook@usma.edu>
@@ -29,6 +29,11 @@ description:            Random number generation based on modeling random
 
 tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.1,
                         GHC == 6.12.3, GHC == 7.0.1, GHC == 7.0.2
+
+source-repository head
+  type:                 git
+  location:             https://github.com/mokus0/random-fu.git
+  subdir:               rvar
 
 Flag mtl2
     Description:        mtl-2 has State, etc., as "type" rather than "newtype"
