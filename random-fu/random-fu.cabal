@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2
+version:                0.2.0.2
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -18,24 +18,28 @@ description:            Random number generation based on modeling random
                         second, by an abstract type ('RVar') which can be
                         composed and manipulated monadically and sampled in
                         either monadic or \"pure\" styles.
-                        
+                        .
                         The primary purpose of this library is to support 
                         defining and sampling a wide variety of high quality
                         random variables.  Quality is prioritized over speed,
                         but performance is an important goal too.
-                        
+                        .
                         In my testing, I have found it capable of speed 
                         comparable to other Haskell libraries, but still
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
-                        
-                        Warning to anyone upgrading from \"< 0.2\": The old
-                        random-fu package has been split into three parts: 
-                        random-source, rvar, and this new random-fu.  The
-                        end-user interface is mostly the same.
+                        .
+                        Changes in 0.2.0.2: None except setting 
+                        \"Buildable: False\" under GHC 7.2.1 (see 
+                        flexible-defaults 0.0.0.2 for more detailed
+                        explanation).
+                        .
+                        Changes in 0.2: The old random-fu package has been 
+                        split into three parts: random-source, rvar, and this
+                        new random-fu.  The end-user interface is mostly the same.
                         
 tested-with:            GHC == 6.10.4, GHC == 6.12.1, GHC == 6.12.3,
-                        GHC == 7.0.1, GHC == 7.0.2
+                        GHC == 7.0.1, GHC == 7.0.2, GHC == 7.0.4
 
 source-repository head
   type:                 git
@@ -49,7 +53,7 @@ Flag mtl2
     Description:        mtl-2 has State, etc., as "type" rather than "newtype"
 
 Library
-  ghc-options:          -Wall -funbox-strict-fields -fno-method-sharing
+  ghc-options:          -Wall -funbox-strict-fields
   hs-source-dirs:       src
   exposed-modules:      Data.Random
                         Data.Random.Distribution
@@ -103,3 +107,8 @@ Library
     build-depends:      erf-native
   else
     build-depends:      erf
+  
+  if impl(ghc == 7.2.1)
+    -- Doesn't work under GHC 7.2.1 due to
+    -- http://hackage.haskell.org/trac/ghc/ticket/5410
+    Buildable:          False
