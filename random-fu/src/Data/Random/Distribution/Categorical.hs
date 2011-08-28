@@ -4,7 +4,8 @@
   #-}
 
 module Data.Random.Distribution.Categorical
-    ( categorical, categoricalT
+    ( Categorical(..)
+    , categorical, categoricalT
     , fromList, toList
     , fromWeightedList, fromObservations
     , mapCategoricalPs, normalizeCategoricalPs
