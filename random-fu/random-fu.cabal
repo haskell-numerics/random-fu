@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.0.2
+version:                0.2.1.0
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -28,6 +28,12 @@ description:            Random number generation based on modeling random
                         comparable to other Haskell libraries, but still
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
+                        .
+                        Changes in 0.2.1.0: Exposed Categorical type (it
+                        had been hidden by accident a few version ago),
+                        gave it a Read instance, and dropped a 
+                        no-longer-necessary Ord context from 'fromWeightedList'.
+                        Thank you Antal Spector-Zabusky for catching these!
                         .
                         Changes in 0.2.0.2: None except setting 
                         \"Buildable: False\" under GHC 7.2.1 (see 
