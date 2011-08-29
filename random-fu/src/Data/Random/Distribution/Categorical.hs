@@ -4,7 +4,7 @@
   #-}
 
 module Data.Random.Distribution.Categorical
-    ( Categorical(..)
+    ( Categorical
     , categorical, categoricalT
     , fromList, toList
     , fromWeightedList, fromObservations
@@ -63,6 +63,11 @@ fromWeightedList = normalizeCategoricalPs . fromList
 -- occurrences of that event.
 fromObservations :: (Fractional p, Ord a) => [a] -> Categorical p a
 fromObservations = fromWeightedList . map (genericLength &&& head) . group . sort
+
+-- The following description refers to the public interface.  For those reading
+-- the code, in the actual implementation Categorical is stored as a vector of
+-- (cumulative-probability, value) pairs, so that sampling can take advantage of
+-- binary search.
 
 -- |Categorical distribution; a list of events with corresponding probabilities.
 -- The sum of the probabilities must be 1, and no event should have a zero 
