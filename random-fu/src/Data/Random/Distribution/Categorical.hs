@@ -4,7 +4,8 @@
   #-}
 
 module Data.Random.Distribution.Categorical
-    ( categorical, categoricalT
+    ( Categorical(..)
+    , categorical, categoricalT
     , fromList, toList
     , fromWeightedList, fromObservations
     , mapCategoricalPs, normalizeCategoricalPs
@@ -53,7 +54,7 @@ toList (Categorical ds) = V.foldr' g [] ds
 
 -- |Construct a 'Categorical' distribution from a list of weighted categories, 
 -- where the weights do not necessarily sum to 1.
-fromWeightedList :: (Fractional p, Ord a) => [(p,a)] -> Categorical p a
+fromWeightedList :: Fractional p => [(p,a)] -> Categorical p a
 fromWeightedList = normalizeCategoricalPs . fromList
 
 -- |Construct a 'Categorical' distribution from a list of observed outcomes.
@@ -76,6 +77,12 @@ instance (Num p, Show a) => Show (Categorical p a) where
         ( showString "fromList "
         . showsPrec 11 (toList cat)
         )
+
+instance (Num p, Read p, Read a) => Read (Categorical p a) where
+  readsPrec p = readParen (p > 10) $ \str -> do
+                  ("fromList", valStr) <- lex str
+                  (vals,       rest)   <- readsPrec 11 valStr
+                  return (fromList vals, rest)
 
 instance (Fractional p, Ord p, Distribution Uniform p) => Distribution (Categorical p) a where
     rvarT (Categorical ds)
