@@ -27,9 +27,8 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
 
-tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.1,
-                        GHC == 6.12.3, GHC == 7.0.1, GHC == 7.0.2,
-                        GHC == 7.0.4
+tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.3,
+                        GHC == 7.0.4, GHC == 7.2.1, GHC == 7.2.2, 
 
 source-repository head
   type:                 git

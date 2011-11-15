@@ -117,4 +117,5 @@ Library
   if impl(ghc == 7.2.1)
     -- Doesn't work under GHC 7.2.1 due to
     -- http://hackage.haskell.org/trac/ghc/ticket/5410
+    -- (7.2.2 is fine though, as long as random-source is new enough)
     Buildable:          False
