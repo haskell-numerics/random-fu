@@ -10,6 +10,7 @@ import Data.Monoid
 import Data.Random.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
 import Data.Random.Internal.Words
 import Language.Haskell.TH
+import Language.Haskell.TH.Extras
 import qualified Language.Haskell.TH.FlexibleDefaults as FD
 
 import Control.Monad.Reader
@@ -105,9 +106,6 @@ inline = lift FD.inline
 noinline :: ReaderT Context (FD.Implementation s) ()
 noinline = lift FD.noinline
 
-replace :: (a -> Maybe a) -> (a -> a)
-replace = ap fromMaybe
-
 replaceMethodName :: (Method -> Name) -> Name -> Name
 replaceMethodName f = replace (fmap f . nameToMethod Generic)
 
@@ -117,7 +115,8 @@ changeContext c1 c2 = replace (fmap (methodName c2) . nameToMethod c1)
 -- map all occurrences of generic method names to the proper local ones
 -- and introduce a 'src' parameter where needed if the Context is RandomSource
 specialize :: Monad m => Q [Dec] -> ReaderT Context m (Q [Dec])
-specialize decQ = do
+specialize futzedDecsQ = do
+    let decQ = fmap genericalizeDecs futzedDecsQ
     c <- ask
     let specializeDec = everywhere (mkT (changeContext Generic c))
     if c == RandomSource
@@ -166,9 +165,6 @@ getWord32           = dummy GetWord32
 getWord64           = dummy GetWord64
 getDouble           = dummy GetDouble
 getNByteInteger     = dummy GetNByteInteger
-
-intIs64 :: Bool
-intIs64 = toInteger (maxBound :: Int) > 2^32
 
 -- The defaulting rules for RandomSource and MonadRandom.  Costs are rates of
 -- entropy waste (bits discarded per bit requested) plus the occasional ad-hoc
