@@ -10,7 +10,7 @@ import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 
-data Exponential a = Exp a
+newtype Exponential a = Exp a
 
 floatingExponential :: (Floating a, Distribution StdUniform a) => a -> RVarT m a
 floatingExponential lambdaRecip = do

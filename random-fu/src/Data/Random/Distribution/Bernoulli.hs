@@ -53,7 +53,7 @@ generalBernoulliCDF gte f t p x
     | x `gte` f = cdf (Bernoulli p) False
     | otherwise = 0
 
-data Bernoulli b a = Bernoulli b
+newtype Bernoulli b a = Bernoulli b
 
 instance (Fractional b, Ord b, Distribution StdUniform b) 
        => Distribution (Bernoulli b) Bool

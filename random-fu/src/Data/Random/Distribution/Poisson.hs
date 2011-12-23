@@ -62,7 +62,7 @@ poisson mu = rvar (Poisson mu)
 poissonT :: (Distribution (Poisson b) a) => b -> RVarT m a
 poissonT mu = rvarT (Poisson mu)
 
-data Poisson b a = Poisson b
+newtype Poisson b a = Poisson b
 
 $( replicateInstances ''Int integralTypes [d|
         instance ( RealFloat b 

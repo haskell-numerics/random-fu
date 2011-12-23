@@ -71,8 +71,8 @@ erlang a = rvar (Erlang a)
 erlangT :: (Distribution (Erlang a) b) => a -> RVarT m b
 erlangT a = rvarT (Erlang a)
 
-data Gamma a    = Gamma a a
-data Erlang a b = Erlang a
+data    Gamma a    = Gamma a a
+newtype Erlang a b = Erlang a
 
 instance (Floating a, Ord a, Distribution Normal a, Distribution StdUniform a) => Distribution Gamma a where
     {-# SPECIALIZE instance Distribution Gamma Double #-}
