@@ -73,7 +73,8 @@ fromObservations = fromWeightedList . map (genericLength &&& head) . group . sor
 -- The sum of the probabilities must be 1, and no event should have a zero 
 -- or negative probability (at least, at time of sampling; very clever users
 -- can do what they want with the numbers before sampling, just make sure 
--- that if you're one of those clever ones, you normalize before sampling).
+-- that if you're one of those clever ones, you at least eliminate negative 
+-- weights before sampling).
 newtype Categorical p a = Categorical (V.Vector (p, a))
     deriving Eq
 
@@ -96,22 +97,29 @@ instance (Fractional p, Ord p, Distribution Uniform p) => Distribution (Categori
         | otherwise = do
             u <- uniformT 0 (fst (V.last ds))
             
-            let p i = fst (ds V.! i)
+            let -- by construction, p is monotone; (i < j) ==> (p i <= p j)
+                p i = fst (ds V.! i)
                 x i = snd (ds V.! i)
                 
-                -- find the smallest entry whose cumulative probability is
-                -- greater than or equal to u
-                -- invariant: p j >= u
-                -- variant: at every step, either i increases or j decreases.
+                --  findEvent
+                -- ===========
+                -- invariants: (i <= j), (u <= p j), ((i == 0) || (p i < u))
+                --  (the last one means 'i' does not increase unless it bounds 'p' below 'u')
+                -- variant: either i increases or j decreases.
+                -- upon termination: ∀ k. if (k < j) then (p k < u) else (u <= p k)
+                --  (that is, the chosen event 'x j' is the first one whose 
+                --   associated cumulative probability 'p j' is greater than 
+                --   or equal to 'u')
                 findEvent i j
-                    | i >= j    = x j
-                    | p m >= u  = findEvent i m
+                    | j <= i    = x j
+                    | u <= p m  = findEvent i m
                     | otherwise = findEvent (max m (i+1)) j
                     where
                         -- midpoint rounding down
+                        -- (i < j) ==> (m < j)
                         m = (i + j) `div` 2
             
-            return (findEvent 0 (n-1))
+            return $! if u <= 0 then x 0 else findEvent 0 (n-1)
         where n = V.length ds
 
 
@@ -161,7 +169,7 @@ mapCategoricalPs :: (p -> q) -> Categorical p e -> Categorical q e
 mapCategoricalPs f (Categorical ds) = Categorical (V.map (first f) ds)
 
 -- |Adjust all the weights of a categorical distribution so that they 
--- sum to unity.
+-- sum to unity and remove all events whose probability is zero.
 normalizeCategoricalPs :: (Fractional p) => Categorical p e -> Categorical p e
 normalizeCategoricalPs orig@(Categorical ds) = 
     if V.null ds
@@ -169,12 +177,12 @@ normalizeCategoricalPs orig@(Categorical ds) =
         else runST $ do
             let n = V.length ds
             lastP       <- newSTRef 0
-            dups        <- newSTRef 0
+            nDups       <- newSTRef 0
             normalized  <- V.thaw ds
             
-            let skip = modifySTRef' dups (1+)
+            let skip = modifySTRef' nDups (1+)
                 save i p x = do
-                    d <- readSTRef dups
+                    d <- readSTRef nDups
                     MV.write normalized (i-d) (p, x)
             
             sequence_
@@ -185,26 +193,27 @@ normalizeCategoricalPs orig@(Categorical ds) =
                         then skip
                         else do
                             save i (p * scale) x
-                            writeSTRef lastP p
+                            writeSTRef lastP $! p
                 | i <- [0..n-1]
                 ]
             
             -- force last element to 1
-            d <- readSTRef dups
+            d <- readSTRef nDups
             MV.write normalized (n-d-1) (1,lastX)
             Categorical <$> V.unsafeFreeze (MV.unsafeSlice 0 (n-d) normalized)
     where
         (ps, lastX) = V.last ds
         scale = recip ps
 
+-- |strict 'modifySTRef'
 modifySTRef' :: STRef s a -> (a -> a) -> ST s ()
 modifySTRef' x f = do
     v <- readSTRef x
     let fv = f v
     fv `seq` writeSTRef x fv
 
--- |Simplify a categorical distribution by combining equivalent categories (the new
--- category will have a probability equal to the sum of all the originals).
+-- |Simplify a categorical distribution by combining equivalent events (the new
+-- event will have a probability equal to the sum of all the originals).
 collectEvents :: (Ord e, Num p, Ord p) => Categorical p e -> Categorical p e
 collectEvents = collectEventsBy compare ((sum *** head) . unzip)
         
