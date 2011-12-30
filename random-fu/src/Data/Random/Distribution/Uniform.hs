@@ -246,15 +246,15 @@ stdUniformT = rvarT StdUniform
 -- |Like 'stdUniform', but returns only positive or zero values.  Not 
 -- exported because it is not truly uniform: nonzero values are twice
 -- as likely as zero on signed types.
-stdUniformNonneg :: (Distribution StdUniform a, Num a) => RVarT m a
+stdUniformNonneg :: (Distribution StdUniform a, Num a, Eq a) => RVarT m a
 stdUniformNonneg = fmap abs stdUniformT
 
 -- |Like 'stdUniform' but only returns positive values.
-stdUniformPos :: (Distribution StdUniform a, Num a) => RVar a
+stdUniformPos :: (Distribution StdUniform a, Num a, Eq a) => RVar a
 stdUniformPos = stdUniformPosT
 
 -- |Like 'stdUniform' but only returns positive values.
-stdUniformPosT :: (Distribution StdUniform a, Num a) => RVarT m a
+stdUniformPosT :: (Distribution StdUniform a, Num a, Eq a) => RVarT m a
 stdUniformPosT = iterateUntil (/= 0) stdUniformNonneg
 
 -- |A definition of a uniform distribution over the type @t@.  See also 'uniform'.
