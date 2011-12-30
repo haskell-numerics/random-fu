@@ -16,7 +16,7 @@ import Data.Random.Distribution.Uniform
 
 {-# SPECIALIZE fractionalBeta :: Float  -> Float  -> RVarT m Float #-}
 {-# SPECIALIZE fractionalBeta :: Double -> Double -> RVarT m Double #-}
-fractionalBeta :: (Fractional a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVarT m a
+fractionalBeta :: (Fractional a, Eq a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVarT m a
 fractionalBeta 1 1 = stdUniformT
 fractionalBeta a b = do
     x <- gammaT a 1

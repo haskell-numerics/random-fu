@@ -14,7 +14,7 @@ multinomialT ps n = rvarT (Multinomial ps n)
 data Multinomial p a where
     Multinomial :: [p] -> a -> Multinomial p [a]
 
-instance (Num a, Fractional p, Distribution (Binomial p) a) => Distribution (Multinomial p) [a] where
+instance (Num a, Eq a, Fractional p, Distribution (Binomial p) a) => Distribution (Multinomial p) [a] where
     -- TODO: implement faster version based on Categorical for small n, large (length ps)
     rvarT (Multinomial ps0 t) = go t ps0 (tailSums ps0) id
         where

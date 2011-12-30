@@ -54,14 +54,14 @@ toList (Categorical ds) = V.foldr' g [] ds
 
 -- |Construct a 'Categorical' distribution from a list of weighted categories, 
 -- where the weights do not necessarily sum to 1.
-fromWeightedList :: Fractional p => [(p,a)] -> Categorical p a
+fromWeightedList :: (Fractional p, Eq p) => [(p,a)] -> Categorical p a
 fromWeightedList = normalizeCategoricalPs . fromList
 
 -- |Construct a 'Categorical' distribution from a list of observed outcomes.
 -- Equivalent events will be grouped and counted, and the probabilities of each
 -- event in the returned distribution will be proportional to the number of 
 -- occurrences of that event.
-fromObservations :: (Fractional p, Ord a) => [a] -> Categorical p a
+fromObservations :: (Fractional p, Eq p, Ord a) => [a] -> Categorical p a
 fromObservations = fromWeightedList . map (genericLength &&& head) . group . sort
 
 -- The following description refers to the public interface.  For those reading
@@ -78,7 +78,7 @@ fromObservations = fromWeightedList . map (genericLength &&& head) . group . sor
 newtype Categorical p a = Categorical (V.Vector (p, a))
     deriving Eq
 
-instance (Num p, Show a) => Show (Categorical p a) where
+instance (Num p, Show p, Show a) => Show (Categorical p a) where
     showsPrec p cat = showParen (p>10)
         ( showString "fromList "
         . showsPrec 11 (toList cat)
@@ -170,7 +170,7 @@ mapCategoricalPs f (Categorical ds) = Categorical (V.map (first f) ds)
 
 -- |Adjust all the weights of a categorical distribution so that they 
 -- sum to unity and remove all events whose probability is zero.
-normalizeCategoricalPs :: (Fractional p) => Categorical p e -> Categorical p e
+normalizeCategoricalPs :: (Fractional p, Eq p) => Categorical p e -> Categorical p e
 normalizeCategoricalPs orig@(Categorical ds) = 
     if V.null ds
         then orig
