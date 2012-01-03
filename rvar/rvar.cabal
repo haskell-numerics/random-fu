@@ -16,19 +16,21 @@ description:            Random number generation based on modeling random
                         variables by an abstract type ('RVar') which can be
                         composed and manipulated monadically and sampled in
                         either monadic or \"pure\" styles.
-                        
+                        .
                         The primary purpose of this library is to support 
                         defining and sampling a wide variety of high quality
                         random variables.  Quality is prioritized over speed,
                         but performance is an important goal too.
-                        
+                        .
                         In my testing, I have found it capable of speed 
                         comparable to other Haskell libraries, but still
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
+                        
 
 tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.3,
                         GHC == 7.0.4, GHC == 7.2.1, GHC == 7.2.2, 
+                        GHC == 7.4.1-rc1
 
 source-repository head
   type:                 git
