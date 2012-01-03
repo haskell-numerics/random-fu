@@ -1,11 +1,12 @@
-{-
- -      ``Data/Random/Internal/Words''
- -}
-
 -- |A few little functions I found myself writing inline over and over again.
 module Data.Random.Internal.Words where
 
-import Foreign
+import Data.Bits
+import Data.Word
+import Foreign.Marshal  (allocaBytes)
+import Foreign.Ptr      (castPtr)
+import Foreign.Storable (peek, pokeByteOff)
+import System.IO.Unsafe (unsafePerformIO)
 
 -- TODO: add a build flag for endianness-invariance, or just find a way
 -- to make sure these operations all do the right thing without costing 

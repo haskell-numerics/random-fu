@@ -8,8 +8,11 @@ module Data.Random.Source.DevRandom
 
 import Data.Random.Source
 
+import Foreign.Marshal (allocaBytes)
+import Foreign.Ptr (castPtr)
+import Foreign.Storable (peek)
 import System.IO (openBinaryFile, hGetBuf, Handle, IOMode(..))
-import Foreign
+import System.IO.Unsafe (unsafePerformIO)
 
 -- |On systems that have it, \/dev\/random is a handy-dandy ready-to-use source
 -- of nonsense.  Keep in mind that on some systems, Linux included, \/dev\/random

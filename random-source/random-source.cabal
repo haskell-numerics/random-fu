@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.3.0.2
+version:                0.3.0.3
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -19,6 +19,9 @@ description:            Random number generation based on entropy sources
                         easy to define new entropy sources in a way that
                         is naturally forward-compatible.
                         .
+                        Changes in 0.3.0.3: Fixes for GHC's deprecation
+                        of Foreign.unsafePerformIO
+                        .
                         Changes in 0.3.0.2: Fixes for GHC 7.2.*'s crazy
                         Template Haskell changes.
                         .
@@ -26,7 +29,8 @@ description:            Random number generation based on entropy sources
                         on flexible-defaults >= 0.0.0.2.
 
 tested-with:            GHC == 6.8.3, GHC == 6.10.4, GHC == 6.12.3,
-                        GHC == 7.0.4, GHC == 7.2.1, GHC == 7.2.2
+                        GHC == 7.0.4, GHC == 7.2.1, GHC == 7.2.2,
+                        GHC == 7.4.1-rc1
 
 source-repository head
   type:                 git
