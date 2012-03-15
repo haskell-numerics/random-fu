@@ -6,7 +6,8 @@
 module Data.Random.Distribution.Categorical
     ( Categorical
     , categorical, categoricalT
-    , fromList, toList
+    , weightedCategorical, weightedCategoricalT
+    , fromList, toList, totalWeight
     , fromWeightedList, fromObservations
     , mapCategoricalPs, normalizeCategoricalPs
     , collectEvents, collectEventsBy
@@ -39,6 +40,16 @@ categorical = rvar . fromList
 categoricalT :: (Num p, Distribution (Categorical p) a) => [(p,a)] -> RVarT m a
 categoricalT = rvarT . fromList
 
+-- |Construct a 'Categorical' random variable from a list of probabilities
+-- and categories, where the probabilities all sum to 1.
+weightedCategorical :: (Fractional p, Eq p, Distribution (Categorical p) a) => [(p,a)] -> RVar a
+weightedCategorical = rvar . fromWeightedList
+
+-- |Construct a 'Categorical' random process from a list of probabilities 
+-- and categories, where the probabilities all sum to 1.
+weightedCategoricalT :: (Fractional p, Eq p, Distribution (Categorical p) a) => [(p,a)] -> RVarT m a
+weightedCategoricalT = rvarT . fromWeightedList
+
 -- | Construct a 'Categorical' distribution from a list of weighted categories.
 {-# INLINE fromList #-}
 fromList :: (Num p) => [(p,a)] -> Categorical p a
@@ -51,6 +62,11 @@ toList (Categorical ds) = V.foldr' g [] ds
     where
         g x [] = [x]
         g x@(p0,_) ((p1, y):xs) = x : (p1-p0,y) : xs
+
+totalWeight :: Num p => Categorical p a -> p
+totalWeight (Categorical ds)
+    | V.null ds = 0
+    | otherwise = fst (V.last ds)
 
 -- |Construct a 'Categorical' distribution from a list of weighted categories, 
 -- where the weights do not necessarily sum to 1.
@@ -165,8 +181,8 @@ instance Fractional p => Applicative (Categorical p) where
     (<*>) = ap
 
 -- |Like 'fmap', but for the probabilities of a categorical distribution.
-mapCategoricalPs :: (p -> q) -> Categorical p e -> Categorical q e
-mapCategoricalPs f (Categorical ds) = Categorical (V.map (first f) ds)
+mapCategoricalPs :: (Num p, Num q) => (p -> q) -> Categorical p e -> Categorical q e
+mapCategoricalPs f = fromList . map (first f) . toList
 
 -- |Adjust all the weights of a categorical distribution so that they 
 -- sum to unity and remove all events whose probability is zero.
