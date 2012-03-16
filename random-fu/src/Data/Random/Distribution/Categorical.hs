@@ -190,38 +190,38 @@ mapCategoricalPs f = fromList . map (first f) . toList
 -- |Adjust all the weights of a categorical distribution so that they 
 -- sum to unity and remove all events whose probability is zero.
 normalizeCategoricalPs :: (Fractional p, Eq p) => Categorical p e -> Categorical p e
-normalizeCategoricalPs orig@(Categorical ds) = 
-    if V.null ds
-        then orig
-        else runST $ do
-            let n = V.length ds
-            lastP       <- newSTRef 0
-            nDups       <- newSTRef 0
-            normalized  <- V.thaw ds
-            
-            let skip = modifySTRef' nDups (1+)
-                save i p x = do
-                    d <- readSTRef nDups
-                    MV.write normalized (i-d) (p, x)
-            
-            sequence_
-                [ do
-                    let (p,x) = ds V.! i
-                    p0 <- readSTRef lastP
-                    if p == p0
-                        then skip
-                        else do
-                            save i (p * scale) x
-                            writeSTRef lastP $! p
-                | i <- [0..n-1]
-                ]
-            
-            -- force last element to 1
-            d <- readSTRef nDups
-            MV.write normalized (n-d-1) (1,lastX)
-            Categorical <$> V.unsafeFreeze (MV.unsafeSlice 0 (n-d) normalized)
+normalizeCategoricalPs orig@(Categorical ds)
+    | ps == 0   = Categorical V.empty
+    | otherwise = runST $ do
+        lastP       <- newSTRef 0
+        nDups       <- newSTRef 0
+        normalized  <- V.thaw ds
+        
+        let n           = V.length ds
+            lastX       = snd (V.last ds)
+            skip        = modifySTRef' nDups (1+)
+            save i p x  = do
+                d <- readSTRef nDups
+                MV.write normalized (i-d) (p, x)
+        
+        sequence_
+            [ do
+                let (p,x) = ds V.! i
+                p0 <- readSTRef lastP
+                if p == p0
+                    then skip
+                    else do
+                        save i (p * scale) x
+                        writeSTRef lastP $! p
+            | i <- [0..n-1]
+            ]
+        
+        -- force last element to 1
+        d <- readSTRef nDups
+        MV.write normalized (n-d-1) (1,lastX)
+        Categorical <$> V.unsafeFreeze (MV.unsafeSlice 0 (n-d) normalized)
     where
-        (ps, lastX) = V.last ds
+        ps = totalWeight orig
         scale = recip ps
 
 -- |strict 'modifySTRef'
