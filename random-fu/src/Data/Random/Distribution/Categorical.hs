@@ -7,7 +7,7 @@ module Data.Random.Distribution.Categorical
     ( Categorical
     , categorical, categoricalT
     , weightedCategorical, weightedCategoricalT
-    , fromList, toList, totalWeight
+    , fromList, toList, totalWeight, numEvents
     , fromWeightedList, fromObservations
     , mapCategoricalPs, normalizeCategoricalPs
     , collectEvents, collectEventsBy
@@ -67,6 +67,9 @@ totalWeight :: Num p => Categorical p a -> p
 totalWeight (Categorical ds)
     | V.null ds = 0
     | otherwise = fst (V.last ds)
+
+numEvents :: Categorical p a -> Int
+numEvents (Categorical ds) = V.length ds
 
 -- |Construct a 'Categorical' distribution from a list of weighted categories, 
 -- where the weights do not necessarily sum to 1.
