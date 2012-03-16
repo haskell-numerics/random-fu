@@ -198,7 +198,6 @@ normalizeCategoricalPs orig@(Categorical ds)
         normalized  <- V.thaw ds
         
         let n           = V.length ds
-            lastX       = snd (V.last ds)
             skip        = modifySTRef' nDups (1+)
             save i p x  = do
                 d <- readSTRef nDups
@@ -218,8 +217,10 @@ normalizeCategoricalPs orig@(Categorical ds)
         
         -- force last element to 1
         d <- readSTRef nDups
-        MV.write normalized (n-d-1) (1,lastX)
-        Categorical <$> V.unsafeFreeze (MV.unsafeSlice 0 (n-d) normalized)
+        let n' = n-d
+        (_,lastX) <- MV.read normalized (n'-1)
+        MV.write normalized (n'-1) (1,lastX)
+        Categorical <$> V.unsafeFreeze (MV.unsafeSlice 0 n' normalized)
     where
         ps = totalWeight orig
         scale = recip ps
