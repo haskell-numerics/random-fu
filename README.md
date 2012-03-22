@@ -36,3 +36,18 @@ To use the system, you'll typically want import at least two modules: `Data.Rand
         y <- sampleFrom mwc (logNormal 5 1)
         print y
 
+Installation
+============
+
+Get the latest release from Hackage:
+
+    cabal install random-fu
+
+Or a bleeding-edge version from github:
+
+    git clone https://github.com/mokus0/random-fu.git
+    cd random-fu
+    (cd random-source; cabal install)
+    (cd rvar;          cabal install)
+    (cd random-fu;     cabal install)
+
