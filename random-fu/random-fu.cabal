@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.2.1
+version:                0.2.3.0
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -29,6 +29,9 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
                         .
+                        Changes in 0.2.3.0: Added stretched exponential distribution,
+                        contributed by Ben Gamari.
+                        .
                         Changes in 0.2.2.0: Bug fixes in Data.Random.Distribution.Categorical.
                         .
                         Changes in 0.2.1.1: Changed some one-field data types
@@ -46,10 +49,6 @@ description:            Random number generation based on modeling random
                         \"Buildable: False\" under GHC 7.2.1 (see 
                         flexible-defaults 0.0.0.2 for more detailed
                         explanation).
-                        .
-                        Changes in 0.2: The old random-fu package has been 
-                        split into three parts: random-source, rvar, and this
-                        new random-fu.  The end-user interface is mostly the same.
                         
 tested-with:            GHC == 6.10.4, GHC == 6.12.1, GHC == 6.12.3,
                         GHC == 7.0.1, GHC == 7.0.2, GHC == 7.0.4,
