@@ -78,6 +78,7 @@ Library
                         Data.Random.Distribution.ChiSquare
                         Data.Random.Distribution.Dirichlet
                         Data.Random.Distribution.Exponential
+                        Data.Random.Distribution.StretchedExponential
                         Data.Random.Distribution.Gamma
                         Data.Random.Distribution.Multinomial
                         Data.Random.Distribution.Normal
