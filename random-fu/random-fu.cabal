@@ -5,8 +5,8 @@ stability:              provisional
 cabal-version:          >= 1.6
 build-type:             Simple
 
-author:                 James Cook <james.cook@usma.edu>
-maintainer:             James Cook <james.cook@usma.edu>
+author:                 James Cook <mokus@deepbondi.net>
+maintainer:             James Cook <mokus@deepbondi.net>
 license:                PublicDomain
 homepage:               https://github.com/mokus0/random-fu
 

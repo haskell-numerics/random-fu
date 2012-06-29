@@ -5,8 +5,8 @@ stability:              experimental
 cabal-version:          >= 1.2
 build-type:             Simple
 
-author:                 James Cook <james.cook@usma.edu>
-maintainer:             James Cook <james.cook@usma.edu>
+author:                 James Cook <mokus@deepbondi.net>
+maintainer:             James Cook <mokus@deepbondi.net>
 
 description:            Various benchmarks for the random-fu library.
 
