@@ -1,6 +1,7 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
-    FlexibleInstances, FlexibleContexts
+    FlexibleInstances, FlexibleContexts,
+    CPP
   #-}
 
 module Data.Random.Distribution.Categorical
@@ -225,12 +226,14 @@ normalizeCategoricalPs orig@(Categorical ds)
         ps = totalWeight orig
         scale = recip ps
 
+#if __GLASGOW_HASKELL__ < 706
 -- |strict 'modifySTRef'
 modifySTRef' :: STRef s a -> (a -> a) -> ST s ()
 modifySTRef' x f = do
     v <- readSTRef x
     let fv = f v
     fv `seq` writeSTRef x fv
+#endif
 
 -- |Simplify a categorical distribution by combining equivalent events (the new
 -- event will have a probability equal to the sum of all the originals).
