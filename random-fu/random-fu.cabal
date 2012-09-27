@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.3.0
+version:                0.2.3.1
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -29,6 +29,8 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
                         .
+                        Changes in 0.2.3.1: Should now build on GHC 7.6
+                        .
                         Changes in 0.2.3.0: Added stretched exponential distribution,
                         contributed by Ben Gamari.
                         .
@@ -44,12 +46,7 @@ description:            Random number generation based on modeling random
                         gave it a Read instance, and dropped a 
                         no-longer-necessary Ord context from 'fromWeightedList'.
                         Thank you Antal Spector-Zabusky for catching these!
-                        .
-                        Changes in 0.2.0.2: None except setting 
-                        \"Buildable: False\" under GHC 7.2.1 (see 
-                        flexible-defaults 0.0.0.2 for more detailed
-                        explanation).
-                        
+
 tested-with:            GHC == 6.10.4, GHC == 6.12.1, GHC == 6.12.3,
                         GHC == 7.0.1, GHC == 7.0.2, GHC == 7.0.4,
                         GHC == 7.2.2, GHC == 7.4.1-rc1
