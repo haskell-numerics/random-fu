@@ -43,6 +43,9 @@ instance Monad m => Lift T.Identity m where
 instance Lift (RVarT T.Identity) (RVarT m) where
     lift x = runRVar x StdRandom
 
+instance T.MonadTrans t => Lift T.Identity (t T.Identity) where
+  lift = T.lift
+
 #ifndef MTL2
 
 -- | This instance is incoherent with the other two. However,
