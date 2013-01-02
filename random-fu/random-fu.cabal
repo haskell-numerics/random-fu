@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.3.1
+version:                0.2.4.0
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -29,6 +29,9 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
                         .
+                        Changes in 0.2.4.0: Added a Lift instance that resolves
+                        a common overlapping-instance issue in user code.
+                        .
                         Changes in 0.2.3.1: Should now build on GHC 7.6
                         .
                         Changes in 0.2.3.0: Added stretched exponential distribution,
@@ -40,16 +43,8 @@ description:            Random number generation based on modeling random
                         to newtypes, updated types for GHC 7.4's removal of Eq 
                         and Show from the context of Num, and added RVarT versions
                         of random variables in Data.Random.List
-                        .
-                        Changes in 0.2.1.0: Exposed Categorical type (it
-                        had been hidden by accident a few version ago),
-                        gave it a Read instance, and dropped a 
-                        no-longer-necessary Ord context from 'fromWeightedList'.
-                        Thank you Antal Spector-Zabusky for catching these!
 
-tested-with:            GHC == 6.10.4, GHC == 6.12.1, GHC == 6.12.3,
-                        GHC == 7.0.1, GHC == 7.0.2, GHC == 7.0.4,
-                        GHC == 7.2.2, GHC == 7.4.1-rc1
+tested-with:            GHC == 7.4.2, GHC == 7.6.1
 
 source-repository head
   type:                 git

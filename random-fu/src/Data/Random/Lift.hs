@@ -34,7 +34,7 @@ instance (Monad m, T.MonadTrans t) => Lift m (t m) where
 instance Lift m m where
     lift = id
 
--- | This instance is incoherent with the other two. However,
+-- | This instance is incoherent with the others. However,
 -- by the law @lift (return x) == return x@, the results
 -- must always be the same.
 instance Monad m => Lift T.Identity m where
@@ -43,19 +43,28 @@ instance Monad m => Lift T.Identity m where
 instance Lift (RVarT T.Identity) (RVarT m) where
     lift x = runRVar x StdRandom
 
+-- | This instance is again incoherent with the others, but provides a
+-- more-specific instance to resolve the overlap between the
+-- @Lift m (t m)@ and @Lift Identity m@ instances.
 instance T.MonadTrans t => Lift T.Identity (t T.Identity) where
-  lift = T.lift
+    lift = T.lift
 
 #ifndef MTL2
 
--- | This instance is incoherent with the other two. However,
+-- | This instance is incoherent with the others. However,
 -- by the law @lift (return x) == return x@, the results
 -- must always be the same.
 instance Monad m => Lift MTL.Identity m where
     lift = return . MTL.runIdentity
 
 instance Lift (RVarT MTL.Identity) (RVarT m) where
-    lift x = runRVar x StdRandom
+    lift x = runRVarTWith (return . MTL.runIdentity) x StdRandom
+
+-- | This instance is again incoherent with the others, but provides a
+-- more-specific instance to resolve the overlap between the
+-- @Lift m (t m)@ and @Lift Identity m@ instances.
+instance T.MonadTrans t => Lift MTL.Identity (t MTL.Identity) where
+    lift = T.lift
 
 #endif
 

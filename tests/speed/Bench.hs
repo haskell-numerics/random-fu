@@ -107,12 +107,12 @@ main = do
                     let xs = [(u - 0.5) * 20| u <- us]
                     sum' (xs :: [Double]) `seq` return ()
                 ]
-            , bgroup "normal"
-                [ bench "Double" $ do
-                    src <- newGenIO
-                    xs <- stToIO $ replicateM count (MWC.normal src)
-                    sum' (xs :: [Double]) `seq` return ()
-                ]
+--            , bgroup "normal"
+--                [ bench "Double" $ do
+--                    src <- newGenIO
+--                    xs <- stToIO $ replicateM count (MWC.normal src)
+--                    sum' (xs :: [Double]) `seq` return ()
+--                ]
             , bgroup "uniformVector"
                 [ bench "Double" $ do
                     src <- newGenIO

@@ -47,7 +47,7 @@ withMTState thing = do
 #ifndef MTL2
 
 $(monadRandom
-    [d| instance MonadRandom (State PureMT) |] where
+    [d| instance MonadRandom (State PureMT) where
             getRandomWord64 = withMTState randomWord64
             getRandomDouble = withMTState randomDouble
      |])
