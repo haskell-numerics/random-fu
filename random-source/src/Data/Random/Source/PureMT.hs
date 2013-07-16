@@ -26,7 +26,7 @@ module Data.Random.Source.PureMT
 
 import Control.Monad.State
 import qualified Control.Monad.State.Strict as S
-import Data.Random.Source.Internal.Source
+import Data.Random.Internal.Source
 import Data.Random.Source.Internal.TH
 import Data.StateRef
 import System.Random.Mersenne.Pure64

@@ -15,7 +15,7 @@ module Data.Random.Source.MWC
     , save, restore
     ) where
 
-import Data.Random.Source.Internal.Words
+import Data.Random.Internal.Words
 import Data.Random.Source
 import System.Random.MWC
 import Control.Monad.ST

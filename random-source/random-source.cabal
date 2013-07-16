@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.3.0.5
+version:                0.3.0.6
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -19,7 +19,9 @@ description:            Random number generation based on entropy sources
                         easy to define new entropy sources in a way that
                         is naturally forward-compatible.
                         .
-                        Changes in 0.3.0.5: Renamed some internal modules.  No other changes.
+                        Changes in 0.3.0.6: Fixed overzealous fix in 0.3.0.5.  The people responsible for sacking the people who have been sacked, etc., have been sacked.
+                        .
+                        Changes in 0.3.0.5: Renamed some internal modules and accidentally some external ones too.  Whoops.  Please don't use this version, it will only end in tears.
                         .
                         Changes in 0.3.0.4: Fixed a typo that broke building
                         with MTL-1
@@ -51,8 +53,8 @@ Library
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
-                        Data.Random.Source.Internal.Words
-                        Data.Random.Source.Internal.Source
+                        Data.Random.Internal.Words
+                        Data.Random.Internal.Source
   other-modules:        Data.Random.Source.Internal.Prim
                         Data.Random.Source.Internal.TH
   

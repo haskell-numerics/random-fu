@@ -1,5 +1,5 @@
 -- |A few little functions I found myself writing inline over and over again.
-module Data.Random.Source.Internal.Words where
+module Data.Random.Internal.Words where
 
 import Data.Bits
 import Data.Word

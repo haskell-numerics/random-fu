@@ -7,7 +7,7 @@
 
 module Data.Random.Source.Std where
 
-import Data.Random.Source.Internal.Source
+import Data.Random.Internal.Source
 
 -- |A token representing the \"standard\" entropy source in a 'MonadRandom'
 -- monad.  Its sole purpose is to make the following true (when the types check):

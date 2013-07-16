@@ -3,7 +3,7 @@
     MultiParamTypeClasses, FlexibleInstances, FlexibleContexts
   #-}
 
-module Data.Random.Source.Internal.Source
+module Data.Random.Internal.Source
     ( Prim(..)
     , MonadRandom(..)
     , RandomSource(..)

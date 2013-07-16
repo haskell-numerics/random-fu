@@ -21,7 +21,7 @@ module Data.Random.Source.StdGen
     , getRandomPrimFromRandomGenState
     ) where
 
-import Data.Random.Source.Internal.Source
+import Data.Random.Internal.Source
 import System.Random
 import Control.Monad.State
 import qualified Control.Monad.ST.Strict as S

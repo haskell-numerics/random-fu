@@ -7,8 +7,8 @@ import Data.Generics
 import Data.List
 import Data.Maybe
 import Data.Monoid
-import Data.Random.Source.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
-import Data.Random.Source.Internal.Words
+import Data.Random.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
+import Data.Random.Internal.Words
 import Language.Haskell.TH
 import Language.Haskell.TH.Extras
 import qualified Language.Haskell.TH.FlexibleDefaults as FD
