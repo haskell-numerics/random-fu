@@ -3,14 +3,14 @@
     MultiParamTypeClasses, FlexibleInstances, FlexibleContexts
   #-}
 
-module Data.Random.Internal.Source
+module Data.Random.Source.Internal.Source
     ( Prim(..)
     , MonadRandom(..)
     , RandomSource(..)
     , GetPrim(..)
     ) where
 
-import Data.Random.Internal.Prim
+import Data.Random.Source.Internal.Prim
 import Data.Word
 
 -- |A typeclass for monads with a chosen source of entropy.  For example,

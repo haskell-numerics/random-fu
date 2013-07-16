@@ -26,8 +26,8 @@ module Data.Random.Source
 
 import Data.Word
 
-import Data.Random.Internal.Source
-import Data.Random.Internal.TH
+import Data.Random.Source.Internal.Source
+import Data.Random.Source.Internal.TH
 
 $(randomSource
     [d| 

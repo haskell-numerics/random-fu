@@ -1,14 +1,14 @@
 {-# LANGUAGE TemplateHaskell, GADTs #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults -fno-warn-missing-signatures #-}
-module Data.Random.Internal.TH (monadRandom, randomSource) where
+module Data.Random.Source.Internal.TH (monadRandom, randomSource) where
 
 import Data.Bits
 import Data.Generics
 import Data.List
 import Data.Maybe
 import Data.Monoid
-import Data.Random.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
-import Data.Random.Internal.Words
+import Data.Random.Source.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
+import Data.Random.Source.Internal.Words
 import Language.Haskell.TH
 import Language.Haskell.TH.Extras
 import qualified Language.Haskell.TH.FlexibleDefaults as FD

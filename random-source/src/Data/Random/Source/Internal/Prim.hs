@@ -2,7 +2,7 @@
 -- |This is an internal interface to support the 'RVar' abstraction.  It
 -- reifies the operations provided by both MonadRandom and RandomSource in a
 -- uniform and efficient way, as functions of type @Prim a -> m a@.
-module Data.Random.Internal.Prim (Prim(..)) where
+module Data.Random.Source.Internal.Prim (Prim(..)) where
 
 import Data.Word
 import Data.Typeable
@@ -10,7 +10,7 @@ import Data.Typeable
 -- |A 'Prompt' GADT describing a request for a primitive random variate.
 -- Random variable definitions will request their entropy via these prompts,
 -- and entropy sources will satisfy those requests.  The functions in
--- "Data.Random.Internal.TH" extend incomplete entropy-source definitions
+-- "Data.Random.Source.Internal.TH" extend incomplete entropy-source definitions
 -- to complete ones, essentially defining a very flexible 
 -- implementation-defaulting system.
 -- 

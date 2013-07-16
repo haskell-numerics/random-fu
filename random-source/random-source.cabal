@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.3.0.4
+version:                0.3.0.5
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -18,6 +18,8 @@ description:            Random number generation based on entropy sources
                         \"completing\" partial implementations, making it
                         easy to define new entropy sources in a way that
                         is naturally forward-compatible.
+                        .
+                        Changes in 0.3.0.5: Renamed some internal modules.  No other changes.
                         .
                         Changes in 0.3.0.4: Fixed a typo that broke building
                         with MTL-1
@@ -49,10 +51,10 @@ Library
                         Data.Random.Source.PureMT
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
-                        Data.Random.Internal.Words
-                        Data.Random.Internal.Source
-  other-modules:        Data.Random.Internal.Prim
-                        Data.Random.Internal.TH
+                        Data.Random.Source.Internal.Words
+                        Data.Random.Source.Internal.Source
+  other-modules:        Data.Random.Source.Internal.Prim
+                        Data.Random.Source.Internal.TH
   
   if impl(ghc >= 6.10)
     -- mwc-random depends on vector, which doesn't build on GHC < 6.10.

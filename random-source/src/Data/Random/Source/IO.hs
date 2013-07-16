@@ -6,7 +6,7 @@
 -- "Data.Random.Source.DevRandom".
 module Data.Random.Source.IO () where
 
-import Data.Random.Internal.Source
+import Data.Random.Source.Internal.Source
 
 #ifndef windows
 
