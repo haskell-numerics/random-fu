@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.4.0
+version:                0.2.4.1
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -76,6 +76,7 @@ Library
                         Data.Random.Distribution.Pareto
                         Data.Random.Distribution.Poisson
                         Data.Random.Distribution.Rayleigh
+                        Data.Random.Distribution.T
                         Data.Random.Distribution.Triangular
                         Data.Random.Distribution.Uniform
                         Data.Random.Distribution.Weibull
