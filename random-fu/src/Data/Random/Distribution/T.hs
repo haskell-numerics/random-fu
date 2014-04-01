@@ -1,14 +1,21 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE UndecidableInstances  #-}
+
+{-# OPTIONS_GHC -Wall                      #-}
+{-# OPTIONS_GHC -fno-warn-name-shadowing   #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults    #-}
+{-# OPTIONS_GHC -fno-warn-unused-do-bind   #-}
+{-# OPTIONS_GHC -fno-warn-missing-methods  #-}
+{-# OPTIONS_GHC -fno-warn-orphans          #-}
+
 module Data.Random.Distribution.T where
 
 import Data.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.ChiSquare
 import Data.Random.Distribution.Normal
-import Math.Beta
 
 t :: Distribution T a => Integer -> RVar a
 t = rvar . T
@@ -26,12 +33,3 @@ instance (Floating a, Distribution Normal a, Distribution ChiSquare a) => Distri
             y <- chiSquareT n
             return (x * sqrt (fromInteger n / y))
         | otherwise = fail "Student's t-distribution: degrees of freedom must be positive"
-
-instance (Real a, Distribution T a) => CDF T a where
-    cdf (T n) t = i_ x v2 v2
-        where
-            v = fromIntegral n
-            v2 = 0.5 * v
-            tD = realToFrac t
-            u = sqrt (tD*tD + v)
-            x = (tD + u) / (u + u)
