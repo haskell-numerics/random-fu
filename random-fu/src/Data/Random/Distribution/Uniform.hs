@@ -30,6 +30,7 @@ module Data.Random.Distribution.Uniform
     , floatStdUniform
     , doubleStdUniform
     
+    , boundedStdUniformCDF
     , realStdUniformCDF
     , realUniformCDF
     ) where
