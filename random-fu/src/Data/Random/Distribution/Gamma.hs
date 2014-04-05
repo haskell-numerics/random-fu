@@ -21,7 +21,7 @@ import Data.Random.Distribution.Normal
 
 import Data.Ratio
 
-import Math.Gamma (p)
+import Numeric.SpecFunctions
 
 -- |derived from  Marsaglia & Tang, "A Simple Method for generating gamma
 -- variables", ACM Transactions on Mathematical Software, Vol 26, No 3 (2000), p363-372.
@@ -80,11 +80,11 @@ instance (Floating a, Ord a, Distribution Normal a, Distribution StdUniform a) =
     rvarT (Gamma a b) = mtGamma a b
 
 instance (Real a, Distribution Gamma a) => CDF Gamma a where
-    cdf (Gamma a b) x = p (realToFrac a) (realToFrac x / realToFrac b)
+    cdf (Gamma a b) x = incompleteGamma (realToFrac a) (realToFrac x / realToFrac b)
 
 instance (Integral a, Floating b, Ord b, Distribution Normal b, Distribution StdUniform b) => Distribution (Erlang a) b where
     rvarT (Erlang a) = mtGamma (fromIntegral a) 1
 
 instance (Integral a, Real b, Distribution (Erlang a) b) => CDF (Erlang a) b where
-    cdf (Erlang a) x = p (fromIntegral a) (realToFrac x)
+    cdf (Erlang a) x = incompleteGamma (fromIntegral a) (realToFrac x)
 

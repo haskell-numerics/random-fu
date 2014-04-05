@@ -17,6 +17,8 @@ import Data.Random.Distribution
 import Data.Random.Distribution.ChiSquare
 import Data.Random.Distribution.Normal
 
+import Numeric.SpecFunctions
+
 t :: Distribution T a => Integer -> RVar a
 t = rvar . T
 
@@ -33,3 +35,12 @@ instance (Floating a, Distribution Normal a, Distribution ChiSquare a) => Distri
             y <- chiSquareT n
             return (x * sqrt (fromInteger n / y))
         | otherwise = fail "Student's t-distribution: degrees of freedom must be positive"
+
+instance (Real a, Distribution T a) => CDF T a where
+    cdf (T n) t = incompleteBeta v2 v2 x
+        where
+            v = fromIntegral n
+            v2 = 0.5 * v
+            tD = realToFrac t
+            u = sqrt (tD*tD + v)
+            x = (tD + u) / (u + u)

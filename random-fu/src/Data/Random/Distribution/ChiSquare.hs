@@ -8,7 +8,7 @@ import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
 
-import Math.Gamma (p)
+import Numeric.SpecFunctions
 
 chiSquare :: Distribution ChiSquare t => Integer -> RVar t
 chiSquare = rvar . ChiSquare
@@ -25,4 +25,4 @@ instance (Fractional t, Distribution Gamma t) => Distribution ChiSquare t where
         | otherwise = fail "chi-square distribution: degrees of freedom must be positive"
 
 instance (Real t, Distribution ChiSquare t) => CDF ChiSquare t where
-    cdf (ChiSquare n) x = p (0.5 * fromInteger n) (0.5 * realToFrac x)
+    cdf (ChiSquare n) x = incompleteGamma (0.5 * fromInteger n) (0.5 * realToFrac x)

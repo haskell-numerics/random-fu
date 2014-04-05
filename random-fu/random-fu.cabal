@@ -100,7 +100,7 @@ Library
   else
     build-depends:      mtl == 1.*
   
-  build-depends:        gamma,
+  build-depends:        math-functions,
                         monad-loops >= 0.3.0.1,
                         random-shuffle,
                         random-source == 0.3.*,
