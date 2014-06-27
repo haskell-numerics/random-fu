@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.5.0
+version:                0.2.6.0
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -88,6 +88,7 @@ Library
                         Data.Random.List
                         Data.Random.RVar
                         Data.Random.Sample
+                        Data.Random.Vector
   if flag(base4_2)
     build-depends:      base >= 4.2 && <5
   else

@@ -22,6 +22,7 @@ module Data.Random.Distribution.Uniform
     , floatUniform
     , doubleUniform
     , fixedUniform
+    , enumUniform
     
     , boundedStdUniform
     , boundedEnumStdUniform
@@ -33,6 +34,7 @@ module Data.Random.Distribution.Uniform
     , boundedStdUniformCDF
     , realStdUniformCDF
     , realUniformCDF
+    , enumUniformCDF
     ) where
 
 import Data.Random.Internal.TH
