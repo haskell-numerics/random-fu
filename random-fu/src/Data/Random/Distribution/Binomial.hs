@@ -52,6 +52,15 @@ integralBinomialCDF t p x = sum
         p' = realToFrac p
         n `c` k = product [n-k+1..n] `div` product [1..k]
 
+-- TODO: improve performance
+integralBinomialPDF :: (Integral a, Real b) => a -> b -> a -> Double
+integralBinomialPDF t p x =
+    fromInteger (toInteger t `c` toInteger x) * p' ^^ x * (1-p') ^^ (t-x)
+    
+    where 
+        p' = realToFrac p
+        n `c` k = product [n-k+1..n] `div` product [1..k]
+
 -- would it be valid to repeat the above computation using fractional @t@?
 -- obviously something different would have to be done with @count@ as well...
 {-# SPECIALIZE floatingBinomial :: Float  -> Float  -> RVar Float  #-}
@@ -63,6 +72,9 @@ floatingBinomial t p = fmap fromInteger (rvar (Binomial (truncate t) p))
 
 floatingBinomialCDF :: (CDF (Binomial b) Integer, RealFrac a) => a -> b -> a -> Double
 floatingBinomialCDF t p x = cdf (Binomial (truncate t :: Integer) p) (floor x)
+
+floatingBinomialPDF :: (PDF (Binomial b) Integer, RealFrac a) => a -> b -> a -> Double
+floatingBinomialPDF t p x = pdf (Binomial (truncate t :: Integer) p) (floor x)
 
 {-# SPECIALIZE binomial :: Int     -> Float  -> RVar Int #-}
 {-# SPECIALIZE binomial :: Int     -> Double -> RVar Int #-}
@@ -98,6 +110,9 @@ $( replicateInstances ''Int integralTypes [d|
         instance ( Real b , Distribution (Binomial b) Int
                  ) => CDF (Binomial b) Int
             where cdf  (Binomial t p) = integralBinomialCDF t p
+        instance ( Real b , Distribution (Binomial b) Int
+                 ) => PDF (Binomial b) Int
+            where pdf  (Binomial t p) = integralBinomialPDF t p
     |])
 
 $( replicateInstances ''Float realFloatTypes [d|
@@ -107,4 +122,7 @@ $( replicateInstances ''Float realFloatTypes [d|
         instance CDF (Binomial b) Integer
               => CDF (Binomial b) Float
               where cdf  (Binomial t p) = floatingBinomialCDF t p
+        instance PDF (Binomial b) Integer
+              => PDF (Binomial b) Float
+              where pdf  (Binomial t p) = floatingBinomialPDF t p
     |])

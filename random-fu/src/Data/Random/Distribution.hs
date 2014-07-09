@@ -60,6 +60,8 @@ class Distribution d t where
     rvarT :: d t -> RVarT n t
     rvarT d = lift (rvar d)
 
+class Distribution d t => PDF d t where
+    pdf :: d t -> t -> Double
 
 class Distribution d t => CDF d t where
     -- |Return the cumulative distribution function of this distribution.
