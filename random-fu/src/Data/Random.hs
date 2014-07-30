@@ -42,7 +42,7 @@ module Data.Random
       runRVar, runRVarT, runRVarTWith,
 
       -- ** Concrete ('Distribution')
-      Distribution(..), CDF(..),
+      Distribution(..), CDF(..), PDF(..),
       
       -- * Sampling random variables
       Sampleable(..), sample, sampleState, sampleStateT,
