@@ -60,8 +60,13 @@ class Distribution d t where
     rvarT :: d t -> RVarT n t
     rvarT d = lift (rvar d)
 
+-- FIXME: I am not sure about giving default instances
 class Distribution d t => PDF d t where
     pdf :: d t -> t -> Double
+    pdf d = exp . logPdf d
+    logPdf :: d t -> t -> Double
+    logPdf d = log . pdf d
+    
 
 class Distribution d t => CDF d t where
     -- |Return the cumulative distribution function of this distribution.

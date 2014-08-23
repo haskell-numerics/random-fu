@@ -109,7 +109,8 @@ Library
                         syb,
                         template-haskell,
                         transformers,
-                        vector >= 0.7
+                        vector >= 0.7,
+                        logfloat>=0.12 && <0.13
 
   if os(Windows)
     cpp-options:        -Dwindows

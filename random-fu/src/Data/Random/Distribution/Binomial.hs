@@ -14,6 +14,10 @@ import Data.Random.Distribution
 import Data.Random.Distribution.Beta
 import Data.Random.Distribution.Uniform
 
+import Numeric.SpecFunctions ( stirlingError )
+import Numeric.SpecFunctions.Extra ( bd0 )
+import Data.Number.LogFloat ( log1p )
+
     -- algorithm from Knuth's TAOCP, 3rd ed., p 136
     -- specific choice of cutoff size taken from gsl source
     -- note that although it's fast enough for large (eg, 2^10000) 
@@ -52,7 +56,7 @@ integralBinomialCDF t p x = sum
         p' = realToFrac p
         n `c` k = product [n-k+1..n] `div` product [1..k]
 
--- TODO: improve performance
+-- TODO: improve performance and re-use in CDF
 integralBinomialPDF :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialPDF t p x =
     fromInteger (toInteger t `c` toInteger x) * p' ^^ x * (1-p') ^^ (t-x)
@@ -61,6 +65,26 @@ integralBinomialPDF t p x =
         p' = realToFrac p
         n `c` k = product [n-k+1..n] `div` product [1..k]
 
+integralBinomialLogPdf :: (Integral a, Real b) => a -> b -> a -> Double
+integralBinomialLogPdf nI pR xI
+  | p == 0.0 && xI == 0   = 1.0
+  | p == 0.0              = 0.0
+  | p == 1.0 && xI == nI  = 1.0
+  | p == 1.0              = 0.0
+  |             xI == 0   = n * log (1-p)
+  |             xI == nI  = n * log p
+  | otherwise = lc - 0.5 * lf
+  where
+    n = fromIntegral nI
+    x = fromIntegral xI
+    p = realToFrac pR
+    lc = stirlingError n -
+         stirlingError x -
+         stirlingError (n - x) -
+         bd0 x (n * p) -
+         bd0 (n - x) (n * (1 - p))
+    lf = log (2 * pi) + log x + log1p (- x / n)
+  
 -- would it be valid to repeat the above computation using fractional @t@?
 -- obviously something different would have to be done with @count@ as well...
 {-# SPECIALIZE floatingBinomial :: Float  -> Float  -> RVar Float  #-}
@@ -75,6 +99,9 @@ floatingBinomialCDF t p x = cdf (Binomial (truncate t :: Integer) p) (floor x)
 
 floatingBinomialPDF :: (PDF (Binomial b) Integer, RealFrac a) => a -> b -> a -> Double
 floatingBinomialPDF t p x = pdf (Binomial (truncate t :: Integer) p) (floor x)
+
+floatingBinomialLogPDF :: (PDF (Binomial b) Integer, RealFrac a) => a -> b -> a -> Double
+floatingBinomialLogPDF t p x = logPdf (Binomial (truncate t :: Integer) p) (floor x)
 
 {-# SPECIALIZE binomial :: Int     -> Float  -> RVar Int #-}
 {-# SPECIALIZE binomial :: Int     -> Double -> RVar Int #-}
@@ -112,7 +139,8 @@ $( replicateInstances ''Int integralTypes [d|
             where cdf  (Binomial t p) = integralBinomialCDF t p
         instance ( Real b , Distribution (Binomial b) Int
                  ) => PDF (Binomial b) Int
-            where pdf  (Binomial t p) = integralBinomialPDF t p
+            where pdf (Binomial t p) = integralBinomialPDF t p
+                  logPdf (Binomial t p) = integralBinomialLogPdf t p
     |])
 
 $( replicateInstances ''Float realFloatTypes [d|
@@ -124,5 +152,6 @@ $( replicateInstances ''Float realFloatTypes [d|
               where cdf  (Binomial t p) = floatingBinomialCDF t p
         instance PDF (Binomial b) Integer
               => PDF (Binomial b) Float
-              where pdf  (Binomial t p) = floatingBinomialPDF t p
+              where pdf (Binomial t p) = floatingBinomialPDF t p
+                    logPdf (Binomial t p) = floatingBinomialLogPDF t p
     |])

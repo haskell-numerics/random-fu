@@ -197,6 +197,19 @@ floatStdNormalZ = mkZiggurat_ True
 normalCdf :: (Real a) => a -> a -> a -> Double
 normalCdf m s x = normcdf ((realToFrac x - realToFrac m) / realToFrac s)
 
+normalPdf :: (Real a, Floating b) => a -> a -> a -> b
+normalPdf mu sigma x =
+  (recip (sqrt (2 * pi * sigma2))) * (exp ((-((realToFrac x) - (realToFrac mu))^2) / (2 * sigma2)))
+  where
+    sigma2 = realToFrac sigma^2
+
+normalLogPdf :: (Real a, Floating b) => a -> a -> a -> b
+normalLogPdf mu sigma x =
+  log (recip (sqrt (2 * pi * sigma2))) +
+  ((-((realToFrac x) - (realToFrac mu))^2) / (2 * sigma2))
+  where
+    sigma2 = realToFrac sigma^2
+
 -- |A specification of a normal distribution over the type 'a'.
 data Normal a
     -- |The \"standard\" normal distribution - mean 0, stddev 1
@@ -219,6 +232,12 @@ instance Distribution Normal Float where
 instance (Real a, Distribution Normal a) => CDF Normal a where
     cdf StdNormal    = normalCdf 0 1
     cdf (Normal m s) = normalCdf m s
+
+instance (Real a, Floating a, Distribution Normal a) => PDF Normal a where
+  pdf StdNormal    = normalPdf 0 1
+  pdf (Normal m s) = normalPdf m s
+  logPdf StdNormal = normalLogPdf 0 1
+  logPdf (Normal m s) = normalLogPdf m s
 
 {-# SPECIALIZE stdNormal :: RVar Double #-}
 {-# SPECIALIZE stdNormal :: RVar Float #-}

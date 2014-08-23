@@ -157,6 +157,13 @@ realStdUniformCDF x
     | x >= 1    = 1
     | otherwise = realToFrac x
 
+-- |The PDF of the random variable 'realFloatStdUniform'.
+realStdUniformPDF :: Real a => a -> Double
+realStdUniformPDF x
+    | x <= 0    = 0
+    | x >= 1    = 0
+    | otherwise = 1
+
 -- |(internal) basic linear interpolation; @lerp x y@ is a linear function whose
 -- value is @x@ at 0 and @y@ at 1
 lerp :: Num a => a -> a -> a -> a
@@ -327,6 +334,9 @@ instance Distribution StdUniform Float      where rvarT _ = floatStdUniform
 instance Distribution StdUniform Double     where rvarT _ = getRandomDouble
 instance CDF StdUniform Float               where cdf   _ = realStdUniformCDF
 instance CDF StdUniform Double              where cdf   _ = realStdUniformCDF
+instance PDF StdUniform Float               where pdf   _ = realStdUniformPDF
+instance PDF StdUniform Double              where pdf   _ = realStdUniformPDF
+
 
 instance HasResolution r => 
          Distribution Uniform (Fixed r)     where rvarT (Uniform a b) = fixedUniform  a b
