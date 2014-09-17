@@ -59,4 +59,3 @@ $( replicateInstances ''Float realFloatTypes [d|
         instance Distribution Beta Float
               where rvarT (Beta a b) = fractionalBeta a b
     |])
-
