@@ -28,23 +28,10 @@ description:            Random number generation based on modeling random
                         comparable to other Haskell libraries, but still
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
-                        .
-                        Changes in 0.2.4.0: Added a Lift instance that resolves
-                        a common overlapping-instance issue in user code.
-                        .
-                        Changes in 0.2.3.1: Should now build on GHC 7.6
-                        .
-                        Changes in 0.2.3.0: Added stretched exponential distribution,
-                        contributed by Ben Gamari.
-                        .
-                        Changes in 0.2.2.0: Bug fixes in Data.Random.Distribution.Categorical.
-                        .
-                        Changes in 0.2.1.1: Changed some one-field data types
-                        to newtypes, updated types for GHC 7.4's removal of Eq 
-                        and Show from the context of Num, and added RVarT versions
-                        of random variables in Data.Random.List
 
 tested-with:            GHC == 7.4.2, GHC == 7.6.1
+
+extra-source-files:     changelog.md
 
 source-repository head
   type:                 git
@@ -110,7 +97,7 @@ Library
                         template-haskell,
                         transformers,
                         vector >= 0.7,
-                        logfloat>=0.12 && <0.13
+                        logfloat >=0.12 && <0.13
 
   if os(Windows)
     cpp-options:        -Dwindows
