@@ -31,25 +31,25 @@ import Criterion.Main
 
 main = do
     let count = 64000
-    
+
     mwcSrc <- newGenIO
     mtSrc  <- newMTSrc
     stdSrc <- newStdSrc
-    
+
     defaultMain
-        [ bgroup "dists" 
+        [ bgroup "dists"
             [ bgroup "MWC"          (dists mwcSrc       count)
             , bgroup "PureMT"       (dists mtSrc        count)
             , bgroup "StdGen"       (dists stdSrc       count)
             , bgroup "DevRandom"    (dists DevRandom    count)
             , bgroup "DevURandom"   (dists DevURandom   count)
             ]
-        
-        , bgroup "IO StdGen" 
+
+        , bgroup "IO StdGen"
             [ bench "randomRIO" $ do
                 xs <- replicateM count (randomRIO (10,50))
                 (sum' xs :: Double) `seq` return ()
-        
+
             , bench "uniform A" $ do
                 xs <- replicateM count (sampleFrom stdSrc (uniform 10 50))
                 (sum' xs :: Double) `seq` return () :: IO ()
@@ -57,7 +57,7 @@ main = do
                 xs <- sampleFrom stdSrc (replicateM count (uniform 10 50))
                 (sum' xs :: Double) `seq` return () :: IO ()
             ]
-        
+
         , bgroup "pure StdGen"
             [ bgroup "Double"
                 [ bench "getRandomRs" $ do
@@ -88,7 +88,7 @@ main = do
                     (sum' xs :: Int) `seq` return ()
                 ]
             ]
-        
+
         , bgroup "MWC"
             [ bgroup "stdUniform"
                 [ bench "Double" $ do
@@ -116,15 +116,15 @@ main = do
             , bgroup "uniformVector"
                 [ bench "Double" $ do
                     src <- newGenIO
-                    xs <- stToIO $ MWC.uniformVector src count 
+                    xs <- stToIO $ MWC.uniformVector src count
                     -- unboxed, so don't need to force it, but we sum it
                     -- anyway to make the comparison fair between other tests
                     (Vec.sum xs :: Double) `seq` return ()
                 ]
             ]
-        
+
         , bench "baseline sum" $ nf sum' [1..fromIntegral count :: Double]
-            
+
         ]
 
 dists src count =
@@ -138,19 +138,19 @@ dists src count =
     , doubleSuite src count "gamma"       (Gamma 2 5)
     , doubleSuite src count "triangular"  (Triangular 2 5 14)
     , doubleSuite src count "rayleigh"    (Rayleigh 1.6)
-    
+
     , bench "dirichlet" $ do
         xs <- sampleFrom src (dirichlet [1..fromIntegral count :: Double])
         sum' xs `seq` return () :: IO ()
-        
-    , bgroup "multinomial" 
+
+    , bgroup "multinomial"
         [ bgroup "many p"
             [ bench desc $ do
                 xs <- sampleFrom src (multinomial [1..1e4 :: Double] (n :: Int))
                 sum' xs `seq` return () :: IO ()
             | (desc, n) <- [("small n", 10), ("medium n", 10^4), ("large n", 10^8)]
             ]
-        , bgroup "few p" 
+        , bgroup "few p"
             [bench desc $ do
                 replicateM_ 1000 $ do
                     xs <- sampleFrom src (multinomial [1..10 :: Double] (n :: Int))
@@ -158,7 +158,7 @@ dists src count =
             | (desc, n) <- [("small n", 10), ("medium n", 10^4), ("large n", 10^8)]
             ]
         ]
-       
+
     , bench "shuffle" $ do
         xs <- sampleFrom src (shuffle [1..count])
         sum' xs `seq` return () :: IO ()
@@ -177,7 +177,7 @@ intSuite :: (Distribution d Int, RandomSource IO s) => s -> Int -> String -> d I
 intSuite = suite
 
 suite :: (Storable t, Num t, Distribution d t, RandomSource IO s) => s -> Int -> String -> d t -> Benchmark
-suite src count name var = bgroup name 
+suite src count name var = bgroup name
     [ bench "single sample" $ do
         x <- sampleFrom src var
         x `seq` return () :: IO ()
@@ -194,24 +194,24 @@ suite src count name var = bgroup name
     , bench "sample of sum" $ do
         x <- sampleFrom src (sumM count (rvar var))
         x `seq` return () :: IO ()
-    
+
     , bench "array of samples" $ do
         allocaArray count $ \ptr -> do
             sequence_
                 [ do
                     x <- sampleFrom src var
-        
+
                     pokeElemOff ptr offset x
                 | offset <- [0 .. count-1]
                 ]
             sumBuf count ptr
-    
+
     , bench "RVarT IO arrays" $ do
         allocaArray count $ \ptr -> flip runRVarT src $ do
             sequence_
                 [ do
                     x <- rvarT var
-        
+
                     lift (pokeElemOff ptr offset x)
                 | offset <- [0 .. count-1]
                 ]
