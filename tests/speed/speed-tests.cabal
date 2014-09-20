@@ -16,7 +16,7 @@ Executable random-fu-bench
   main-is:              Bench.hs
   build-depends:        base >= 4, criterion, MonadRandom, mtl,
                         stateref, mersenne-random-pure64, mwc-random >= 0.5,
-                        random, vector
+                        random, vector, deepseq
 
   if flag(split-random-fu)
     build-depends:      random-fu, random-source
