@@ -1,5 +1,5 @@
 name:                   rvar
-version:                0.2.0.1
+version:                0.2.0.2
 stability:              stable
 
 cabal-version:          >= 1.6
