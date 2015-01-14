@@ -153,7 +153,7 @@ instance Traversable (Categorical p) where
     traverse f (Categorical ds) = Categorical . V.fromList <$> traverse (\(p,e) -> (\e' -> (p,e')) <$> f e) (V.toList ds)
     sequenceA  (Categorical ds) = Categorical . V.fromList <$> traverse (\(p,e) -> (\e' -> (p,e')) <$>   e) (V.toList ds)
 
-instance Num p => Monad (Categorical p) where
+instance Fractional p => Monad (Categorical p) where
     return x = Categorical (V.singleton (1, x))
     
     -- I'm not entirely sure whether this is a valid form of failure; see next
