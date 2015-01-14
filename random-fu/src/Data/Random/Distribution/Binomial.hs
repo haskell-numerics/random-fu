@@ -16,7 +16,7 @@ import Data.Random.Distribution.Uniform
 
 import Numeric.SpecFunctions ( stirlingError )
 import Numeric.SpecFunctions.Extra ( bd0 )
-import Data.Number.LogFloat ( log1p )
+import Numeric.Log ( log1p )
 
     -- algorithm from Knuth's TAOCP, 3rd ed., p 136
     -- specific choice of cutoff size taken from gsl source
