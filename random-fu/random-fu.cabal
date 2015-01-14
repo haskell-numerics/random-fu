@@ -1,12 +1,12 @@
 name:                   random-fu
-version:                0.2.6.1
+version:                0.2.6.2
 stability:              provisional
 
 cabal-version:          >= 1.6
 build-type:             Simple
 
 author:                 James Cook <mokus@deepbondi.net>
-maintainer:             James Cook <mokus@deepbondi.net>
+maintainer:             Dominic Steinitz <dominic@steinitz.org>
 license:                PublicDomain
 homepage:               https://github.com/mokus0/random-fu
 
@@ -29,7 +29,7 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of 
                         the same algorithms.
 
-tested-with:            GHC == 7.4.2, GHC == 7.6.1
+tested-with:            GHC == 7.4.2, GHC == 7.6.1, GHC == 7.8.3
 
 extra-source-files:     changelog.md
 
