@@ -1,6 +1,6 @@
 {-# LANGUAGE
     MultiParamTypeClasses, FunctionalDependencies,
-    FlexibleContexts, FlexibleInstances, 
+    FlexibleContexts, FlexibleInstances,
     UndecidableInstances, EmptyDataDecls,
     TemplateHaskell,
     BangPatterns
@@ -8,29 +8,29 @@
 
 module Data.Random.Distribution.Uniform
     ( Uniform(..)
-	, uniform
-	, uniformT
-	
+    , uniform
+    , uniformT
+
     , StdUniform(..)
     , stdUniform
     , stdUniformT
     , stdUniformPos
     , stdUniformPosT
-    
+
     , integralUniform
     , realFloatUniform
     , floatUniform
     , doubleUniform
     , fixedUniform
     , enumUniform
-    
+
     , boundedStdUniform
     , boundedEnumStdUniform
     , realFloatStdUniform
     , fixedStdUniform
     , floatStdUniform
     , doubleStdUniform
-    
+
     , boundedStdUniformCDF
     , realStdUniformCDF
     , realUniformCDF
@@ -75,10 +75,10 @@ integralUniform' !l !u
         m = 1 + toInteger u - toInteger l
         (bytes, nPossible) = bytesNeeded m
         nReject = nPossible `mod` m
-        
+
         !prim = getRandomNByteInteger bytes
         !shift = \(!z) -> l + (fromInteger $! (z `mod` m))
-        
+
         loop = do
             z <- prim
             if z < nReject
@@ -128,16 +128,16 @@ floatStdUniform = do
 doubleStdUniform :: RVarT m Double
 doubleStdUniform = getRandomDouble
 
--- |Compute a uniform random value in the range [0,1) for any 'RealFloat' type 
+-- |Compute a uniform random value in the range [0,1) for any 'RealFloat' type
 realFloatStdUniform :: RealFloat a => RVarT m a
 realFloatStdUniform = do
     let (b, e) = decodeFloat one
-    
+
     x <- uniformT 0 (b-1)
     if x == 0
         then return (0 `asTypeOf` one)
         else return (encodeFloat x e)
-    
+
     where one = 1
 
 -- |Compute a uniform random 'Fixed' value in the range [0,1), with any
@@ -192,7 +192,7 @@ realFloatUniform a b = do
     x <- realFloatStdUniform
     return (lerp a b x)
 
--- |@fixedUniform a b@ computes a uniform random 'Fixed' value in the range 
+-- |@fixedUniform a b@ computes a uniform random 'Fixed' value in the range
 -- [a,b), with any desired precision.
 fixedUniform :: HasResolution r => Fixed r -> Fixed r -> RVarT m (Fixed r)
 fixedUniform a b = do
@@ -220,7 +220,7 @@ enumUniformCDF a b x
     | x <= a    = 0
     | x >= b    = 1
     | otherwise = (e2f x - e2f a) / (e2f b - e2f a)
-    
+
     where e2f = fromIntegral . fromEnum
 
 -- @uniform a b@ is a uniformly distributed random variable in the range
@@ -253,7 +253,7 @@ stdUniform = rvar StdUniform
 stdUniformT :: (Distribution StdUniform a) => RVarT m a
 stdUniformT = rvarT StdUniform
 
--- |Like 'stdUniform', but returns only positive or zero values.  Not 
+-- |Like 'stdUniform', but returns only positive or zero values.  Not
 -- exported because it is not truly uniform: nonzero values are twice
 -- as likely as zero on signed types.
 stdUniformNonneg :: (Distribution StdUniform a, Num a, Eq a) => RVarT m a
@@ -268,7 +268,7 @@ stdUniformPosT :: (Distribution StdUniform a, Num a, Eq a) => RVarT m a
 stdUniformPosT = iterateUntil (/= 0) stdUniformNonneg
 
 -- |A definition of a uniform distribution over the type @t@.  See also 'uniform'.
-data Uniform t = 
+data Uniform t =
     -- |A uniform distribution defined by a lower and upper range bound.
     -- For 'Integral' and 'Enum' types, the range is inclusive.  For 'Fractional'
     -- types the range includes the lower bound but not the upper.
@@ -338,13 +338,13 @@ instance PDF StdUniform Float               where pdf   _ = realStdUniformPDF
 instance PDF StdUniform Double              where pdf   _ = realStdUniformPDF
 
 
-instance HasResolution r => 
+instance HasResolution r =>
          Distribution Uniform (Fixed r)     where rvarT (Uniform a b) = fixedUniform  a b
-instance HasResolution r => 
+instance HasResolution r =>
          CDF Uniform (Fixed r)              where cdf   (Uniform a b) = realUniformCDF a b
 instance HasResolution r =>
          Distribution StdUniform (Fixed r)  where rvarT ~StdUniform = fixedStdUniform
-instance HasResolution r => 
+instance HasResolution r =>
          CDF StdUniform (Fixed r)           where cdf   ~StdUniform = realStdUniformCDF
 
 instance Distribution Uniform ()            where rvarT (Uniform _ _) = return ()
@@ -364,4 +364,3 @@ instance Distribution StdUniform Char       where rvarT ~StdUniform = boundedEnu
 instance CDF StdUniform Char                where cdf   ~StdUniform = boundedEnumStdUniformCDF
 instance Distribution StdUniform Ordering   where rvarT ~StdUniform = boundedEnumStdUniform
 instance CDF StdUniform Ordering            where cdf   ~StdUniform = boundedEnumStdUniformCDF
-
