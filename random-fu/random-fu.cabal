@@ -63,6 +63,7 @@ Library
                         Data.Random.Distribution.Pareto
                         Data.Random.Distribution.Poisson
                         Data.Random.Distribution.Rayleigh
+                        Data.Random.Distribution.Simplex
                         Data.Random.Distribution.T
                         Data.Random.Distribution.Triangular
                         Data.Random.Distribution.Uniform
