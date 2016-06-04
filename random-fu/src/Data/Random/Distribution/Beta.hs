@@ -41,8 +41,8 @@ data Beta a = Beta a a
 logBetaPdf :: Double -> Double -> Double -> Double
 logBetaPdf a b x
    | a <= 0 || b <= 0 = nan
-   | x <= 0 = 0
-   | x >= 1 = 0
+   | x <= 0 = log 0
+   | x >= 1 = log 0
    | otherwise = (a-1)*log x + (b-1)*log (1-x) - logBeta a b
   where
     nan = 0.0 / 0.0
