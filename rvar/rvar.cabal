@@ -56,4 +56,4 @@ Library
   build-depends:        base            >= 3 && <5,
                         MonadPrompt     == 1.0.*,
                         random-source   == 0.3.*,
-                        transformers    >= 0.2 && < 0.5
+                        transformers    >= 0.2 && < 0.6
