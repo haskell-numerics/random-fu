@@ -48,12 +48,24 @@ integralBinomial = bin 0
 integralBinomialCDF :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialCDF t p x = sum $ map (integralBinomialPDF t p) $ [0 .. x]
 
+-- | The probability of getting exactly k successes in n trials is
+-- given by the probability mass function:
+--
+-- \[
+-- f(k;n,p) = \Pr(X = k) = \binom n k  p^k(1-p)^{n-k}
+-- \]
+--
+-- Note that in `integralBinomialPDF` the parameters of the mass
+-- function are given first and the range of the random variable
+-- distributed according to the binomial distribution is given
+-- last. That is, \(f(2;4,0.5)\) is calculated by @integralBinomialPDF 4 0.5 2@.
+
 integralBinomialPDF :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialPDF t p x =
   exp $ integralBinomialLogPdf t p x
 
--- | We use the method given in Fast and accurate computation of
--- binomial probabilities, Loader, C,
+-- | We use the method given in \"Fast and accurate computation of
+-- binomial probabilities, Loader, C\",
 -- <http://octave.1599824.n4.nabble.com/attachment/3829107/0/loader2000Fast.pdf>
 integralBinomialLogPdf :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialLogPdf nI pR xI
