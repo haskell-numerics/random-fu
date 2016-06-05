@@ -20,7 +20,7 @@ import Numeric.Log ( log1p )
 
     -- algorithm from Knuth's TAOCP, 3rd ed., p 136
     -- specific choice of cutoff size taken from gsl source
-    -- note that although it's fast enough for large (eg, 2^10000) 
+    -- note that although it's fast enough for large (eg, 2^10000)
     -- @Integer@s, it's not accurate enough when using @Double@ as
     -- the @b@ parameter.
 integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> b -> RVarT m a
@@ -31,12 +31,12 @@ integralBinomial = bin 0
             | t > 10    = do
                 let a = 1 + t `div` 2
                     b = 1 + t - a
-        
+
                 x <- betaT (fromIntegral a) (fromIntegral b)
                 if x >= p
                     then bin  k      (a - 1) (p / x)
                     else bin (k + a) (b - 1) ((p - x) / (1 - x))
-        
+
             | otherwise = count k t
                 where
                     count !k' 0         = return k'
@@ -45,26 +45,16 @@ integralBinomial = bin 0
                         count (if x < p then k' + 1 else k') (n-1)
                     count _ _ = error "integralBinomial: negative number of trials specified"
 
--- TODO: improve performance
 integralBinomialCDF :: (Integral a, Real b) => a -> b -> a -> Double
-integralBinomialCDF t p x = sum
-    [ fromInteger (toInteger t `c` toInteger i) * p' ^^ i * (1-p') ^^ (t-i)
-    | i <- [0 .. x]
-    ]
-    
-    where 
-        p' = realToFrac p
-        n `c` k = product [n-k+1..n] `div` product [1..k]
+integralBinomialCDF t p x = sum $ map (integralBinomialPDF t p) $ [0 .. x]
 
--- TODO: improve performance and re-use in CDF
 integralBinomialPDF :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialPDF t p x =
-    fromInteger (toInteger t `c` toInteger x) * p' ^^ x * (1-p') ^^ (t-x)
-    
-    where 
-        p' = realToFrac p
-        n `c` k = product [n-k+1..n] `div` product [1..k]
+  exp $ integralBinomialLogPdf t p x
 
+-- | We use the method given in Fast and accurate computation of
+-- binomial probabilities, Loader, C,
+-- <http://octave.1599824.n4.nabble.com/attachment/3829107/0/loader2000Fast.pdf>
 integralBinomialLogPdf :: (Integral a, Real b) => a -> b -> a -> Double
 integralBinomialLogPdf nI pR xI
   | p == 0.0 && xI == 0   = 1.0
@@ -84,7 +74,7 @@ integralBinomialLogPdf nI pR xI
          bd0 x (n * p) -
          bd0 (n - x) (n * (1 - p))
     lf = log (2 * pi) + log x + log1p (- x / n)
-  
+
 -- would it be valid to repeat the above computation using fractional @t@?
 -- obviously something different would have to be done with @count@ as well...
 {-# SPECIALIZE floatingBinomial :: Float  -> Float  -> RVar Float  #-}
@@ -132,7 +122,7 @@ $( replicateInstances ''Int integralTypes [d|
                  , Distribution Beta b
                  , Distribution StdUniform b
                  ) => Distribution (Binomial b) Int
-            where 
+            where
                 rvarT (Binomial t p) = integralBinomial t p
         instance ( Real b , Distribution (Binomial b) Int
                  ) => CDF (Binomial b) Int
@@ -144,7 +134,7 @@ $( replicateInstances ''Int integralTypes [d|
     |])
 
 $( replicateInstances ''Float realFloatTypes [d|
-        instance Distribution (Binomial b) Integer 
+        instance Distribution (Binomial b) Integer
               => Distribution (Binomial b) Float
               where rvar (Binomial t p) = floatingBinomial t p
         instance CDF (Binomial b) Integer
