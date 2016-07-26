@@ -19,6 +19,8 @@ import Data.Random.Internal.Words
 import Data.Random.Source
 import System.Random.MWC
 import Control.Monad.ST
+import Control.Monad.Reader
+import Control.Monad.Primitive
 
 $(randomSource
     [d| instance RandomSource (ST s) (Gen s) where
@@ -37,3 +39,10 @@ $(randomSource
             getRandomWord64From = uniform
             getRandomDoubleFrom = fmap wordToDouble . uniform
      |])
+
+$(monadRandom [d|
+  instance (PrimMonad m, s ~ PrimState m) => MonadRandom (ReaderT (Gen s) m) where
+    getRandomWord16 = ask >>= lift . uniform
+    getRandomWord32 = ask >>= lift . uniform
+    getRandomWord64 = ask >>= lift . uniform
+  |])

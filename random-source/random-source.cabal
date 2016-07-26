@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.3.0.6
+version:                0.3.0.7
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -85,7 +85,8 @@ Library
                         random,
                         stateref >= 0.3 && < 0.4,
                         template-haskell,
-                        th-extras
+                        th-extras,
+                        primitive
 
   if os(Windows)
     cpp-options:        -Dwindows
