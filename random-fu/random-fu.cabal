@@ -98,13 +98,8 @@ Library
                         template-haskell,
                         transformers,
                         vector >= 0.7,
-                        log-domain >=0.9 && <1.0
-
-  if os(Windows)
-    cpp-options:        -Dwindows
-    build-depends:      erf-native
-  else
-    build-depends:      erf
+                        log-domain >=0.9 && <1.0,
+                        erf
   
   if impl(ghc == 7.2.1)
     -- Doesn't work under GHC 7.2.1 due to
