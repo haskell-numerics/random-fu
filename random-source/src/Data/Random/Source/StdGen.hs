@@ -24,8 +24,10 @@ module Data.Random.Source.StdGen
 import Data.Random.Internal.Source
 import System.Random
 import Control.Monad.State
+import Control.Monad.RWS
 import qualified Control.Monad.ST.Strict as S
 import qualified Control.Monad.State.Strict as S
+import qualified Control.Monad.RWS.Strict as S
 import Data.StateRef
 import Data.Word
 
@@ -119,6 +121,12 @@ instance MonadRandom (State StdGen) where
 
 instance MonadRandom (S.State StdGen) where
     getRandomPrim = getRandomPrimFromRandomGenState
+
+instance Monoid w => MonadRandom (RWS r w StdGen) where
+    getRandomPrim = getRandomPrimFromRandomGenState
+
+instance Monoid w => MonadRandom (S.RWS r w StdGen) where
+    getRandomPrim = getRandomPrimFromRandomGenState
 #endif
 
 instance Monad m => MonadRandom (StateT StdGen m) where
@@ -127,3 +135,8 @@ instance Monad m => MonadRandom (StateT StdGen m) where
 instance Monad m => MonadRandom (S.StateT StdGen m) where
     getRandomPrim = getRandomPrimFromRandomGenState
 
+instance (Monad m, Monoid w) => MonadRandom (RWST r w StdGen m) where
+    getRandomPrim = getRandomPrimFromRandomGenState
+
+instance (Monad m, Monoid w) => MonadRandom (S.RWST r w StdGen m) where
+    getRandomPrim = getRandomPrimFromRandomGenState
