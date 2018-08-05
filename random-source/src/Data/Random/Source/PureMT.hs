@@ -25,7 +25,9 @@ module Data.Random.Source.PureMT
     ) where
 
 import Control.Monad.State
+import Control.Monad.RWS
 import qualified Control.Monad.State.Strict as S
+import qualified Control.Monad.RWS.Strict as S
 import Data.Random.Internal.Source
 import Data.Random.Source.Internal.TH
 import Data.StateRef
@@ -58,6 +60,18 @@ $(monadRandom
             getRandomDouble = withMTState randomDouble
      |])
 
+$(monadRandom
+    [d| instance Monoid w => MonadRandom (RWS r w PureMT) where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
+     |])
+
+$(monadRandom
+    [d| instance Monoid w => MonadRandom (S.RWS r w PureMT) where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
+     |])
+
 #endif
 
 $(randomSource
@@ -74,6 +88,18 @@ $(monadRandom
 
 $(monadRandom
     [d| instance Monad m => MonadRandom (S.StateT PureMT m) where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
+     |])
+
+$(monadRandom
+    [d| instance (Monad m, Monoid w) => MonadRandom (RWST r w PureMT m) where
+            getRandomWord64 = withMTState randomWord64
+            getRandomDouble = withMTState randomDouble
+     |])
+
+$(monadRandom
+    [d| instance (Monad m, Monoid w) => MonadRandom (S.RWST r w PureMT m) where
             getRandomWord64 = withMTState randomWord64
             getRandomDouble = withMTState randomDouble
      |])
