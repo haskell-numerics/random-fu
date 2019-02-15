@@ -57,7 +57,7 @@ Library
                         Data.Random.Internal.Source
   other-modules:        Data.Random.Source.Internal.Prim
                         Data.Random.Source.Internal.TH
-  
+
   if impl(ghc >= 6.10)
     -- mwc-random depends on vector, which doesn't build on GHC < 6.10.
     -- I considered breaking this module out into another package, but I
@@ -68,18 +68,18 @@ Library
     -- this cabal file is hardly any additional effort.
     exposed-modules:    Data.Random.Source.MWC
     build-depends:      mwc-random
-    
+
   if flag(mtl2)
     build-depends:      mtl == 2.*
     cpp-options:        -DMTL2
   else
     build-depends:      mtl == 1.*
-  
+
   if flag(base4)
     build-depends:      base >= 4 && <5, syb
   else
     build-depends:      base >= 3 && <4
-  
+
   build-depends:        flexible-defaults >= 0.0.0.2,
                         mersenne-random-pure64,
                         random,
