@@ -12,6 +12,7 @@ import Data.Random.Lift
 import Data.Random.RVar
 import Data.Random.Source
 import Data.Random.Source.Std
+import System.Random (RandomGen)
 
 -- |A typeclass allowing 'Distribution's and 'RVar's to be sampled.  Both may
 -- also be sampled via 'runRVar' or 'runRVarT', but I find it psychologically

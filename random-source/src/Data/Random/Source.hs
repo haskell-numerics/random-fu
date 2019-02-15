@@ -21,8 +21,6 @@ module Data.Random.Source
         , getRandomNByteIntegerFrom
         )
 
-    , RandomGen (..)
-
     , monadRandom, randomSource
     ) where
 
@@ -30,8 +28,6 @@ import Data.Word
 
 import Data.Random.Internal.Source
 import Data.Random.Source.Internal.TH
-
-import System.Random (RandomGen (..))
 
 $(randomSource
     [d|

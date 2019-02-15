@@ -91,6 +91,7 @@ Library
 
   build-depends:        math-functions,
                         monad-loops >= 0.3.0.1,
+                        random,
                         random-shuffle,
                         random-source == 0.3.*,
                         rvar == 0.2.*,
