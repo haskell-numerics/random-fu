@@ -40,10 +40,10 @@ sum' xs = foldl' (+) 0 xs
 
 sumM n x = go n 0
     where
-        go    0  s = return s
-        go (n+1) s = do
+        go 0 s = return s
+        go n s = do
             x <- x
-            go n $! (x + s)
+            go (n - 1) $! (x + s)
 
 sumBuf :: (Num t, Storable t) => Int -> Ptr t -> IO t
 sumBuf bufSz ptr = go bufSz 0
