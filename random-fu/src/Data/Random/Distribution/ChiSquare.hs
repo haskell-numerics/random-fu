@@ -2,6 +2,9 @@
         MultiParamTypeClasses, FlexibleInstances, FlexibleContexts,
         UndecidableInstances
   #-}
+
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.ChiSquare where
 
 import Data.Random.RVar

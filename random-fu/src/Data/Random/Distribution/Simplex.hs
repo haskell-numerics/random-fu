@@ -11,7 +11,6 @@ module Data.Random.Distribution.Simplex
     , fractionalStdSimplex
     ) where
 
-import Control.Applicative
 import Control.Monad
 import Data.List
 import Data.Random.RVar

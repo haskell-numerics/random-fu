@@ -4,6 +4,8 @@
     CPP
   #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.Categorical
     ( Categorical
     , categorical, categoricalT
@@ -21,7 +23,6 @@ import Data.Random.Distribution.Uniform
 import Control.Arrow
 import Control.Monad
 import Control.Monad.ST
-import Control.Applicative
 import Data.Foldable (Foldable(foldMap))
 import Data.STRef
 import Data.Traversable (Traversable(traverse, sequenceA))

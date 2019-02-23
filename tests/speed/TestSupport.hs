@@ -1,12 +1,15 @@
 {-# LANGUAGE TypeFamilies #-}
+
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults                  #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures              #-}
+
 module TestSupport where
 
 import System.Random.Mersenne.Pure64
 import System.Random.MWC
 import Data.List
 import Data.StateRef
-import Control.Monad (forever)
-import Control.Monad.ST
 import Foreign
 import System.Random
 
@@ -38,12 +41,12 @@ newGenIO = do
 
 sum' xs = foldl' (+) 0 xs
 
-sumM n x = go n 0
+sumM m x = go m 0
     where
         go 0 s = return s
         go n s = do
-            x <- x
-            go (n - 1) $! (x + s)
+            y <- x
+            go (n - 1) $! (y + s)
 
 sumBuf :: (Num t, Storable t) => Int -> Ptr t -> IO t
 sumBuf bufSz ptr = go bufSz 0

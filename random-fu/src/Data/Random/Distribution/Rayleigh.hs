@@ -4,6 +4,8 @@
         UndecidableInstances
   #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.Rayleigh where
 
 import Data.Random.RVar

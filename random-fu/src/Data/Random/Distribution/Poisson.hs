@@ -4,6 +4,8 @@
     TemplateHaskell
   #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.Poisson where
 
 import Data.Random.Internal.TH

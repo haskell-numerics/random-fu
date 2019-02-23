@@ -5,6 +5,8 @@
     TemplateHaskell
   #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.Bernoulli where
 
 import Data.Random.Internal.TH

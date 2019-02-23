@@ -5,6 +5,8 @@
     BangPatterns
   #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.Binomial where
 
 import Data.Random.Internal.TH
