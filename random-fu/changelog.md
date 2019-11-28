@@ -1,4 +1,4 @@
-* Changes in 0.2.7.2: Remove dependence on log-domain. Raise lower bound for base to 4.9.
+* Changes in 0.2.7.3: Remove dependence on log-domain. Raise lower bound for base to 4.9.
 
 * Changes in 0.2.7.1: Add PDF instance for Poisson.
 
