@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.7.2
+version:                0.2.7.3
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -78,7 +78,7 @@ Library
                         Data.Random.Sample
                         Data.Random.Vector
   if flag(base4_2)
-    build-depends:      base >= 4.2 && <5
+    build-depends:      base >= 4.9 && <5
   else
     cpp-options:        -Dold_Fixed
     build-depends:      base >= 4 && <4.2
@@ -98,7 +98,6 @@ Library
                         template-haskell,
                         transformers,
                         vector >= 0.7,
-                        log-domain >=0.9 && <1.0,
                         erf
   
   if impl(ghc == 7.2.1)
