@@ -197,7 +197,6 @@ instance Functor (RVarT n) where
 
 instance Monad (RVarT n) where
     return x = RVarT (return $! x)
-    fail s   = RVarT (fail s)
     (RVarT m) >>= k = RVarT (m >>= \x -> x `seq` unRVarT (k x))
 
 instance MonadRandom (RVarT n) where
