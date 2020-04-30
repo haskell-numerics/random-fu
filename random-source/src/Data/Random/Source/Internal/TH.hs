@@ -81,16 +81,8 @@ method m f = do
     c <- ask
     mapReaderT (FD.function (methodNameBase c m)) f
 
-requireMethod :: Method -> ReaderT Context (FD.Defaults s) ()
-requireMethod m = do
-    c <- ask
-    lift (FD.requireFunction (methodNameBase c m))
-
 implementation :: ReaderT Context (FD.Implementation s) (Q [Dec]) -> ReaderT Context (FD.Function s) ()
 implementation = mapReaderT FD.implementation
-
-score :: s -> ReaderT Context (FD.Implementation s) ()
-score = lift . FD.score
 
 cost :: Num s => s -> ReaderT Context (FD.Implementation s) ()
 cost = lift . FD.cost
@@ -99,15 +91,6 @@ dependsOn :: Method -> ReaderT Context (FD.Implementation s) ()
 dependsOn m = do
     c <- ask
     lift (FD.dependsOn (methodNameBase c m))
-
-inline :: ReaderT Context (FD.Implementation s) ()
-inline = lift FD.inline
-
-noinline :: ReaderT Context (FD.Implementation s) ()
-noinline = lift FD.noinline
-
-replaceMethodName :: (Method -> Name) -> Name -> Name
-replaceMethodName f = replace (fmap f . nameToMethod Generic)
 
 changeContext :: Context -> Context -> Name -> Name
 changeContext c1 c2 = replace (fmap (methodName c2) . nameToMethod c1)

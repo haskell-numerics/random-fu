@@ -3,6 +3,9 @@
     UndecidableInstances, ForeignFunctionInterface, BangPatterns, 
     RankNTypes
   #-}
+
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
+
 module Data.Random.Distribution.Normal
     ( Normal(..)
     , normal, normalT

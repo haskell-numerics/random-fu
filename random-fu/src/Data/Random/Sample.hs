@@ -4,6 +4,8 @@
         IncoherentInstances
   #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Sample where
 
 import Control.Monad.State

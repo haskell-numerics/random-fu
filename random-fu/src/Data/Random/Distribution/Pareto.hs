@@ -2,6 +2,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
+
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.Pareto where
 
 import Data.Random

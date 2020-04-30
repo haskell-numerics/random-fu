@@ -4,6 +4,8 @@
     CPP
   #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.Categorical
     ( Categorical
     , categorical, categoricalT
@@ -21,7 +23,6 @@ import Data.Random.Distribution.Uniform
 import Control.Arrow
 import Control.Monad
 import Control.Monad.ST
-import Control.Applicative
 import Data.Foldable (Foldable(foldMap))
 import Data.STRef
 import Data.Traversable (Traversable(traverse, sequenceA))
@@ -112,7 +113,7 @@ instance (Num p, Read p, Read a) => Read (Categorical p a) where
 
 instance (Fractional p, Ord p, Distribution Uniform p) => Distribution (Categorical p) a where
     rvarT (Categorical ds)
-        | V.null ds = fail "categorical distribution over empty set cannot be sampled"
+        | V.null ds = error "categorical distribution over empty set cannot be sampled"
         | n == 1    = return (snd (V.head ds))
         | otherwise = do
             u <- uniformT 0 (fst (V.last ds))
@@ -158,7 +159,9 @@ instance Fractional p => Monad (Categorical p) where
     
     -- I'm not entirely sure whether this is a valid form of failure; see next
     -- set of comments.
+#if __GLASGOW_HASKELL__ < 808
     fail _ = Categorical V.empty
+#endif
     
     -- Should the normalize step be included here, or should normalization
     -- be assumed?  It seems like there is (at least) 1 valid situation where

@@ -39,12 +39,10 @@ import Data.Random.Internal.Source (Prim(..), MonadRandom(..), RandomSource(..))
 import Data.Random.Source ({-instances-})
 
 import qualified Control.Monad.Trans.Class as T
-import Control.Applicative
 import Control.Monad (liftM, ap)
 import Control.Monad.Prompt (MonadPrompt(..), PromptT, runPromptT)
 import qualified Control.Monad.IO.Class as T
 import qualified Control.Monad.Trans as MTL
-import qualified Control.Monad.Identity as MTL
 import qualified Data.Functor.Identity as T
 
 -- |An opaque type modeling a \"random variable\" - a value 
@@ -197,7 +195,6 @@ instance Functor (RVarT n) where
 
 instance Monad (RVarT n) where
     return x = RVarT (return $! x)
-    fail s   = RVarT (fail s)
     (RVarT m) >>= k = RVarT (m >>= \x -> x `seq` unRVarT (k x))
 
 instance MonadRandom (RVarT n) where

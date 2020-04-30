@@ -1,0 +1,10 @@
+version: 3
+jobs:
+  build:
+    docker:
+      - image: nixos/nix
+    steps:
+      - checkout
+      - run:
+          name: Build all
+          command: nix-build release.nix

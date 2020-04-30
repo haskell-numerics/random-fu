@@ -10,6 +10,8 @@
 {-# OPTIONS_GHC -fno-warn-missing-methods  #-}
 {-# OPTIONS_GHC -fno-warn-orphans          #-}
 
+{-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
+
 module Data.Random.Distribution.T where
 
 import Data.RVar
@@ -34,7 +36,7 @@ instance (Floating a, Distribution Normal a, Distribution ChiSquare a) => Distri
             x <- stdNormalT
             y <- chiSquareT n
             return (x * sqrt (fromInteger n / y))
-        | otherwise = fail "Student's t-distribution: degrees of freedom must be positive"
+        | otherwise = error "Student's t-distribution: degrees of freedom must be positive"
 
 instance (Real a, Distribution T a) => CDF T a where
     cdf (T n) t = incompleteBeta v2 v2 x

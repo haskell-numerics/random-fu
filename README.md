@@ -51,3 +51,9 @@ Or a bleeding-edge version from github:
     (cd rvar;          cabal install)
     (cd random-fu;     cabal install)
 
+Status
+======
+
+| Language | CircleCI |
+|:--------:|:------:|
+| ![GitHub top language](https://img.shields.io/github/languages/top/haskell-numerics/random-fu.svg) | [![Build Status](https://circleci.com/gh/haskell-numerics/random-fu.svg?style=svg)](https://circleci.com/gh/haskell-numerics/random-fu) |

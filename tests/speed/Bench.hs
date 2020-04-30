@@ -1,4 +1,8 @@
 {-# LANGUAGE FlexibleContexts, RankNTypes #-}
+
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults      #-}
+
 module Main where
 
 import Data.Random
@@ -19,10 +23,7 @@ import Control.Monad.ST
 import Control.Monad.State
 import qualified Control.Monad.Random as CMR
 import Control.Monad.Trans (lift)
-import Data.List
-import qualified Data.Vector as V
 import Foreign
-import System.IO
 import System.Random
 import qualified System.Random.MWC as MWC
 import TestSupport
