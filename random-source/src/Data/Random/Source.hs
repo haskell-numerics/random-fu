@@ -11,7 +11,7 @@ module Data.Random.Source
         , getRandomDouble
         , getRandomNByteInteger
         )
-
+    
     , RandomSource
         ( getRandomWord8From
         , getRandomWord16From
@@ -20,7 +20,7 @@ module Data.Random.Source
         , getRandomDoubleFrom
         , getRandomNByteIntegerFrom
         )
-
+    
     , monadRandom, randomSource
     ) where
 
@@ -30,7 +30,7 @@ import Data.Random.Internal.Source
 import Data.Random.Source.Internal.TH
 
 $(randomSource
-    [d|
+    [d| 
         instance Monad m => RandomSource m (m Word8) where
             getRandomWord8From = id
      |])
