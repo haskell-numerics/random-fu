@@ -50,7 +50,6 @@ Library
   hs-source-dirs:       src
   exposed-modules:      Data.Random.Source
                         Data.Random.Source.IO
-                        Data.Random.Source.PureMT
                         Data.Random.Source.RandomGen
                         Data.Random.Source.Std
                         Data.Random.Source.StdGen
