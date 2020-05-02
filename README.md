@@ -46,4 +46,4 @@ To use the system, you'll typically want import at least two modules: `Data.Rand
 Developers
 ==========
 
-Ensure that you run the benchmarks before making a PR e.g. `stack bench` and then run the resulting bindary
+Ensure that you run the benchmarks before making a PR e.g. `stack bench` and then run the resulting binary.
