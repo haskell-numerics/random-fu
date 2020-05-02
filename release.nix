@@ -1,10 +1,15 @@
 let
-  overlay = self: super:
-{
-  random-fu     = self.haskellPackages.callPackage ./random-fu { rvar = self.rvar; };
-  random-source = self.haskellPackages.callPackage ./random-source { };
-  rvar          = self.haskellPackages.callPackage ./rvar { random-source = self.random-source; };
-};
+  myHaskellPackageOverlay = self: super: {
+    myHaskellPackages = super.haskellPackages.override {
+    overrides = hself: hsuper: rec {
+    random-fu     = super.haskell.lib.disableLibraryProfiling (hself.callPackage  ./random-fu { });
+    random-source = super.haskell.lib.disableLibraryProfiling (hself.callPackage ./random-source { });
+    rvar          = super.haskell.lib.disableLibraryProfiling (hself.callPackage ./rvar { });
+      };
+    };
+  };
+
+  nixpkgs = import <nixpkgs> { overlays = [ myHaskellPackageOverlay ]; };
 
 in
 
