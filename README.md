@@ -1,3 +1,10 @@
+Status
+======
+
+| Language | CircleCI |
+|:--------:|:------:|
+| ![GitHub top language](https://img.shields.io/github/languages/top/haskell-numerics/random-fu.svg) | [![Build Status](https://circleci.com/gh/haskell-numerics/random-fu.svg?style=svg)](https://circleci.com/gh/haskell-numerics/random-fu) |
+
 Random-fu
 =========
 
@@ -25,35 +32,18 @@ To use the system, you'll typically want import at least two modules: `Data.Rand
 
     import Data.Random
     import System.Random.MWC (create)
-    
+
     logNormal :: Double -> Double -> RVar Double
     logNormal mu sigmaSq = do
         x <- normal mu sigmaSq
         return (exp x)
-    
+
     main = do
         mwc <- create
         y <- sampleFrom mwc (logNormal 5 1)
         print y
 
-Installation
-============
+Developers
+==========
 
-Get the latest release from Hackage:
-
-    cabal install random-fu
-
-Or a bleeding-edge version from github:
-
-    git clone https://github.com/mokus0/random-fu.git
-    cd random-fu
-    (cd random-source; cabal install)
-    (cd rvar;          cabal install)
-    (cd random-fu;     cabal install)
-
-Status
-======
-
-| Language | CircleCI |
-|:--------:|:------:|
-| ![GitHub top language](https://img.shields.io/github/languages/top/haskell-numerics/random-fu.svg) | [![Build Status](https://circleci.com/gh/haskell-numerics/random-fu.svg?style=svg)](https://circleci.com/gh/haskell-numerics/random-fu) |
+Ensure that you run the benchmarks before making a PR e.g. `stack bench` and then run the resulting bindary
