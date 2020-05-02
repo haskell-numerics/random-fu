@@ -8,10 +8,8 @@ let
 
 in
 
-{ nixpkgs ? import <nixpkgs> { overlays = [ overlay ]; } }:
-
-nixpkgs.haskellPackages.callPackage ./tests/speed {
-  random-source = nixpkgs.random-source;
-  random-fu     = nixpkgs.random-fu;
+nixpkgs.myHaskellPackages.callPackage ./tests/speed {
+  random-source = nixpkgs.myHaskellPackages.random-source;
+  random-fu     = nixpkgs.myHaskellPackages.random-fu;
 }
 
