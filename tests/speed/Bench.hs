@@ -24,7 +24,7 @@ import Control.Monad.State
 import qualified Control.Monad.Random as CMR
 import Control.Monad.Trans (lift)
 import Foreign
-import System.Random
+import System.Random hiding (uniform)
 import qualified System.Random.MWC as MWC
 import TestSupport
 import qualified Data.Vector.Unboxed as Vec

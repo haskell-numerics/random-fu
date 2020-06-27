@@ -1,5 +1,5 @@
 name:                   random-fu
-version:                0.2.7.4
+version:                0.2.7.5
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -91,6 +91,7 @@ Library
   
   build-depends:        math-functions,
                         monad-loops >= 0.3.0.1,
+                        random >= 1.2.0,
                         random-shuffle,
                         random-source == 0.3.*,
                         rvar == 0.2.*,
