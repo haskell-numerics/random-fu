@@ -1,8 +1,8 @@
 name:                   random-fu
-version:                0.2.7.5
+version:                0.2.7.6
 stability:              provisional
 
-cabal-version:          >= 1.6
+cabal-version:          >= 1.10
 build-type:             Simple
 
 author:                 James Cook <mokus@deepbondi.net>
@@ -47,6 +47,7 @@ Flag mtl2
 Library
   ghc-options:          -Wall -funbox-strict-fields
   hs-source-dirs:       src
+  default-language:     Haskell2010
   exposed-modules:      Data.Random
                         Data.Random.Distribution
                         Data.Random.Distribution.Bernoulli

@@ -1,8 +1,8 @@
 name:                   rvar
-version:                0.2.0.4
+version:                0.2.0.6
 stability:              stable
 
-cabal-version:          >= 1.6
+cabal-version:          >= 1.10
 build-type:             Simple
 
 author:                 James Cook <mokus@deepbondi.net>
@@ -44,6 +44,7 @@ Flag mtl2
 Library
   ghc-options:          -Wall
   hs-source-dirs:       src
+  default-language:     Haskell2010
   exposed-modules:      Data.RVar
 
   if flag(mtl2)
