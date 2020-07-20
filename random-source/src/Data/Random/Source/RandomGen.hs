@@ -54,6 +54,8 @@ atomicModifyReference' ref getR =
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
 -- which do precisely that, allowing an easy conversion of 'RVar's and
 -- other 'Distribution' instances to \"pure\" random variables.
+{-# INLINABLE getRandomPrimFromRandomGenState #-}
+-- making the function inlinable enables specialization in other modules
 getRandomPrimFromRandomGenState :: forall g m a. (RandomGen g, MonadState g m) => Prim a -> m a
 getRandomPrimFromRandomGenState = genPrim
     where
