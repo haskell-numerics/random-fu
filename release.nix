@@ -1,24 +1,17 @@
 let
-  myHaskellPackageOverlay = self: super: {
-    myHaskellPackages = super.haskellPackages.override {
-    overrides = hself: hsuper: rec {
-        mkDerivation = args: hsuper.mkDerivation (args // {
-          enableLibraryProfiling = false;
-          doHaddock = false;
-        });
-    random-fu     = hself.callPackage ./random-fu { };
-    random-source = hself.callPackage ./random-source { };
-    rvar          = hself.callPackage ./rvar { };
-      };
-    };
-  };
-
-  nixpkgs = import <nixpkgs> { overlays = [ myHaskellPackageOverlay ]; };
+  overlay = self: super:
+{
+  random-fu     = self.haskellPackages.callPackage ./random-fu { rvar = self.rvar; };
+  random-source = self.haskellPackages.callPackage ./random-source { };
+  rvar          = self.haskellPackages.callPackage ./rvar { random-source = self.random-source; };
+};
 
 in
 
-nixpkgs.myHaskellPackages.callPackage ./tests/speed {
-  random-source = nixpkgs.myHaskellPackages.random-source;
-  random-fu     = nixpkgs.myHaskellPackages.random-fu;
+{ nixpkgs ? import <nixpkgs> { overlays = [ overlay ]; } }:
+
+nixpkgs.haskellPackages.callPackage ./tests/speed {
+  random-source = nixpkgs.random-source;
+  random-fu     = nixpkgs.random-fu;
 }
 

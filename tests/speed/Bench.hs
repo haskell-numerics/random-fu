@@ -41,7 +41,7 @@ main = do
     defaultMain
         [ bgroup "dists"
             [ bgroup "MWC"          (dists mwcSrc       count)
-            -- , bgroup "PureMT"       (dists mtSrc        count)
+            , bgroup "PureMT"       (dists mtSrc        count)
             , bgroup "StdGen"       (dists stdSrc       count)
             , bgroup "DevRandom"    (dists DevRandom    count)
             , bgroup "DevURandom"   (dists DevURandom   count)
