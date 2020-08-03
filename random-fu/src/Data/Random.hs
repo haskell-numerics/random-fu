@@ -67,6 +67,7 @@ import Data.Random.Source (MonadRandom, RandomSource)
 import Data.Random.Source.IO ()
 import Data.Random.Source.MWC ()
 import Data.Random.Source.StdGen ()
+import Data.Random.Source.PureMT ()
 import Data.Random.Source.Std
 import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
