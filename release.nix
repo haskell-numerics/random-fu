@@ -2,9 +2,13 @@ let
   myHaskellPackageOverlay = self: super: {
     myHaskellPackages = super.haskellPackages.override {
     overrides = hself: hsuper: rec {
-    random-fu     = super.haskell.lib.disableLibraryProfiling (hself.callPackage  ./random-fu { });
-    random-source = super.haskell.lib.disableLibraryProfiling (hself.callPackage ./random-source { });
-    rvar          = super.haskell.lib.disableLibraryProfiling (hself.callPackage ./rvar { });
+        mkDerivation = args: hsuper.mkDerivation (args // {
+          enableLibraryProfiling = false;
+          doHaddock = false;
+        });
+    random-fu     = hself.callPackage ./random-fu { };
+    random-source = hself.callPackage ./random-source { };
+    rvar          = hself.callPackage ./rvar { };
       };
     };
   };
