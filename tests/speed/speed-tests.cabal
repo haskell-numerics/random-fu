@@ -1,5 +1,5 @@
 name:                   speed-tests
-version:                0.0.0.2
+version:                0.0.0.1
 stability:              experimental
 
 cabal-version:          >= 1.2
@@ -12,8 +12,7 @@ description:            Various benchmarks for the random-fu library.
 
 flag split-random-fu
 
-executable random-fu-bench
-  type:             exitcode-stdio-1.0
+Executable random-fu-bench
   main-is:              Bench.hs
   build-depends:        base >= 4, criterion, MonadRandom, mtl,
                         stateref, mersenne-random-pure64, mwc-random >= 0.5,
