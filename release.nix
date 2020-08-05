@@ -8,9 +8,9 @@ let
           doHaddock = false;
         });
 
-    random-fu     = super.haskell.lib.disableLibraryProfiling (hself.callPackage  ./random-fu { });
-    random-source = super.haskell.lib.disableLibraryProfiling (hself.callPackage ./random-source { random = hsuper.random_1_2_0; });
-    rvar          = super.haskell.lib.disableLibraryProfiling (hself.callPackage ./rvar { });
+    random-fu     =  hself.callPackage  ./random-fu { };
+    random-source =  hself.callPackage ./random-source { random = hsuper.random_1_2_0; };
+    rvar          =  hself.callPackage ./rvar { };
     splitmix      = hsuper.splitmix_0_1;
     MonadRandom   = hsuper.MonadRandom_0_5_2;
     };

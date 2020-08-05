@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.3.0.9
+version:                0.3.0.11
 stability:              provisional
 
 cabal-version:          >= 1.6
@@ -82,7 +82,7 @@ Library
   
   build-depends:        flexible-defaults >= 0.0.0.2,
                         mersenne-random-pure64,
-                        random == 1.2.0,
+                        random >= 1.2.0 && < 1.3,
                         stateref >= 0.3 && < 0.4,
                         template-haskell,
                         th-extras,
