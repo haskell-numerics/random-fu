@@ -1,6 +1,6 @@
 {-# LANGUAGE
         MultiParamTypeClasses,
-        FlexibleInstances, FlexibleContexts,
+        FlexibleInstances, FlexibleContexts, 
         IncoherentInstances
   #-}
 
@@ -8,13 +8,12 @@
 
 module Data.Random.Sample where
 
-import Control.Monad.State
+import Control.Monad.State 
 import Data.Random.Distribution
 import Data.Random.Lift
 import Data.Random.RVar
 import Data.Random.Source
 import Data.Random.Source.Std
-import System.Random (RandomGen)
 
 -- |A typeclass allowing 'Distribution's and 'RVar's to be sampled.  Both may
 -- also be sampled via 'runRVar' or 'runRVarT', but I find it psychologically
@@ -38,10 +37,10 @@ sample = sampleFrom StdRandom
 
 -- |Sample a random variable in a \"functional\" style.  Typical instantiations
 -- of @s@ are @System.Random.StdGen@ or @System.Random.Mersenne.Pure64.PureMT@.
-sampleState :: (RandomGen s, Sampleable d (State s) t, MonadRandom (State s)) => d t -> s -> (t, s)
+sampleState :: (Sampleable d (State s) t, MonadRandom (State s)) => d t -> s -> (t, s)
 sampleState thing = runState (sample thing)
 
 -- |Sample a random variable in a \"semi-functional\" style.  Typical instantiations
 -- of @s@ are @System.Random.StdGen@ or @System.Random.Mersenne.Pure64.PureMT@.
-sampleStateT :: (RandomGen s, Sampleable d (StateT s m) t, MonadRandom (StateT s m)) => d t -> s -> m (t, s)
+sampleStateT :: (Sampleable d (StateT s m) t, MonadRandom (StateT s m)) => d t -> s -> m (t, s)
 sampleStateT thing = runStateT (sample thing)
