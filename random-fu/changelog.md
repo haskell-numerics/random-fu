@@ -1,3 +1,7 @@
+* Changes in 0.2.7.7: Update to random-1.2. Revert 0.2.7.6 changes (which added an extra constraint to `Data.Random.Sample.sampleState` and `Data.Random.Sample.sampleStateT`).
+
+* Changes in 0.2.7.4: Compatibility with ghc 8.8.
+
 * Changes in 0.2.7.3: Remove dependence on log-domain. Raise lower bound for base to 4.9.
 
 * Changes in 0.2.7.1: Add PDF instance for Poisson.
