@@ -9,7 +9,7 @@ import Data.Typeable
 
 -- |A 'Prompt' GADT describing a request for a primitive random variate.
 -- Random variable definitions will request their entropy via these prompts,
--- and entropy sources will satisfy those requests.  The functions in
+-- and entropy sources will satisfy those requests.  The 'Integer' 0 <= U < 256^n'Integer' 0 <= U < 256^n'Integer' 0 <= U < 256^nfunctions in
 -- "Data.Random.Source.Internal.TH" extend incomplete entropy-source definitions
 -- to complete ones, essentially defining a very flexible 
 -- implementation-defaulting system.

@@ -22,20 +22,21 @@ module Data.Random.Distribution.Normal
     , knuthPolarNormalPair
     ) where
 
-import Data.Random.Internal.Words
 import Data.Bits
 
-import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 import Data.Random.Distribution.Ziggurat
 import Data.Random.RVar
+import Data.Word
 
 import Data.Vector.Generic (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as UV
 
 import Data.Number.Erf
+
+import qualified System.Random.Stateful as Random
 
 -- |A random variable that produces a pair of independent
 -- normally-distributed values.
@@ -141,7 +142,7 @@ realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggu
 
         getIU :: (Num a, Distribution Uniform a) => RVarT m (Int, a)
         getIU = do
-            i <- getRandomWord8
+            i <- Random.uniformWord8 RGen
             u <- uniformT (-1) 1
             return (fromIntegral i .&. (2^p-1), u)
 
@@ -167,9 +168,23 @@ doubleStdNormalZ = mkZiggurat_ True
     where
         getIU :: RVarT m (Int, Double)
         getIU = do
-            !w <- getRandomWord64
+            !w <- Random.uniformWord64 RGen
             let (u,i) = wordToDoubleWithExcess w
             return $! (fromIntegral i .&. (doubleStdNormalC-1), u+u-1)
+
+-- NOTE: inlined from random-source
+{-# INLINE wordToDouble #-}
+-- |Pack the low 52 bits from a 'Word64' into a 'Double' in the range [0,1).
+-- Used to convert a 'stdUniform' 'Word64' to a 'stdUniform' 'Double'.
+wordToDouble :: Word64 -> Double
+wordToDouble x = (encodeFloat $! toInteger (x .&. 0x000fffffffffffff {- 2^52-1 -})) $ (-52)
+
+{-# INLINE wordToDoubleWithExcess #-}
+-- |Same as wordToDouble, but also return the unused bits (as the 12
+-- least significant bits of a 'Word64')
+wordToDoubleWithExcess :: Word64 -> (Double, Word64)
+wordToDoubleWithExcess x = (wordToDouble x, x `shiftR` 52)
+
 
 -- |A random variable sampling from the standard normal distribution
 -- over the 'Float' type.
@@ -193,9 +208,23 @@ floatStdNormalZ = mkZiggurat_ True
     where
         getIU :: RVarT m (Int, Float)
         getIU = do
-            !w <- getRandomWord32
+            !w <- Random.uniformWord32 RGen
             let (u,i) = word32ToFloatWithExcess w
             return (fromIntegral i .&. (floatStdNormalC-1), u+u-1)
+
+-- NOTE: inlined from random-source
+{-# INLINE word32ToFloat #-}
+-- |Pack the low 23 bits from a 'Word32' into a 'Float' in the range [0,1).
+-- Used to convert a 'stdUniform' 'Word32' to a 'stdUniform' 'Double'.
+word32ToFloat :: Word32 -> Float
+word32ToFloat x = (encodeFloat $! toInteger (x .&. 0x007fffff {- 2^23-1 -} )) $ (-23)
+
+{-# INLINE word32ToFloatWithExcess #-}
+-- |Same as word32ToFloat, but also return the unused bits (as the 9
+-- least significant bits of a 'Word32')
+word32ToFloatWithExcess :: Word32 -> (Float, Word32)
+word32ToFloatWithExcess x = (word32ToFloat x, x `shiftR` 23)
+
 
 normalCdf :: (Real a) => a -> a -> a -> Double
 normalCdf m s x = normcdf ((realToFrac x - realToFrac m) / realToFrac s)

@@ -1,3 +1,7 @@
+* Chnages in 0.3.0.0:
+
+  * Drop usage of `random-source` in favor of `random`
+
 * Changes in 0.2.7.7: Update to random-1.2. Revert 0.2.7.6 changes (which added an extra constraint to `Data.Random.Sample.sampleState` and `Data.Random.Sample.sampleStateT`).
 
 * Changes in 0.2.7.4: Compatibility with ghc 8.8.
