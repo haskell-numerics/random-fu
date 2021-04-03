@@ -37,7 +37,7 @@ import qualified Data.Vector.Mutable as MV
 categorical :: (Num p, Distribution (Categorical p) a) => [(p,a)] -> RVar a
 categorical = rvar . fromList
 
--- |Construct a 'Categorical' random process from a list of probabilities 
+-- |Construct a 'Categorical' random process from a list of probabilities
 -- and categories, where the probabilities all sum to 1.
 categoricalT :: (Num p, Distribution (Categorical p) a) => [(p,a)] -> RVarT m a
 categoricalT = rvarT . fromList
@@ -47,7 +47,7 @@ categoricalT = rvarT . fromList
 weightedCategorical :: (Fractional p, Eq p, Distribution (Categorical p) a) => [(p,a)] -> RVar a
 weightedCategorical = rvar . fromWeightedList
 
--- |Construct a 'Categorical' random process from a list of weights 
+-- |Construct a 'Categorical' random process from a list of weights
 -- and categories. The weights do /not/ have to sum to 1.
 weightedCategoricalT :: (Fractional p, Eq p, Distribution (Categorical p) a) => [(p,a)] -> RVarT m a
 weightedCategoricalT = rvarT . fromWeightedList
@@ -73,14 +73,14 @@ totalWeight (Categorical ds)
 numEvents :: Categorical p a -> Int
 numEvents (Categorical ds) = V.length ds
 
--- |Construct a 'Categorical' distribution from a list of weighted categories, 
+-- |Construct a 'Categorical' distribution from a list of weighted categories,
 -- where the weights do not necessarily sum to 1.
 fromWeightedList :: (Fractional p, Eq p) => [(p,a)] -> Categorical p a
 fromWeightedList = normalizeCategoricalPs . fromList
 
 -- |Construct a 'Categorical' distribution from a list of observed outcomes.
 -- Equivalent events will be grouped and counted, and the probabilities of each
--- event in the returned distribution will be proportional to the number of 
+-- event in the returned distribution will be proportional to the number of
 -- occurrences of that event.
 fromObservations :: (Fractional p, Eq p, Ord a) => [a] -> Categorical p a
 fromObservations = fromWeightedList . map (genericLength &&& head) . group . sort
@@ -91,10 +91,10 @@ fromObservations = fromWeightedList . map (genericLength &&& head) . group . sor
 -- binary search.
 
 -- |Categorical distribution; a list of events with corresponding probabilities.
--- The sum of the probabilities must be 1, and no event should have a zero 
+-- The sum of the probabilities must be 1, and no event should have a zero
 -- or negative probability (at least, at time of sampling; very clever users
--- can do what they want with the numbers before sampling, just make sure 
--- that if you're one of those clever ones, you at least eliminate negative 
+-- can do what they want with the numbers before sampling, just make sure
+-- that if you're one of those clever ones, you at least eliminate negative
 -- weights before sampling).
 newtype Categorical p a = Categorical (V.Vector (p, a))
     deriving Eq
@@ -117,19 +117,19 @@ instance (Fractional p, Ord p, Distribution Uniform p) => Distribution (Categori
         | n == 1    = return (snd (V.head ds))
         | otherwise = do
             u <- uniformT 0 (fst (V.last ds))
-            
+
             let -- by construction, p is monotone; (i < j) ==> (p i <= p j)
                 p i = fst (ds V.! i)
                 x i = snd (ds V.! i)
-                
+
                 --  findEvent
                 -- ===========
                 -- invariants: (i <= j), (u <= p j), ((i == 0) || (p i < u))
                 --  (the last one means 'i' does not increase unless it bounds 'p' below 'u')
                 -- variant: either i increases or j decreases.
                 -- upon termination: ∀ k. if (k < j) then (p k < u) else (u <= p k)
-                --  (that is, the chosen event 'x j' is the first one whose 
-                --   associated cumulative probability 'p j' is greater than 
+                --  (that is, the chosen event 'x j' is the first one whose
+                --   associated cumulative probability 'p j' is greater than
                 --   or equal to 'u')
                 findEvent i j
                     | j <= i    = x j
@@ -139,7 +139,7 @@ instance (Fractional p, Ord p, Distribution Uniform p) => Distribution (Categori
                         -- midpoint rounding down
                         -- (i < j) ==> (m < j)
                         m = (i + j) `div` 2
-            
+
             return $! if u <= 0 then x 0 else findEvent 0 (n-1)
         where n = V.length ds
 
@@ -156,22 +156,22 @@ instance Traversable (Categorical p) where
 
 instance Fractional p => Monad (Categorical p) where
     return x = Categorical (V.singleton (1, x))
-    
+
     -- I'm not entirely sure whether this is a valid form of failure; see next
     -- set of comments.
 #if __GLASGOW_HASKELL__ < 808
     fail _ = Categorical V.empty
 #endif
-    
+
     -- Should the normalize step be included here, or should normalization
     -- be assumed?  It seems like there is (at least) 1 valid situation where
-    -- non-normal results would arise:  the distribution being modeled is 
-    -- "conditional" and some event arose that contradicted the assumed 
-    -- condition and thus was eliminated ('f' returned an empty or 
+    -- non-normal results would arise:  the distribution being modeled is
+    -- "conditional" and some event arose that contradicted the assumed
+    -- condition and thus was eliminated ('f' returned an empty or
     -- zero-probability consequent, possibly by 'fail'ing).
-    -- 
+    --
     -- It seems reasonable to continue in such circumstances, but should there
-    -- be any renormalization?  If so, does it make a difference when that 
+    -- be any renormalization?  If so, does it make a difference when that
     -- renormalization is done?  I'm pretty sure it does, actually.  So, the
     -- normalization will be omitted here for now, as it's easier for the
     -- user (who really better know what they mean if they're returning
@@ -180,7 +180,7 @@ instance Fractional p => Monad (Categorical p) where
     xs >>= f = {- normalizeCategoricalPs . -} fromList $ do
         (p, x) <- toList xs
         (q, y) <- toList (f x)
-        
+
         return (p * q, y)
 
 instance Fractional p => Applicative (Categorical p) where
@@ -191,7 +191,7 @@ instance Fractional p => Applicative (Categorical p) where
 mapCategoricalPs :: (Num p, Num q) => (p -> q) -> Categorical p e -> Categorical q e
 mapCategoricalPs f = fromList . map (first f) . toList
 
--- |Adjust all the weights of a categorical distribution so that they 
+-- |Adjust all the weights of a categorical distribution so that they
 -- sum to unity and remove all events whose probability is zero.
 normalizeCategoricalPs :: (Fractional p, Eq p) => Categorical p e -> Categorical p e
 normalizeCategoricalPs orig@(Categorical ds)
@@ -200,13 +200,13 @@ normalizeCategoricalPs orig@(Categorical ds)
         lastP       <- newSTRef 0
         nDups       <- newSTRef 0
         normalized  <- V.thaw ds
-        
+
         let n           = V.length ds
             skip        = modifySTRef' nDups (1+)
             save i p x  = do
                 d <- readSTRef nDups
                 MV.write normalized (i-d) (p, x)
-        
+
         sequence_
             [ do
                 let (p,x) = ds V.! i
@@ -218,7 +218,7 @@ normalizeCategoricalPs orig@(Categorical ds)
                         writeSTRef lastP $! p
             | i <- [0..n-1]
             ]
-        
+
         -- force last element to 1
         d <- readSTRef nDups
         let n' = n-d
@@ -242,14 +242,14 @@ modifySTRef' x f = do
 -- event will have a probability equal to the sum of all the originals).
 collectEvents :: (Ord e, Num p, Ord p) => Categorical p e -> Categorical p e
 collectEvents = collectEventsBy compare ((sum *** head) . unzip)
-        
+
 -- |Simplify a categorical distribution by combining equivalent events (the new
 -- event will have a weight equal to the sum of all the originals).
 -- The comparator function is used to identify events to combine.  Once chosen,
 -- the events and their weights are combined by the provided probability and
 -- event aggregation function.
 collectEventsBy :: Num p => (e -> e -> Ordering) -> ([(p,e)] -> (p,e))-> Categorical p e -> Categorical p e
-collectEventsBy compareE combine = 
+collectEventsBy compareE combine =
     fromList . map combine . groupEvents . sortEvents . toList
     where
         groupEvents = groupBy (\x y -> snd x `compareE` snd y == EQ)

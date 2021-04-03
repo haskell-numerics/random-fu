@@ -1,5 +1,5 @@
 {-# LANGUAGE
-        MultiParamTypeClasses, 
+        MultiParamTypeClasses,
         FlexibleInstances, FlexibleContexts,
         UndecidableInstances
   #-}
@@ -19,7 +19,7 @@ floatingRayleigh s = do
 
 -- |The rayleigh distribution with a specified mode (\"sigma\") parameter.
 -- Its mean will be @sigma*sqrt(pi/2)@ and its variance will be @sigma^2*(4-pi)/2@
--- 
+--
 -- (therefore if you want one with a particular mean @m@, @sigma@ should be @m*sqrt(2/pi)@)
 newtype Rayleigh a = Rayleigh a
 

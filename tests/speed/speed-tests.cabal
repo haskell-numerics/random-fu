@@ -12,7 +12,7 @@ description:            Various benchmarks for the random-fu library.
 
 flag split-random-fu
 
-executable random-fu-bench
+benchmark random-fu-bench
   type:             exitcode-stdio-1.0
   main-is:              Bench.hs
   build-depends:        base >= 4, criterion, MonadRandom, mtl,

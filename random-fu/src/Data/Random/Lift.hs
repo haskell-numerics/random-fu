@@ -19,10 +19,10 @@ import qualified Control.Monad.Identity as MTL
 -- For instances where 'm' and 'n' have 'return'/'pure' defined,
 -- these instances must satisfy
 -- @lift (return x) == return x@.
--- 
+--
 -- This form of 'lift' has an extremely general type and is used primarily to
 -- support 'sample'.  Its excessive generality is the main reason it's not
--- exported from "Data.Random".  'RVarT' is, however, an instance of 
+-- exported from "Data.Random".  'RVarT' is, however, an instance of
 -- 'T.MonadTrans', which in most cases is the preferred way
 -- to do the lifting.
 class Lift m n where
@@ -67,4 +67,3 @@ instance T.MonadTrans t => Lift MTL.Identity (t MTL.Identity) where
     lift = T.lift
 
 #endif
-

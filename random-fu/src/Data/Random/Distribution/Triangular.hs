@@ -52,7 +52,7 @@ triangularCDF a b c x
     = realToFrac (1 - (c - x)^(2 :: Int) / ((c - a) * (c - b)))
     | otherwise
     = 1
-    
+
 instance (RealFloat a, Ord a, Distribution StdUniform a) => Distribution Triangular a where
     rvarT (Triangular a b c) = floatingTriangular a b c
 instance (RealFrac a, Distribution Triangular a) => CDF Triangular a where
