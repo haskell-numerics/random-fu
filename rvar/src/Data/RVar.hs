@@ -61,19 +61,25 @@ import System.Random.Stateful
 --
 -- Once defined (in any style), there are several ways to sample 'RVar's:
 --
--- * In a monad, using a 'RandomSource':
+-- * Using an immutable pseudo-random number generator that has an instance for `RandomGen` with
+--   `StateT` monad:
 --
--- > runRVar (uniform 1 100) DevRandom :: IO Int
+-- >>> import qualified Data.Random as Fu (uniform)
+-- >>> import System.Random (mkStdGen)
+-- >>> import Control.Monad.State (runState)
+-- >>> runState (sampleStateRVar (Fu.uniform 1 (100 :: Integer))) (mkStdGen 2021)
+-- (79,StdGen {unStdGen = SMGen 4687568268719557181 4805600293067301895})
 --
--- * In a monad, using a 'MonadRandom' instance:
+-- * Using a mutable pseud-random number generator that has an instance for `StatefulGen` with
+--   `ReaderT` monad.
 --
--- > sampleRVar (uniform 1 100) :: State PureMT Int
+-- >>> import qualified Data.Random as Fu (uniform)
+-- >>> import System.Random.MWC (create)
+-- >>> import Control.Monad.Reader (runReaderT)
+-- >>> import qualified Data.Vector.Storable as VS
+-- >>> initialize (VS.singleton 2021) >>= runReaderT (sampleReaderRVar (uniform 1 (100 :: Integer)))
+-- 8
 --
--- * As a pure function transforming a functional RNG:
---
--- > sampleState (uniform 1 100) :: StdGen -> (Int, StdGen)
---
--- (where @sampleState = runState . sampleRVar@)
 type RVar = RVarT T.Identity
 
 -- | Sample random variable using `RandomGen` generator as source of entropy
