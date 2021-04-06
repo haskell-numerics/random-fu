@@ -24,9 +24,9 @@ instance (Num a, Eq a, Fractional p, Distribution (Binomial p) a) => Distributio
             go n (p:ps) (psum:psums) f = do
                 x <- binomialT n (p / psum)
                 go (n-x) ps psums (f . (x:))
-            
+
             go _ _ _ _ = error "rvar/Multinomial: programming error! this case should be impossible!"
-            
+
             -- less wasteful version of (map sum . tails)
             tailSums [] = [0]
             tailSums (x:xs) = case tailSums xs of

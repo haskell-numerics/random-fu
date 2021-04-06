@@ -1,6 +1,6 @@
 {-# LANGUAGE
         MultiParamTypeClasses,
-        FlexibleInstances, FlexibleContexts, 
+        FlexibleInstances, FlexibleContexts,
         IncoherentInstances
   #-}
 
@@ -8,7 +8,7 @@
 
 module Data.Random.Sample where
 
-import Control.Monad.State 
+import Control.Monad.State
 import Data.Random.Distribution
 import Data.Random.Lift
 import Data.Random.RVar

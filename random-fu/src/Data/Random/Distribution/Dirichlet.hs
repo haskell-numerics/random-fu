@@ -18,7 +18,7 @@ fractionalDirichlet [_] = return [1]
 fractionalDirichlet as = do
     xs <- sequence [gammaT a 1 | a <- as]
     let total = foldl1' (+) xs
-    
+
     return (map (* recip total) xs)
 
 dirichlet :: Distribution Dirichlet [a] => [a] -> RVar [a]

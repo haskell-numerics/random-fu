@@ -28,11 +28,11 @@ shuffleT :: [a] -> RVarT m [a]
 shuffleT [] = return []
 shuffleT xs = do
     is <- zipWithM (\_ i -> uniformT 0 i) (tail xs) [1..]
-    
+
     return (SRS.shuffle xs (reverse is))
 
 -- | A random variable that shuffles a list of a known length (or a list
--- prefix of the specified length). Useful for shuffling large lists when 
+-- prefix of the specified length). Useful for shuffling large lists when
 -- the length is known in advance.  Avoids needing to traverse the list to
 -- discover its length.  Each ordering has equal probability.
 shuffleN :: Int -> [a] -> RVar [a]
@@ -53,4 +53,3 @@ shuffleNofMT n m xs
         is <- sequence [uniformT 0 i | i <- take n [m-1, m-2 ..1]]
         return (take n $ SRS.shuffle (take m xs) is)
 shuffleNofMT _ _ _ = error "shuffleNofMT: negative length specified"
-

@@ -35,7 +35,7 @@ resolutionOf2 x = resolution (res x)
 -- |The 'Fixed' type doesn't expose its constructors, but I need a way to
 -- convert them to and from their raw representation in order to sample
 -- them.  As long as 'Fixed' is a newtype wrapping 'Integer', 'mkFixed' and
--- 'unMkFixed' as defined here will work.  Both are implemented using 
+-- 'unMkFixed' as defined here will work.  Both are implemented using
 -- 'unsafeCoerce'.
 mkFixed :: Integer -> Fixed r
 mkFixed = unsafeCoerce

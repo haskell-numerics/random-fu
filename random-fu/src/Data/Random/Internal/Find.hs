@@ -19,7 +19,7 @@ findMin = findMinFrom 0 1
 -- specified point with the specified stepsize, performs an exponential
 -- search out from there until it finds an interval bracketing the
 -- change-point of the predicate, and then performs a bisection search
--- to isolate the change point.  Note that infinitely-divisible domains 
+-- to isolate the change point.  Note that infinitely-divisible domains
 -- such as 'Rational' cannot be searched by this function because it does
 -- not terminate until it reaches a point where further subdivision of the
 -- interval has no effect.
@@ -33,31 +33,31 @@ findMinFrom z0 step1 p
         -- a feasible answer
         fixZero 0 = 0
         fixZero z = z
-        
+
         -- preconditions:
         -- not (p l)
         -- 0 <= l < x
-        ascend l x 
+        ascend l x
             | p x       = bisect l x
             | otherwise = ascend x $! 2*x-z0
-        
+
         -- preconditions:
         -- p h
         -- x < h <= 0
-        descend x h 
+        descend x h
             | p x       = (descend $! 2*x-z0) x
             | otherwise = bisect x h
-        
+
         -- preconditions:
         -- not (p l)
         -- p h
         -- l <= h
-        bisect l h 
+        bisect l h
             | l /< h    = h
             | l /< mid || mid /< h
             = if p mid then mid else h
             | p mid     = bisect l mid
             | otherwise = bisect mid h
-            where 
+            where
                 a /< b = not (a < b)
                 mid = (l+h)*0.5

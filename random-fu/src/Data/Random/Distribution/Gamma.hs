@@ -9,10 +9,10 @@
 module Data.Random.Distribution.Gamma
     ( Gamma(..)
     , gamma, gammaT
-    
+
     , Erlang(..)
     , erlang, erlangT
-    
+
     , mtGamma
     ) where
 
@@ -31,10 +31,10 @@ import Numeric.SpecFunctions
 {-# SPECIALIZE mtGamma :: Float  -> Float  -> RVarT m Float  #-}
 mtGamma
     :: (Floating a, Ord a,
-        Distribution StdUniform a, 
+        Distribution StdUniform a,
         Distribution Normal a)
     => a -> a -> RVarT m a
-mtGamma a b 
+mtGamma a b
     | a < 1     = do
         u <- stdUniformT
         mtGamma (1+a) $! (b * u ** recip a)
@@ -42,11 +42,11 @@ mtGamma a b
     where
         !d = a - fromRational (1%3)
         !c = recip (sqrt (9*d))
-        
+
         go = do
             x <- stdNormalT
             let !v   = 1 + c*x
-            
+
             if v <= 0
                 then go
                 else do
@@ -89,4 +89,3 @@ instance (Integral a, Floating b, Ord b, Distribution Normal b, Distribution Std
 
 instance (Integral a, Real b, Distribution (Erlang a) b) => CDF (Erlang a) b where
     cdf (Erlang a) x = incompleteGamma (fromIntegral a) (realToFrac x)
-

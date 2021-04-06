@@ -57,7 +57,7 @@ generalBernoulliCDF gte f t p x
 
 newtype Bernoulli b a = Bernoulli b
 
-instance (Fractional b, Ord b, Distribution StdUniform b) 
+instance (Fractional b, Ord b, Distribution StdUniform b)
        => Distribution (Bernoulli b) Bool
     where
         rvarT (Bernoulli p) = boolBernoulli p
@@ -67,7 +67,7 @@ instance (Distribution (Bernoulli b) Bool, Real b)
         cdf  (Bernoulli p) = boolBernoulliCDF p
 
 $( replicateInstances ''Int integralTypes [d|
-        instance Distribution (Bernoulli b) Bool 
+        instance Distribution (Bernoulli b) Bool
               => Distribution (Bernoulli b) Int
               where
                   rvarT (Bernoulli p) = generalBernoulli 0 1 p
@@ -78,7 +78,7 @@ $( replicateInstances ''Int integralTypes [d|
     |] )
 
 $( replicateInstances ''Float realFloatTypes [d|
-        instance Distribution (Bernoulli b) Bool 
+        instance Distribution (Bernoulli b) Bool
               => Distribution (Bernoulli b) Float
               where
                   rvarT (Bernoulli p) = generalBernoulli 0 1 p
@@ -89,11 +89,11 @@ $( replicateInstances ''Float realFloatTypes [d|
     |] )
 
 instance (Distribution (Bernoulli b) Bool, Integral a)
-       => Distribution (Bernoulli b) (Ratio a)   
+       => Distribution (Bernoulli b) (Ratio a)
        where
            rvarT (Bernoulli p) = generalBernoulli 0 1 p
 instance (CDF (Bernoulli b) Bool, Integral a)
-       => CDF (Bernoulli b) (Ratio a)   
+       => CDF (Bernoulli b) (Ratio a)
        where
            cdf  (Bernoulli p) = generalBernoulliCDF (>=) 0 1 p
 instance (Distribution (Bernoulli b) Bool, RealFloat a)

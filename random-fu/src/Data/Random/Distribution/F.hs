@@ -17,4 +17,3 @@ instance (Fractional t, Distribution Beta t) => Distribution F t where
         let p' = fromIntegral p; q' = fromIntegral q
         y <- betaT (0.5*p') (0.5*q')
         return (q'/p' * y/(1-y))
-    

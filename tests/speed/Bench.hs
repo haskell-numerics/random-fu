@@ -113,14 +113,14 @@ main = do
 --                    xs <- stToIO $ replicateM count (MWC.normal src)
 --                    return $ sum' (xs :: [Double])
 --                ]
-            , bgroup "uniformVector"
-                [ bench "Double" $ nfIO $ do
-                    src <- newGenIO
-                    xs <- stToIO $ MWC.uniformVector src count
-                    -- unboxed, so don't need to force it, but we sum it
-                    -- anyway to make the comparison fair between other tests
-                    return $ (Vec.sum xs :: Double)
-                ]
+            -- , bgroup "uniformVector"
+            --     [ bench "Double" $ nfIO $ do
+            --         src <- newGenIO
+            --         xs <- stToIO $ MWC.uniformVector src count
+            --         -- unboxed, so don't need to force it, but we sum it
+            --         -- anyway to make the comparison fair between other tests
+            --         return $ (Vec.sum xs :: Double)
+            --     ]
             ]
 
         , bench "baseline sum" $ nf sum' [1..fromIntegral count :: Double]
