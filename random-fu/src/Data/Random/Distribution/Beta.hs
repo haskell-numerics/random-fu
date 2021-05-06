@@ -9,8 +9,6 @@
 
 module Data.Random.Distribution.Beta where
 
-import Data.Random.Internal.TH
-
 import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Gamma
@@ -57,7 +55,10 @@ instance PDF Beta Float
   where
     pdf (Beta a b) = realToFrac . exp . logBetaPdf (realToFrac a) (realToFrac b) . realToFrac
 
-$( replicateInstances ''Float realFloatTypes [d|
-        instance Distribution Beta Float
-              where rvarT (Beta a b) = fractionalBeta a b
-    |])
+instance Distribution Beta Float
+  where
+    rvarT (Beta a b) = fractionalBeta a b
+
+instance Distribution Beta Double
+  where
+    rvarT (Beta a b) = fractionalBeta a b

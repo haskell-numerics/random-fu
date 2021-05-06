@@ -9,12 +9,13 @@
 
 module Data.Random.Distribution.Binomial where
 
-import Data.Random.Internal.TH
-
 import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Beta
 import Data.Random.Distribution.Uniform
+
+import Data.Int
+import Data.Word
 
 import Numeric.SpecFunctions ( stirlingError )
 import Numeric.SpecFunctions.Extra ( bd0 )
@@ -131,31 +132,95 @@ binomialT t p = rvarT (Binomial t p)
 
 data Binomial b a = Binomial a b
 
-$( replicateInstances ''Int integralTypes [d|
-        instance ( Floating b, Ord b
-                 , Distribution Beta b
-                 , Distribution StdUniform b
-                 ) => Distribution (Binomial b) Int
-            where
-                rvarT (Binomial t p) = integralBinomial t p
-        instance ( Real b , Distribution (Binomial b) Int
-                 ) => CDF (Binomial b) Int
-            where cdf  (Binomial t p) = integralBinomialCDF t p
-        instance ( Real b , Distribution (Binomial b) Int
-                 ) => PDF (Binomial b) Int
-            where pdf (Binomial t p) = integralBinomialPDF t p
-                  logPdf (Binomial t p) = integralBinomialLogPdf t p
-    |])
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Integer where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Integer)                         => CDF (Binomial b) Integer where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Integer)                         => PDF (Binomial b) Integer where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Int)                             => CDF (Binomial b) Int where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Int)                             => PDF (Binomial b) Int where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int8 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Int8)                            => CDF (Binomial b) Int8 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Int8)                            => PDF (Binomial b) Int8 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int16 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Int16)                           => CDF (Binomial b) Int16 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Int16)                           => PDF (Binomial b) Int16 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int32 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Int32)                           => CDF (Binomial b) Int32 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Int32)                           => PDF (Binomial b) Int32 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Int64 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Int64)                           => CDF (Binomial b) Int64 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Int64)                           => PDF (Binomial b) Int64 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Word)                            => CDF (Binomial b) Word where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Word)                            => PDF (Binomial b) Word where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word8 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Word8)                           => CDF (Binomial b) Word8 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Word8)                           => PDF (Binomial b) Word8 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word16 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Word16)                          => CDF (Binomial b) Word16 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Word16)                          => PDF (Binomial b) Word16 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word32 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Word32)                          => CDF (Binomial b) Word32 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Word32)                          => PDF (Binomial b) Word32 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
+instance (Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => Distribution (Binomial b) Word64 where
+    rvarT  (Binomial t p) = integralBinomial t p
+instance (Real b, Distribution (Binomial b) Word64)                          => CDF (Binomial b) Word64 where
+    cdf    (Binomial t p) = integralBinomialCDF t p
+instance (Real b, Distribution (Binomial b) Word64)                          => PDF (Binomial b) Word64 where
+    pdf    (Binomial t p) = integralBinomialPDF t p
+    logPdf (Binomial t p) = integralBinomialLogPdf t p
 
-$( replicateInstances ''Float realFloatTypes [d|
-        instance Distribution (Binomial b) Integer
-              => Distribution (Binomial b) Float
-              where rvar (Binomial t p) = floatingBinomial t p
-        instance CDF (Binomial b) Integer
-              => CDF (Binomial b) Float
-              where cdf  (Binomial t p) = floatingBinomialCDF t p
-        instance PDF (Binomial b) Integer
-              => PDF (Binomial b) Float
-              where pdf (Binomial t p) = floatingBinomialPDF t p
-                    logPdf (Binomial t p) = floatingBinomialLogPDF t p
-    |])
+instance Distribution (Binomial b) Integer => Distribution (Binomial b) Float where
+    rvar   (Binomial t p) = floatingBinomial t p
+instance CDF (Binomial b) Integer          => CDF (Binomial b) Float where
+    cdf    (Binomial t p) = floatingBinomialCDF t p
+instance PDF (Binomial b) Integer          => PDF (Binomial b) Float where
+    pdf    (Binomial t p) = floatingBinomialPDF t p
+    logPdf (Binomial t p) = floatingBinomialLogPDF t p
+instance Distribution (Binomial b) Integer => Distribution (Binomial b) Double where
+    rvar   (Binomial t p) = floatingBinomial t p
+instance CDF (Binomial b) Integer          => CDF (Binomial b) Double where
+    cdf    (Binomial t p) = floatingBinomialCDF t p
+instance PDF (Binomial b) Integer          => PDF (Binomial b) Double where
+    pdf    (Binomial t p) = floatingBinomialPDF t p
+    logPdf (Binomial t p) = floatingBinomialLogPDF t p
