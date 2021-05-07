@@ -1,7 +1,7 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
-    UndecidableInstances, TemplateHaskell,
+    UndecidableInstances,
     BangPatterns
   #-}
 

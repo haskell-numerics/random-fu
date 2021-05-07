@@ -1,8 +1,7 @@
 {-# LANGUAGE
     MultiParamTypeClasses,
     FlexibleInstances, FlexibleContexts,
-    UndecidableInstances,
-    TemplateHaskell
+    UndecidableInstances
   #-}
 
 {-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
