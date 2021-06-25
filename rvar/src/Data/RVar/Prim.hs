@@ -35,3 +35,6 @@ instance Show (Prim a) where
     showsPrec _p PrimWord64        = showString "PrimWord64"
     showsPrec  p (PrimShortByteString n) =
       showParen (p > 10) (showString "PrimShortByteString " . showsPrec 11 n)
+
+instance Functor Prim where
+  fmap _ _ = error "Functor Prim"
