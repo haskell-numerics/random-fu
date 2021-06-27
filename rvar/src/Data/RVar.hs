@@ -281,23 +281,22 @@ instance Functor n => MonadFree Prim (RVarT n) where
 
 data RGen = RGen
 
--- instance StatefulGen RGen (RVarT m) where
---     uniformWord8 RGen = RVarT $ liftF PrimWord8
---     {-# INLINE uniformWord8 #-}
---     uniformWord16 RGen = RVarT $ liftF PrimWord16
---     {-# INLINE uniformWord16 #-}
---     uniformWord32 RGen = RVarT $ liftF PrimWord32
---     {-# INLINE uniformWord32 #-}
---     uniformWord64 RGen = RVarT $ liftF PrimWord64
---     {-# INLINE uniformWord64 #-}
---     uniformShortByteString n RGen = RVarT $ liftF (PrimShortByteString n)
---     {-# INLINE uniformShortByteString #-}
+instance Functor m => StatefulGen RGen (RVarT m) where
+    uniformWord8 RGen = liftF PrimWord8
+    {-# INLINE uniformWord8 #-}
+    uniformWord16 RGen =liftF PrimWord16
+    {-# INLINE uniformWord16 #-}
+    uniformWord32 RGen =liftF PrimWord32
+    {-# INLINE uniformWord32 #-}
+    uniformWord64 RGen =liftF PrimWord64
+    {-# INLINE uniformWord64 #-}
+    uniformShortByteString n RGen = liftF (PrimShortByteString n)
+    {-# INLINE uniformShortByteString #-}
 
+uniformRVarT :: (Functor m, Uniform a) => RVarT m a
+uniformRVarT = uniformM RGen
+{-# INLINE uniformRVarT #-}
 
--- uniformRVarT :: Uniform a => RVarT m a
--- uniformRVarT = uniformM RGen
--- {-# INLINE uniformRVarT #-}
-
--- uniformRangeRVarT :: UniformRange a => (a, a) -> RVarT m a
--- uniformRangeRVarT r = uniformRM r RGen
--- {-# INLINE uniformRangeRVarT #-}
+uniformRangeRVarT :: (Functor m, UniformRange a) => (a, a) -> RVarT m a
+uniformRangeRVarT r = uniformRM r RGen
+{-# INLINE uniformRangeRVarT #-}
