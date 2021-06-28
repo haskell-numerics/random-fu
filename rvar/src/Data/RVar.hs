@@ -30,8 +30,8 @@ module Data.RVar
     -- , sampleStateRVarTWith
 
     , RGen(..)
-    -- , uniformRVarT
-    -- , uniformRangeRVarT
+    , uniformRVarT
+    , uniformRangeRVarT
 
     , Prim(..)
     ) where
