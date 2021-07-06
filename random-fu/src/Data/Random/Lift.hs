@@ -39,7 +39,7 @@ instance Lift m m where
 instance Monad m => Lift T.Identity m where
     lift = return . T.runIdentity
 
-instance Lift (RVarT T.Identity) (RVarT m) where
+instance Functor m => Lift (RVarT T.Identity) (RVarT m) where
     lift x = runRVar x RGen
 
 -- | This instance is again incoherent with the others, but provides a

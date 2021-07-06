@@ -53,7 +53,7 @@ import qualified System.Random.Stateful as Random
 
 -- |Compute a random 'Integral' value between the 2 values provided (inclusive).
 {-# INLINE integralUniform #-}
-integralUniform :: Random.UniformRange a => a -> a -> RVarT m a
+integralUniform :: Functor m => Random.UniformRange a => a -> a -> RVarT m a
 integralUniform !x !y = Random.uniformRM (x, y) RGen
   -- Maybe switch to uniformIntegralM (requires exposing from `random` internals):
   -- Random.uniformIntegralM (x, y) RGen
@@ -75,14 +75,14 @@ boundedStdUniformCDF = cdf (Uniform minBound maxBound)
 
 -- |Compute a random value for a 'Bounded' 'Enum' type, between 'minBound' and
 -- 'maxBound' (inclusive)
-boundedEnumStdUniform :: (Enum a, Bounded a) => RVarT m a
+boundedEnumStdUniform :: Functor m => (Enum a, Bounded a) => RVarT m a
 boundedEnumStdUniform = enumUniform minBound maxBound
 
 boundedEnumStdUniformCDF :: (Enum a, Bounded a, Ord a) => a -> Double
 boundedEnumStdUniformCDF = enumUniformCDF minBound maxBound
 
 -- |Compute a uniform random 'Float' value in the range [0,1)
-floatStdUniform :: RVarT m Float
+floatStdUniform :: Functor m => RVarT m Float
 floatStdUniform = do
     x <- uniformRangeRVarT (0, 1)
     -- exclude 1. TODO: come up with something smarter
@@ -90,14 +90,14 @@ floatStdUniform = do
 
 -- |Compute a uniform random 'Double' value in the range [0,1)
 {-# INLINE doubleStdUniform #-}
-doubleStdUniform :: RVarT m Double
+doubleStdUniform :: Functor m => RVarT m Double
 doubleStdUniform = do
     x <- uniformRangeRVarT (0, 1)
     -- exclude 1. TODO: come up with something smarter
     if x == 1 then doubleStdUniform else pure x
 
 -- |Compute a uniform random value in the range [0,1) for any 'RealFloat' type
-realFloatStdUniform :: RealFloat a => RVarT m a
+realFloatStdUniform :: Functor m => RealFloat a => RVarT m a
 realFloatStdUniform = do
     let (b, e) = decodeFloat one
 
@@ -110,7 +110,7 @@ realFloatStdUniform = do
 
 -- |Compute a uniform random 'Fixed' value in the range [0,1), with any
 -- desired precision.
-fixedStdUniform :: HasResolution r => RVarT m (Fixed r)
+fixedStdUniform :: Functor m => HasResolution r => RVarT m (Fixed r)
 fixedStdUniform = x
     where
         res = resolutionOf2 x
@@ -138,7 +138,7 @@ lerp :: Num a => a -> a -> a -> a
 lerp x y a = (1-a)*x + a*y
 
 -- |@floatUniform a b@ computes a uniform random 'Float' value in the range [a,b)
-floatUniform :: Float -> Float -> RVarT m Float
+floatUniform :: Functor m => Float -> Float -> RVarT m Float
 floatUniform 0 1 = floatStdUniform
 floatUniform a b = do
     x <- floatStdUniform
@@ -146,7 +146,7 @@ floatUniform a b = do
 
 -- |@doubleUniform a b@ computes a uniform random 'Double' value in the range [a,b)
 {-# INLINE doubleUniform #-}
-doubleUniform :: Double -> Double -> RVarT m Double
+doubleUniform :: Functor m => Double -> Double -> RVarT m Double
 doubleUniform 0 1 = doubleStdUniform
 doubleUniform a b = do
     x <- doubleStdUniform
@@ -154,7 +154,7 @@ doubleUniform a b = do
 
 -- |@realFloatUniform a b@ computes a uniform random value in the range [a,b) for
 -- any 'RealFloat' type
-realFloatUniform :: RealFloat a => a -> a -> RVarT m a
+realFloatUniform :: Functor m => RealFloat a => a -> a -> RVarT m a
 realFloatUniform 0 1 = realFloatStdUniform
 realFloatUniform a b = do
     x <- realFloatStdUniform
@@ -162,7 +162,7 @@ realFloatUniform a b = do
 
 -- |@fixedUniform a b@ computes a uniform random 'Fixed' value in the range
 -- [a,b), with any desired precision.
-fixedUniform :: HasResolution r => Fixed r -> Fixed r -> RVarT m (Fixed r)
+fixedUniform :: Functor m => HasResolution r => Fixed r -> Fixed r -> RVarT m (Fixed r)
 fixedUniform a b = do
     u <- integralUniform (unMkFixed a) (unMkFixed b)
     return (mkFixed u)
@@ -177,7 +177,7 @@ realUniformCDF a b x
 
 -- |@realFloatUniform a b@ computes a uniform random value in the range [a,b) for
 -- any 'Enum' type
-enumUniform :: Enum a => a -> a -> RVarT m a
+enumUniform :: Functor m => Enum a => a -> a -> RVarT m a
 enumUniform a b = do
     x <- integralUniform (fromEnum a) (fromEnum b)
     return (toEnum x)
@@ -200,7 +200,7 @@ uniform a b = rvar (Uniform a b)
 -- @uniformT a b@ is a uniformly distributed random process in the range
 -- [a,b] for 'Integral' or 'Enum' types and in the range [a,b) for 'Fractional'
 -- types.  Requires a @Distribution Uniform@ instance for the type.
-uniformT :: Distribution Uniform a => a -> a -> RVarT m a
+uniformT :: (Distribution Uniform a, Functor m) => a -> a -> RVarT m a
 uniformT a b = rvarT (Uniform a b)
 
 -- |Get a \"standard\" uniformly distributed variable.
@@ -216,15 +216,15 @@ stdUniform = rvar StdUniform
 -- For integral types, this means uniformly distributed over the full range
 -- of the type (there is no support for 'Integer').  For fractional
 -- types, this means uniformly distributed on the interval [0,1).
-{-# SPECIALIZE stdUniformT :: RVarT m Double #-}
-{-# SPECIALIZE stdUniformT :: RVarT m Float #-}
-stdUniformT :: (Distribution StdUniform a) => RVarT m a
+{-# SPECIALIZE stdUniformT :: Functor m => RVarT m Double #-}
+{-# SPECIALIZE stdUniformT :: Functor m => RVarT m Float #-}
+stdUniformT :: (Distribution StdUniform a, Functor m) => RVarT m a
 stdUniformT = rvarT StdUniform
 
 -- |Like 'stdUniform', but returns only positive or zero values.  Not
 -- exported because it is not truly uniform: nonzero values are twice
 -- as likely as zero on signed types.
-stdUniformNonneg :: (Distribution StdUniform a, Num a, Eq a) => RVarT m a
+stdUniformNonneg :: (Distribution StdUniform a, Num a, Eq a, Functor m) => RVarT m a
 stdUniformNonneg = fmap abs stdUniformT
 
 -- |Like 'stdUniform' but only returns positive values.
@@ -232,7 +232,7 @@ stdUniformPos :: (Distribution StdUniform a, Num a, Eq a) => RVar a
 stdUniformPos = stdUniformPosT
 
 -- |Like 'stdUniform' but only returns positive values.
-stdUniformPosT :: (Distribution StdUniform a, Num a, Eq a) => RVarT m a
+stdUniformPosT :: (Distribution StdUniform a, Num a, Eq a, Functor m) => RVarT m a
 stdUniformPosT = iterateUntil (/= 0) stdUniformNonneg
 
 -- |A definition of a uniform distribution over the type @t@.  See also 'uniform'.
