@@ -19,15 +19,15 @@
 module Data.RVar
     ( RVar
     , runRVar
-    -- , sampleReaderRVar
-    -- , sampleStateRVar
+    , sampleReaderRVar
+    , sampleStateRVar
     , pureRVar
 
     , RVarT
     , runRVarT, sampleReaderRVarT, sampleStateRVarT
     , runRVarTWith
-    -- , sampleReaderRVarTWith
-    -- , sampleStateRVarTWith
+    , sampleReaderRVarTWith
+    , sampleStateRVarTWith
 
     , RGen(..)
     , uniformRVarT
@@ -102,11 +102,11 @@ runRVar :: StatefulGen g m => RVar a -> g -> m a
 runRVar = runRVarTWith (return . T.runIdentity)
 
 -- |@sampleRVar x@ is equivalent to @runRVar x 'StdRandom'@.
--- sampleReaderRVar :: (StatefulGen g m, MonadReader g m) => RVar a -> m a
--- sampleReaderRVar = sampleReaderRVarTWith (return . T.runIdentity)
+sampleReaderRVar :: (StatefulGen g m, MonadReader g m) => RVar a -> m a
+sampleReaderRVar = sampleReaderRVarTWith (return . T.runIdentity)
 
--- sampleStateRVar :: (RandomGen g, MonadState g m) => RVar a -> m a
--- sampleStateRVar = sampleStateRVarTWith (return . T.runIdentity)
+sampleStateRVar :: (RandomGen g, MonadState g m) => RVar a -> m a
+sampleStateRVar = sampleStateRVarTWith (return . T.runIdentity)
 
 -- |A random variable with access to operations in an underlying monad.  Useful
 -- examples include any form of state for implementing random processes with hysteresis,
@@ -209,45 +209,25 @@ runPromptT' prm lft e = foldF alg e
 
 {-# INLINE uniformPrimM #-}
 uniformPrimM :: StatefulGen g m => Prim t -> g -> m t
-uniformPrimM prim g =
-    case prim of
-        PrimWord8             -> uniformWord8 g
-        PrimWord16            -> uniformWord16 g
-        PrimWord32            -> uniformWord32 g
-        PrimWord64            -> uniformWord64 g
-        PrimShortByteString n -> uniformShortByteString n g
-
+uniformPrimM (Prim f) g = uniformDoublePositive01M g >>= return . f
 
 -- |@sampleRVarTWith lift x@ is equivalent to @runRVarTWith lift x 'StdRandom'@.
--- {-# INLINE sampleReaderRVarTWith #-}
--- sampleReaderRVarTWith ::
---        forall m n a g. (StatefulGen g m, MonadReader g m)
---     => (forall t. n t -> m t)
---     -> RVarT n a
---     -> m a
--- sampleReaderRVarTWith liftN (RVarT m) = runPromptT return bindP bindN m
---     where
---         bindP :: forall t. (Prim t -> (t -> m a) -> m a)
---         bindP prim cont = ask >>= uniformPrimM prim >>= cont
-
---         bindN :: forall t. n t -> (t -> m a) -> m a
---         bindN nExp cont = liftN nExp >>= cont
-
+{-# INLINE sampleReaderRVarTWith #-}
+sampleReaderRVarTWith ::
+       forall m n a g. (StatefulGen g m, MonadReader g m)
+    => (forall t. n t -> m t)
+    -> RVarT n a
+    -> m a
+sampleReaderRVarTWith liftN (RVarT m) = runPromptT' (\p -> ask >>= uniformPrimM p) liftN m
 
 -- |@sampleRVarTWith lift x@ is equivalent to @runRVarTWith lift x 'StdRandom'@.
--- {-# INLINE sampleStateRVarTWith #-}
--- sampleStateRVarTWith ::
---        forall m n a g. (RandomGen g, MonadState g m)
---     => (forall t. n t -> m t)
---     -> RVarT n a
---     -> m a
--- sampleStateRVarTWith liftN (RVarT m) = runPromptT return bindP bindN m
---     where
---         bindP :: forall t. (Prim t -> (t -> m a) -> m a)
---         bindP prim cont = uniformPrimM prim StateGenM >>= cont
-
---         bindN :: forall t. n t -> (t -> m a) -> m a
---         bindN nExp cont = liftN nExp >>= cont
+{-# INLINE sampleStateRVarTWith #-}
+sampleStateRVarTWith ::
+       forall m n a g. (RandomGen g, MonadState g m)
+    => (forall t. n t -> m t)
+    -> RVarT n a
+    -> m a
+sampleStateRVarTWith liftN (RVarT m) = runPromptT' (\p -> uniformPrimM p StateGenM) liftN m
 
 instance Functor (RVarT n) where
     fmap = liftM
@@ -269,28 +249,14 @@ instance Functor n => MonadFree Prim (RVarT n) where
 -- instance T.MonadIO m => T.MonadIO (RVarT m) where
 --     liftIO = T.lift . T.liftIO
 
--- #ifndef MTL2
-
--- instance MTL.MonadTrans RVarT where
---     lift m = RVarT (MTL.lift m)
-
--- instance MTL.MonadIO m => MTL.MonadIO (RVarT m) where
---     liftIO = MTL.lift . MTL.liftIO
-
--- #endif
-
 data RGen = RGen
 
 instance Functor m => StatefulGen RGen (RVarT m) where
-    uniformWord8 RGen = liftF PrimWord8
-    {-# INLINE uniformWord8 #-}
-    uniformWord16 RGen =liftF PrimWord16
-    {-# INLINE uniformWord16 #-}
-    uniformWord32 RGen =liftF PrimWord32
+    uniformWord32 RGen            = liftF (Prim f)
+      where
+        f x = floor $ x * fromIntegral (maxBound :: Word32)
     {-# INLINE uniformWord32 #-}
-    uniformWord64 RGen =liftF PrimWord64
-    {-# INLINE uniformWord64 #-}
-    uniformShortByteString n RGen = liftF (PrimShortByteString n)
+    uniformShortByteString _n RGen = RVarT $ error "ShortByteString"
     {-# INLINE uniformShortByteString #-}
 
 uniformRVarT :: (Functor m, Uniform a) => RVarT m a

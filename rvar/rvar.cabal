@@ -54,6 +54,10 @@ Library
     build-depends:      mtl == 1.1.*
 
   build-depends:        base            >= 3 && <5,
+
+                        vector,
+                        mwc-random,
+
                         bytestring,
                         free,
                         MonadPrompt     == 1.0.*,
