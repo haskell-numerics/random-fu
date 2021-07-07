@@ -243,11 +243,11 @@ instance Applicative (RVarT n) where
 instance Functor n => MonadFree Prim (RVarT n) where
   wrap = RVarT . wrap . InL . fmap unRVarT
 
--- instance T.MonadTrans RVarT where
---     lift m = RVarT (MTL.lift m)
+instance T.MonadTrans RVarT where
+  lift = RVarT . wrap . InR . fmap unRVarT . fmap return
 
--- instance T.MonadIO m => T.MonadIO (RVarT m) where
---     liftIO = T.lift . T.liftIO
+instance T.MonadIO m => T.MonadIO (RVarT m) where
+    liftIO = T.lift . T.liftIO
 
 data RGen = RGen
 
