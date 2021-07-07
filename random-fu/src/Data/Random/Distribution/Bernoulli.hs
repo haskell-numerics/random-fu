@@ -27,12 +27,12 @@ bernoulli p = rvar (Bernoulli p)
 -- |Generate a Bernoulli process with the given probability.  For @Bool@ results,
 -- @bernoulli p@ will return True (p*100)% of the time and False otherwise.
 -- For numerical types, True is replaced by 1 and False by 0.
-bernoulliT :: Distribution (Bernoulli b) a => b -> RVarT m a
+bernoulliT :: (Distribution (Bernoulli b) a, Functor m) => b -> RVarT m a
 bernoulliT p = rvarT (Bernoulli p)
 
 -- |A random variable whose value is 'True' the given fraction of the time
 -- and 'False' the rest.
-boolBernoulli :: (Fractional a, Ord a, Distribution StdUniform a) => a -> RVarT m Bool
+boolBernoulli :: (Fractional a, Ord a, Distribution StdUniform a, Functor m) => a -> RVarT m Bool
 boolBernoulli p = do
     x <- stdUniformT
     return (x <= p)
@@ -43,7 +43,7 @@ boolBernoulliCDF p False = (1 - realToFrac p)
 
 -- | @generalBernoulli t f p@ generates a random variable whose value is @t@
 -- with probability @p@ and @f@ with probability @1-p@.
-generalBernoulli :: Distribution (Bernoulli b) Bool => a -> a -> b -> RVarT m a
+generalBernoulli :: (Distribution (Bernoulli b) Bool, Functor m) => a -> a -> b -> RVarT m a
 generalBernoulli f t p = do
     x <- bernoulliT p
     return (if x then t else f)

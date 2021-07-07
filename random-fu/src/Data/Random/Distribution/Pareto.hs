@@ -12,7 +12,7 @@ import Data.Random
 pareto :: Distribution Pareto a => a -> a -> RVar a
 pareto xM a = rvar (Pareto xM a)
 
-paretoT :: Distribution Pareto a => a -> a -> RVarT m a
+paretoT :: (Distribution Pareto a, Functor m) => a -> a -> RVarT m a
 paretoT xM a = rvarT (Pareto xM a)
 
 data Pareto a = Pareto !a !a

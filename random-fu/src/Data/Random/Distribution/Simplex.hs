@@ -35,7 +35,7 @@ instance (Ord a, Fractional a, Distribution StdUniform a) => Distribution StdSim
 stdSimplex :: Distribution StdSimplex [a] => Int -> RVar [a]
 stdSimplex k = rvar (StdSimplex k)
 
-stdSimplexT :: Distribution StdSimplex [a] => Int -> RVarT m [a]
+stdSimplexT :: (Distribution StdSimplex [a], Functor m) => Int -> RVarT m [a]
 stdSimplexT k = rvarT (StdSimplex k)
 
 -- |An algorithm proposed by Rubinstein & Melamed (1998).

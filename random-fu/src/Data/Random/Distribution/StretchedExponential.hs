@@ -14,7 +14,7 @@ import Data.Random.Distribution.Uniform
 
 newtype StretchedExponential a = StretchedExp (a,a)
 
-floatingStretchedExponential :: (Floating a, Distribution StdUniform a) => a -> a -> RVarT m a
+floatingStretchedExponential :: (Floating a, Distribution StdUniform a, Functor m) => a -> a -> RVarT m a
 floatingStretchedExponential beta lambdaRecip = do
     x <- stdUniformT
     return (negate (log (1-x))**(1/beta) * lambdaRecip)
@@ -25,7 +25,7 @@ floatingStretchedExponentialCDF beta lambdaRecip x = 1 - exp (negate (realToFrac
 stretchedExponential :: Distribution StretchedExponential a => a -> a -> RVar a
 stretchedExponential beta lambdaRecip = rvar $ StretchedExp (beta, lambdaRecip)
 
-stretchedExponentialT :: Distribution StretchedExponential a => a -> a -> RVarT m a
+stretchedExponentialT :: (Distribution StretchedExponential a, Functor m) => a -> a -> RVarT m a
 stretchedExponentialT beta lambdaRecip = rvarT $ StretchedExp (beta, lambdaRecip)
 
 instance (Floating a, Distribution StdUniform a) => Distribution StretchedExponential a where

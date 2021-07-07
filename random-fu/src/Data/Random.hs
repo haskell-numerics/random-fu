@@ -50,8 +50,8 @@ module Data.Random
       -- * A few very common distributions
       Uniform(..), uniform, uniformT,
       StdUniform(..), stdUniform, stdUniformT,
-      -- Normal(..), normal, stdNormal, normalT, stdNormalT,
-      -- Gamma(..), gamma, gammaT,
+      Normal(..), normal, stdNormal, normalT, stdNormalT,
+      Gamma(..), gamma, gammaT,
 
       -- * Entropy Sources
       StatefulGen, RandomGen,
@@ -64,8 +64,8 @@ module Data.Random
 
 import Data.Random.Sample
 import Data.Random.Distribution
--- import Data.Random.Distribution.Gamma
--- import Data.Random.Distribution.Normal
+import Data.Random.Distribution.Gamma
+import Data.Random.Distribution.Normal
 import Data.Random.Distribution.Uniform
 
 import Data.Random.Lift ()

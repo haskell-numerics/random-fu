@@ -81,7 +81,7 @@ knuthPolarNormalPair = do
 
 -- |Draw from the tail of a normal distribution (the region beyond the provided value)
 {-# INLINE normalTail #-}
-normalTail :: (Distribution StdUniform a, Floating a, Ord a) =>
+normalTail :: (Distribution StdUniform a, Floating a, Ord a, Functor m) =>
               a -> RVarT m a
 normalTail r = go
     where
@@ -98,7 +98,7 @@ normalTail r = go
 -- @logBase 2 c@ and the 'zGetIU' implementation.
 normalZ ::
   (RealFloat a, Erf a, Vector v a, Distribution Uniform a, Integral b) =>
-  b -> (forall m. RVarT m (Int, a)) -> Ziggurat v a
+  b -> (forall m. Functor m => RVarT m (Int, a)) -> Ziggurat v a
 normalZ p = mkZigguratRec True normalF normalFInv normalFInt normalFVol (2^p)
 
 -- | Ziggurat target function (upper half of a non-normalized gaussian PDF)
@@ -134,13 +134,13 @@ normalFVol = sqrt (0.5 * pi)
 --
 -- As far as I know, this should be safe to use in any monomorphic
 -- @Distribution Normal@ instance declaration.
-realFloatStdNormal :: (RealFloat a, Erf a, Distribution Uniform a) => RVarT m a
+realFloatStdNormal :: (RealFloat a, Erf a, Distribution Uniform a, Functor m) => RVarT m a
 realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggurat V.Vector a))
     where
         p :: Int
         p = 6
 
-        getIU :: (Num a, Distribution Uniform a) => RVarT m (Int, a)
+        getIU :: (Num a, Distribution Uniform a, Functor m) => RVarT m (Int, a)
         getIU = do
             i <- Random.uniformWord8 RGen
             u <- uniformT (-1) 1
@@ -148,7 +148,7 @@ realFloatStdNormal = runZiggurat (normalZ p getIU `asTypeOf` (undefined :: Ziggu
 
 -- |A random variable sampling from the standard normal distribution
 -- over the 'Double' type.
-doubleStdNormal :: RVarT m Double
+doubleStdNormal :: Functor m => RVarT m Double
 doubleStdNormal = runZiggurat doubleStdNormalZ
 
 -- doubleStdNormalC must not be over 2^12 if using wordToDoubleWithExcess
@@ -166,7 +166,7 @@ doubleStdNormalZ = mkZiggurat_ True
         getIU
         (normalTail doubleStdNormalR)
     where
-        getIU :: RVarT m (Int, Double)
+        getIU :: Functor m => RVarT m (Int, Double)
         getIU = do
             !w <- Random.uniformWord64 RGen
             let (u,i) = wordToDoubleWithExcess w
@@ -188,7 +188,7 @@ wordToDoubleWithExcess x = (wordToDouble x, x `shiftR` 52)
 
 -- |A random variable sampling from the standard normal distribution
 -- over the 'Float' type.
-floatStdNormal :: RVarT m Float
+floatStdNormal :: Functor m => RVarT m Float
 floatStdNormal = runZiggurat floatStdNormalZ
 
 -- floatStdNormalC must not be over 2^9 if using word32ToFloatWithExcess
@@ -206,7 +206,7 @@ floatStdNormalZ = mkZiggurat_ True
         getIU
         (normalTail floatStdNormalR)
     where
-        getIU :: RVarT m (Int, Float)
+        getIU :: Functor m => RVarT m (Int, Float)
         getIU = do
             !w <- Random.uniformWord32 RGen
             let (u,i) = word32ToFloatWithExcess w
@@ -278,7 +278,7 @@ stdNormal :: Distribution Normal a => RVar a
 stdNormal = rvar StdNormal
 
 -- |'stdNormalT' is a normal process with distribution 'StdNormal'.
-stdNormalT :: Distribution Normal a => RVarT m a
+stdNormalT :: (Distribution Normal a, Functor m) => RVarT m a
 stdNormalT = rvarT StdNormal
 
 -- |@normal m s@ is a random variable with distribution @'Normal' m s@.
@@ -286,5 +286,5 @@ normal :: Distribution Normal a => a -> a -> RVar a
 normal m s = rvar (Normal m s)
 
 -- |@normalT m s@ is a random process with distribution @'Normal' m s@.
-normalT :: Distribution Normal a => a -> a -> RVarT m a
+normalT :: (Distribution Normal a, Functor m) => a -> a -> RVarT m a
 normalT m s = rvarT (Normal m s)
