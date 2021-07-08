@@ -208,7 +208,7 @@ runPromptT' prm lft e = foldF alg e
 
 {-# INLINE uniformPrimM #-}
 uniformPrimM :: StatefulGen g m => Prim t -> g -> m t
-uniformPrimM (Prim f) g = uniformDoublePositive01M g >>= return . f
+uniformPrimM (Prim f) g = uniformWord32 g >>= return . f
 
 -- |@sampleRVarTWith lift x@ is equivalent to @runRVarTWith lift x 'StdRandom'@.
 {-# INLINE sampleReaderRVarTWith #-}
@@ -251,9 +251,7 @@ instance T.MonadIO m => T.MonadIO (RVarT m) where
 data RGen = RGen
 
 instance Functor m => StatefulGen RGen (RVarT m) where
-    uniformWord32 RGen            = liftF (Prim f)
-      where
-        f x = floor $ x * fromIntegral (maxBound :: Word32)
+    uniformWord32 RGen             = liftF (Prim id)
     {-# INLINE uniformWord32 #-}
     uniformShortByteString _n RGen = RVarT $ error "ShortByteString"
     {-# INLINE uniformShortByteString #-}
