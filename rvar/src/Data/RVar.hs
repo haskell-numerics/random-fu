@@ -38,7 +38,6 @@ module Data.RVar
 
 
 import qualified Control.Monad.IO.Class as T
-import Control.Monad.Prompt (MonadPrompt(..), PromptT, runPromptT)
 import Control.Monad.Reader as MTL
 import Control.Monad.State as MTL
 import qualified Control.Monad.Trans.Class as T
