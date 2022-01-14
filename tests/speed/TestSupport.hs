@@ -2,41 +2,25 @@
 
 {-# OPTIONS_GHC -fno-warn-simplifiable-class-constraints #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults                  #-}
-{-# OPTIONS_GHC -fno-warn-missing-signatures              #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures             #-}
 
 module TestSupport where
 
 import System.Random.Mersenne.Pure64
 import System.Random.MWC
 import Data.List
-import Data.StateRef
 import Foreign
-import System.Random
+import System.Random.Stateful
+import Control.Monad.ST (RealWorld)
 
--- type Src = IORef PureMT
--- getTestSource = newMTSrc
+newMTGenM :: IO (IOGenM PureMT)
+newMTGenM = newIOGenM =<< newPureMT
 
--- type Src = IORef StdGen
--- getTestSource = newStdSrc
+newStdGenM :: IO (IOGenM StdGen)
+newStdGenM = newIOGenM =<< newStdGen
 
-type Src = Gen RealWorld
-getTestSource :: IO Src
-getTestSource = newGenIO
-
-newMTSrc :: IO (IORef PureMT)
-newMTSrc = do
-    mt <- newPureMT
-    newReference mt
-
-newStdSrc :: IO (IORef StdGen)
-newStdSrc = do
-    mt <- newStdGen
-    newReference mt
-
-newGenIO :: IO (Gen RealWorld)
-newGenIO = do
-    seed <- withSystemRandom (save :: Gen RealWorld -> IO Seed)
-    restore seed
+newMWCGenIO :: IO (Gen RealWorld)
+newMWCGenIO = createSystemRandom
 
 
 sum' xs = foldl' (+) 0 xs

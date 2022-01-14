@@ -35,7 +35,7 @@ resolver: lts-16.31
 #  - wai
 packages:
 - random-fu
-- random-source
+# - random-source
 - rvar
 - tests/speed
 # Dependency packages to be pulled from upstream that are not in the resolver
@@ -46,7 +46,6 @@ extra-deps:
 - flexible-defaults-0.0.3@sha256:6a7ab000561e1075003cb1053dfbbb4020ae2b02916776d1479c9c3fc82f5d0d,2508
 - splitmix-0.1.0.3@sha256:fc3aae74c467f4b608050bef53aec17904a618731df9407e655d8f3bf8c32d5c,6049
 - mwc-random-0.15.0.1@sha256:841c86f132c45cb81116e1d3a8a150cecc27820c2b4e38f8cf86e3fe7735c2ab,3370
-
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

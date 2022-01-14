@@ -5,7 +5,6 @@ module Data.Random.Lift where
 import Data.RVar
 import qualified Data.Functor.Identity as T
 import qualified Control.Monad.Trans.Class as T
-import Data.Random.Source.Std
 
 #ifndef MTL2
 import qualified Control.Monad.Identity as MTL
@@ -41,7 +40,7 @@ instance Monad m => Lift T.Identity m where
     lift = return . T.runIdentity
 
 instance Lift (RVarT T.Identity) (RVarT m) where
-    lift x = runRVar x StdRandom
+    lift x = runRVar x RGen
 
 -- | This instance is again incoherent with the others, but provides a
 -- more-specific instance to resolve the overlap between the
@@ -58,7 +57,7 @@ instance Monad m => Lift MTL.Identity m where
     lift = return . MTL.runIdentity
 
 instance Lift (RVarT MTL.Identity) (RVarT m) where
-    lift x = runRVarTWith (return . MTL.runIdentity) x StdRandom
+    lift x = runRVarTWith (return . MTL.runIdentity) x RGen
 
 -- | This instance is again incoherent with the others, but provides a
 -- more-specific instance to resolve the overlap between the
