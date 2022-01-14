@@ -37,7 +37,6 @@ module Data.Random.Distribution.Uniform
     , enumUniformCDF
     ) where
 
-import Data.Random.Internal.TH
 import Data.Random.Internal.Words
 import Data.Random.Internal.Fixed
 
@@ -284,10 +283,28 @@ data Uniform t =
 -- (that is, 0 to 1 including 0 but not including 1).
 data StdUniform t = StdUniform
 
-$( replicateInstances ''Int integralTypes [d|
-        instance Distribution Uniform Int   where rvarT (Uniform a b) = integralUniform a b
-        instance CDF Uniform Int            where cdf   (Uniform a b) = integralUniformCDF a b
-    |])
+instance Distribution Uniform Integer where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Integer          where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Int     where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Int              where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Int8    where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Int8             where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Int16   where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Int16            where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Int32   where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Int32            where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Int64   where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Int64            where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Word    where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Word             where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Word8   where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Word8            where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Word16  where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Word16           where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Word32  where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Word32           where cdf   (Uniform a b) = integralUniformCDF a b
+instance Distribution Uniform Word64  where rvarT (Uniform a b) = integralUniform a b
+instance CDF Uniform Word64           where cdf   (Uniform a b) = integralUniformCDF a b
 
 instance Distribution StdUniform Word8      where rvarT _ = getRandomWord8
 instance Distribution StdUniform Word16     where rvarT _ = getRandomWord16
@@ -349,11 +366,13 @@ instance HasResolution r =>
 
 instance Distribution Uniform ()            where rvarT (Uniform _ _) = return ()
 instance CDF Uniform ()                     where cdf   (Uniform _ _) = return 1
-$( replicateInstances ''Char [''Char, ''Bool, ''Ordering] [d|
-        instance Distribution Uniform Char  where rvarT (Uniform a b) = enumUniform a b
-        instance CDF Uniform Char           where cdf   (Uniform a b) = enumUniformCDF a b
 
-    |])
+instance Distribution Uniform Char     where rvarT (Uniform a b) = enumUniform a b
+instance CDF Uniform Char              where cdf   (Uniform a b) = enumUniformCDF a b
+instance Distribution Uniform Bool     where rvarT (Uniform a b) = enumUniform a b
+instance CDF Uniform Bool              where cdf   (Uniform a b) = enumUniformCDF a b
+instance Distribution Uniform Ordering where rvarT (Uniform a b) = enumUniform a b
+instance CDF Uniform Ordering          where cdf   (Uniform a b) = enumUniformCDF a b
 
 instance Distribution StdUniform ()         where rvarT ~StdUniform = return ()
 instance CDF StdUniform ()                  where cdf   ~StdUniform = return 1
