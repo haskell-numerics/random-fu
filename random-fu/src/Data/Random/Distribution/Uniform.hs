@@ -37,8 +37,6 @@ module Data.Random.Distribution.Uniform
     , enumUniformCDF
     ) where
 
-import Data.Random.Internal.Words
-import Data.Random.Internal.TH
 
 import Data.Random.Internal.Fixed
 

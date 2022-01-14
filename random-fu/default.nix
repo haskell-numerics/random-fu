@@ -1,16 +1,16 @@
-{ mkDerivation, base, erf, math-functions, monad-loops, mtl
-, random-shuffle, random-source, rvar, stdenv, syb
-, template-haskell, transformers, vector
+{ mkDerivation, base, erf, lib, math-functions, monad-loops, mtl
+, random, random-shuffle, rvar, syb, template-haskell, transformers
+, vector
 }:
 mkDerivation {
   pname = "random-fu";
-  version = "0.2.7.4";
+  version = "0.3.0.0";
   src = ./.;
   libraryHaskellDepends = [
-    base erf math-functions monad-loops mtl random-shuffle
-    random-source rvar syb template-haskell transformers vector
+    base erf math-functions monad-loops mtl random random-shuffle rvar
+    syb template-haskell transformers vector
   ];
   homepage = "https://github.com/mokus0/random-fu";
   description = "Random number generation";
-  license = stdenv.lib.licenses.publicDomain;
+  license = lib.licenses.publicDomain;
 }
