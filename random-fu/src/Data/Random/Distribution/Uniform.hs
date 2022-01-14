@@ -37,10 +37,9 @@ module Data.Random.Distribution.Uniform
     , enumUniformCDF
     ) where
 
-import Data.Random.Internal.Words
+
 import Data.Random.Internal.Fixed
 
-import Data.Random.Source
 import Data.Random.Distribution
 import Data.Random.RVar
 
@@ -50,39 +49,14 @@ import Data.Int
 
 import Control.Monad.Loops
 
+import qualified System.Random.Stateful as Random
+
 -- |Compute a random 'Integral' value between the 2 values provided (inclusive).
 {-# INLINE integralUniform #-}
-integralUniform :: (Integral a) => a -> a -> RVarT m a
-integralUniform !x !y = if x < y then integralUniform' x y else integralUniform' y x
-
-{-# SPECIALIZE integralUniform' :: Int     -> Int     -> RVarT m Int   #-}
-{-# SPECIALIZE integralUniform' :: Int8    -> Int8    -> RVarT m Int8  #-}
-{-# SPECIALIZE integralUniform' :: Int16   -> Int16   -> RVarT m Int16 #-}
-{-# SPECIALIZE integralUniform' :: Int32   -> Int32   -> RVarT m Int32 #-}
-{-# SPECIALIZE integralUniform' :: Int64   -> Int64   -> RVarT m Int64 #-}
-{-# SPECIALIZE integralUniform' :: Word    -> Word    -> RVarT m Word   #-}
-{-# SPECIALIZE integralUniform' :: Word8   -> Word8   -> RVarT m Word8  #-}
-{-# SPECIALIZE integralUniform' :: Word16  -> Word16  -> RVarT m Word16 #-}
-{-# SPECIALIZE integralUniform' :: Word32  -> Word32  -> RVarT m Word32 #-}
-{-# SPECIALIZE integralUniform' :: Word64  -> Word64  -> RVarT m Word64 #-}
-{-# SPECIALIZE integralUniform' :: Integer -> Integer -> RVarT m Integer #-}
-integralUniform' :: (Integral a) => a -> a -> RVarT m a
-integralUniform' !l !u
-    | nReject == 0  = fmap shift prim
-    | otherwise     = fmap shift loop
-    where
-        m = 1 + toInteger u - toInteger l
-        (bytes, nPossible) = bytesNeeded m
-        nReject = nPossible `mod` m
-
-        !prim = getRandomNByteInteger bytes
-        !shift = \(!z) -> l + (fromInteger $! (z `mod` m))
-
-        loop = do
-            z <- prim
-            if z < nReject
-                then loop
-                else return z
+integralUniform :: Random.UniformRange a => a -> a -> RVarT m a
+integralUniform !x !y = Random.uniformRM (x, y) RGen
+  -- Maybe switch to uniformIntegralM (requires exposing from `random` internals):
+  -- Random.uniformIntegralM (x, y) RGen
 
 integralUniformCDF :: (Integral a, Fractional b) => a -> a -> a -> b
 integralUniformCDF a b x
@@ -90,15 +64,6 @@ integralUniformCDF a b x
     | x < a     = 0
     | x > b     = 1
     | otherwise = (fromIntegral x - fromIntegral a) / (fromIntegral b - fromIntegral a)
-
--- TODO: come up with a decent, fast heuristic to decide whether to return an extra
--- byte.  May involve moving calculation of nReject into this function, and then
--- accepting first if 4*nReject < nPossible or something similar.
-bytesNeeded :: Integer -> (Int, Integer)
-bytesNeeded x = head (dropWhile ((<= x).snd) powersOf256)
-
-powersOf256 :: [(Int, Integer)]
-powersOf256 = zip [0..] (iterate (256 *) 1)
 
 -- |Compute a random value for a 'Bounded' type, between 'minBound' and 'maxBound'
 -- (inclusive for 'Integral' or 'Enum' types, in ['minBound', 'maxBound') for Fractional types.)
@@ -119,13 +84,17 @@ boundedEnumStdUniformCDF = enumUniformCDF minBound maxBound
 -- |Compute a uniform random 'Float' value in the range [0,1)
 floatStdUniform :: RVarT m Float
 floatStdUniform = do
-    x <- getRandomWord32
-    return (word32ToFloat x)
+    x <- uniformRangeRVarT (0, 1)
+    -- exclude 1. TODO: come up with something smarter
+    if x == 1 then floatStdUniform else pure x
 
 -- |Compute a uniform random 'Double' value in the range [0,1)
 {-# INLINE doubleStdUniform #-}
 doubleStdUniform :: RVarT m Double
-doubleStdUniform = getRandomDouble
+doubleStdUniform = do
+    x <- uniformRangeRVarT (0, 1)
+    -- exclude 1. TODO: come up with something smarter
+    if x == 1 then doubleStdUniform else pure x
 
 -- |Compute a uniform random value in the range [0,1) for any 'RealFloat' type
 realFloatStdUniform :: RealFloat a => RVarT m a
@@ -306,27 +275,19 @@ instance CDF Uniform Word32           where cdf   (Uniform a b) = integralUnifor
 instance Distribution Uniform Word64  where rvarT (Uniform a b) = integralUniform a b
 instance CDF Uniform Word64           where cdf   (Uniform a b) = integralUniformCDF a b
 
-instance Distribution StdUniform Word8      where rvarT _ = getRandomWord8
-instance Distribution StdUniform Word16     where rvarT _ = getRandomWord16
-instance Distribution StdUniform Word32     where rvarT _ = getRandomWord32
-instance Distribution StdUniform Word64     where rvarT _ = getRandomWord64
+instance Distribution StdUniform Word8      where rvarT _ = Random.uniformWord8 RGen
+instance Distribution StdUniform Word16     where rvarT _ = Random.uniformWord16 RGen
+instance Distribution StdUniform Word32     where rvarT _ = Random.uniformWord32 RGen
+instance Distribution StdUniform Word64     where rvarT _ = Random.uniformWord64 RGen
+instance Distribution StdUniform Word       where rvarT _ = uniformRVarT
 
-instance Distribution StdUniform Int8       where rvarT _ = fromIntegral `fmap` getRandomWord8
-instance Distribution StdUniform Int16      where rvarT _ = fromIntegral `fmap` getRandomWord16
-instance Distribution StdUniform Int32      where rvarT _ = fromIntegral `fmap` getRandomWord32
-instance Distribution StdUniform Int64      where rvarT _ = fromIntegral `fmap` getRandomWord64
+instance Distribution StdUniform Int8       where rvarT _ = uniformRVarT
+instance Distribution StdUniform Int16      where rvarT _ = uniformRVarT
+instance Distribution StdUniform Int32      where rvarT _ = uniformRVarT
+instance Distribution StdUniform Int64      where rvarT _ = uniformRVarT
 
-instance Distribution StdUniform Int where
-    rvar _ =
-        $(if toInteger (maxBound :: Int) > toInteger (maxBound :: Int32)
-            then [|fromIntegral `fmap` getRandomWord64 :: RVar Int|]
-            else [|fromIntegral `fmap` getRandomWord32 :: RVar Int|])
+instance Distribution StdUniform Int        where rvarT _ = uniformRVarT
 
-instance Distribution StdUniform Word where
-    rvar _ =
-        $(if toInteger (maxBound :: Word) > toInteger (maxBound :: Word32)
-            then [|fromIntegral `fmap` getRandomWord64 :: RVar Word|]
-            else [|fromIntegral `fmap` getRandomWord32 :: RVar Word|])
 
 -- Integer has no StdUniform...
 
@@ -348,7 +309,7 @@ instance CDF Uniform Float                  where cdf   (Uniform a b) = realUnif
 instance CDF Uniform Double                 where cdf   (Uniform a b) = realUniformCDF a b
 
 instance Distribution StdUniform Float      where rvarT _ = floatStdUniform
-instance Distribution StdUniform Double     where rvarT _ = getRandomDouble
+instance Distribution StdUniform Double     where rvarT _ = uniformRangeRVarT (0, 1)
 instance CDF StdUniform Float               where cdf   _ = realStdUniformCDF
 instance CDF StdUniform Double              where cdf   _ = realStdUniformCDF
 instance PDF StdUniform Float               where pdf   _ = realStdUniformPDF
@@ -376,7 +337,7 @@ instance CDF Uniform Ordering          where cdf   (Uniform a b) = enumUniformCD
 
 instance Distribution StdUniform ()         where rvarT ~StdUniform = return ()
 instance CDF StdUniform ()                  where cdf   ~StdUniform = return 1
-instance Distribution StdUniform Bool       where rvarT ~StdUniform = fmap even (getRandomWord8)
+instance Distribution StdUniform Bool       where rvarT ~StdUniform = uniformRVarT
 instance CDF StdUniform Bool                where cdf   ~StdUniform = boundedEnumStdUniformCDF
 
 instance Distribution StdUniform Char       where rvarT ~StdUniform = boundedEnumStdUniform

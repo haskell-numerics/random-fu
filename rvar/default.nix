@@ -1,14 +1,14 @@
-{ mkDerivation, base, MonadPrompt, mtl, random-source, stdenv
+{ mkDerivation, base, bytestring, lib, MonadPrompt, mtl, random
 , transformers
 }:
 mkDerivation {
   pname = "rvar";
-  version = "0.2.0.4";
+  version = "0.3.0.0";
   src = ./.;
   libraryHaskellDepends = [
-    base MonadPrompt mtl random-source transformers
+    base bytestring MonadPrompt mtl random transformers
   ];
   homepage = "https://github.com/mokus0/random-fu";
   description = "Random Variables";
-  license = stdenv.lib.licenses.publicDomain;
+  license = lib.licenses.publicDomain;
 }

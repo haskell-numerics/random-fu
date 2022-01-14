@@ -13,15 +13,12 @@ description:            Various benchmarks for the random-fu library.
 flag split-random-fu
 
 benchmark random-fu-bench
-  type:             exitcode-stdio-1.0
+  type:                 exitcode-stdio-1.0
   main-is:              Bench.hs
   build-depends:        base >= 4, criterion, MonadRandom, mtl,
-                        stateref, mersenne-random-pure64, mwc-random >= 0.5,
-                        random, vector, deepseq
-  if flag(split-random-fu)
-    build-depends:      random-fu, random-source
-  else
-    build-depends:      random-fu
+                        stateref, mersenne-random-pure64, mwc-random >= 0.15.0.1,
+                        random, vector, deepseq,
+                        random-fu
  other-modules:         TestSupport
 
 
