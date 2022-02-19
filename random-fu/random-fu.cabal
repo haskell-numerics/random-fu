@@ -29,13 +29,13 @@ description:            Random number generation based on modeling random
                         a fair bit slower than straight C implementations of
                         the same algorithms.
 
-tested-with:            GHC == 7.10.3
+tested-with:            GHC == 8.10.7
 
 extra-source-files:     changelog.md
 
 source-repository head
   type:                 git
-  location:             https://github.com/mokus0/random-fu.git
+  location:             https://github.com/haskell-numerics/random-fu
   subdir:               random-fu
 
 Flag base4_2
