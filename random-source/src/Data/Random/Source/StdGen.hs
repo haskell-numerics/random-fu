@@ -1,6 +1,6 @@
 {-# LANGUAGE
     CPP,
-    MultiParamTypeClasses, FlexibleInstances, UndecidableInstances, GADTs,
+    MultiParamTypeClasses, FlexibleContexts, FlexibleInstances, UndecidableInstances, GADTs,
     BangPatterns, RankNTypes,
     ScopedTypeVariables
   #-}
@@ -15,7 +15,7 @@ module Data.Random.Source.StdGen
     ( StdGen
     , mkStdGen
     , newStdGen
-    
+
     , getRandomPrimFromStdGenIO
     , getRandomPrimFromRandomGenRef
     , getRandomPrimFromRandomGenState
@@ -41,7 +41,7 @@ instance (Monad m, ModifyRef (IORef   StdGen) m StdGen) => RandomSource m (IORef
 
 -- Note that this instance is probably a Bad Idea.  STM allows random variables
 -- to interact in spooky quantum-esque ways - One transaction can 'retry' until
--- it gets a \"random\" answer it likes, which causes it to selectively consume 
+-- it gets a \"random\" answer it likes, which causes it to selectively consume
 -- entropy, biasing the supply from which other random variables will draw.
 -- instance (Monad m, ModifyRef (TVar    StdGen) m StdGen) => RandomSource m (TVar    StdGen) where
 --     {-# SPECIALIZE instance RandomSource IO  (TVar StdGen) #-}
@@ -55,22 +55,22 @@ instance (Monad m, ModifyRef (STRef s StdGen) m StdGen) => RandomSource m (STRef
     getRandomPrimFrom = getRandomPrimFromRandomGenRef
 
 getRandomPrimFromStdGenIO :: Prim a -> IO a
-getRandomPrimFromStdGenIO 
+getRandomPrimFromStdGenIO
     = getStdRandom
     . runState
     . getRandomPrim
 
 -- |Given a mutable reference to a 'RandomGen' generator, we can make a
 -- 'RandomSource' usable in any monad in which the reference can be modified.
--- 
+--
 -- See "Data.Random.Source.PureMT".'getRandomPrimFromMTRef' for more detailed
 -- usage hints - this function serves exactly the same purpose except for a
 -- 'StdGen' generator instead of a 'PureMT' generator.
 getRandomPrimFromRandomGenRef :: (Monad m, ModifyRef sr m g, RandomGen g) =>
                                   sr -> Prim a -> m a
-getRandomPrimFromRandomGenRef ref 
-    = atomicModifyReference' ref 
-    . runState 
+getRandomPrimFromRandomGenRef ref
+    = atomicModifyReference' ref
+    . runState
     . getRandomPrimFromRandomGenState
 
 atomicModifyReference' :: ModifyRef sr m a => sr -> (a -> (b, a)) -> m b
@@ -84,15 +84,15 @@ atomicModifyReference' ref getR =
 -- Additionally, the standard mtl state monads have 'MonadRandom' instances
 -- which do precisely that, allowing an easy conversion of 'RVar's and
 -- other 'Distribution' instances to \"pure\" random variables.
--- 
+--
 -- Again, see "Data.Random.Source.PureMT".'getRandomPrimFromMTState' for more
--- detailed usage hints - this function serves exactly the same purpose except 
+-- detailed usage hints - this function serves exactly the same purpose except
 -- for a 'StdGen' generator instead of a 'PureMT' generator.
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Prim a -> State StdGen a #-}
 {-# SPECIALIZE getRandomPrimFromRandomGenState :: Monad m => Prim a -> StateT StdGen m a #-}
 getRandomPrimFromRandomGenState :: forall g m a. (RandomGen g, MonadState g m) => Prim a -> m a
 getRandomPrimFromRandomGenState = genPrim
-    where 
+    where
         {-# INLINE genPrim #-}
         genPrim :: forall t. Prim t -> m t
         genPrim PrimWord8            = getThing (randomR (0, 0xff))                (fromIntegral :: Int -> Word8)
@@ -100,12 +100,12 @@ getRandomPrimFromRandomGenState = genPrim
         genPrim PrimWord32           = getThing (randomR (0, 0xffffffff))          (fromInteger)
         genPrim PrimWord64           = getThing (randomR (0, 0xffffffffffffffff))  (fromInteger)
         genPrim PrimDouble           = getThing (randomR (0, 0x000fffffffffffff))  (flip encodeFloat (-52))
-          {- not using the Random Double instance for 2 reasons.  1st, it only generates 32 bits of entropy, when 
-             a [0,1) Double has room for 52.  Second, it appears there's a bug where it can actually generate a 
+          {- not using the Random Double instance for 2 reasons.  1st, it only generates 32 bits of entropy, when
+             a [0,1) Double has room for 52.  Second, it appears there's a bug where it can actually generate a
              negative number in the case where randomIvalInteger returns minBound::Int32. -}
 --        genPrim PrimDouble = getThing (randomR (0, 1.0))  (id)
         genPrim (PrimNByteInteger n) = getThing (randomR (0, iterate (*256) 1 !! n)) id
-        
+
         {-# INLINE getThing #-}
         getThing :: forall b t. (g -> (b, g)) -> (b -> t) -> m t
         getThing thing f = do
