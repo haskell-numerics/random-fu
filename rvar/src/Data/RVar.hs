@@ -40,6 +40,7 @@ import qualified Control.Monad.Trans.Class as T
 import qualified Data.Functor.Identity as T
 import Data.RVar.Prim
 import System.Random.Stateful
+import Control.Monad (ap, liftM)
 
 -- |An opaque type modeling a \"random variable\" - a value
 -- which depends on the outcome of some random event.  'RVar's
@@ -239,12 +240,11 @@ instance Functor (RVarT n) where
     fmap = liftM
 
 instance Monad (RVarT n) where
-    return x = RVarT (return $! x)
     (RVarT m) >>= k = RVarT (m >>= \x -> x `seq` unRVarT (k x))
 
 instance Applicative (RVarT n) where
-    pure  = return
-    (<*>) = ap
+    pure x = RVarT (pure $! x)
+    (<*>)  = ap
 
 instance MonadPrompt Prim (RVarT n) where
     prompt = RVarT . prompt
