@@ -1,5 +1,5 @@
 name:                   rvar
-version:                0.3.0.0
+version:                0.3.0.1
 stability:              stable
 
 cabal-version:          >= 1.10
@@ -8,7 +8,7 @@ build-type:             Simple
 author:                 James Cook <mokus@deepbondi.net>
 maintainer:             Dominic Steinitz <dominic@steinitz.org>
 license:                PublicDomain
-homepage:               https://github.com/mokus0/random-fu
+homepage:               https://github.com/haskell-numerics/random-fu
 
 category:               Math
 synopsis:               Random Variables
