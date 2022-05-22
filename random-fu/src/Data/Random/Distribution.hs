@@ -57,7 +57,7 @@ class Distribution d t where
     -- |Return a random variable with the given distribution, pre-lifted to an arbitrary 'RVarT'.
     -- Any arbitrary 'RVar' can also be converted to an 'RVarT m' for an arbitrary 'm', using
     -- either 'lift' or 'sample'.
-    rvarT :: d t -> RVarT n t
+    rvarT :: Functor n => d t -> RVarT n t
     rvarT d = lift (rvar d)
 
 -- FIXME: I am not sure about giving default instances

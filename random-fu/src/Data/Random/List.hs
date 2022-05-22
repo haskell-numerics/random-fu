@@ -13,7 +13,7 @@ randomElement :: [a] -> RVar a
 randomElement = randomElementT
 
 
-randomElementT :: [a] -> RVarT m a
+randomElementT :: Functor m => [a] -> RVarT m a
 randomElementT [] = error "randomElementT: empty list!"
 randomElementT xs = do
     n <- uniformT 0 (length xs - 1)
@@ -24,7 +24,7 @@ randomElementT xs = do
 shuffle :: [a] -> RVar [a]
 shuffle = shuffleT
 
-shuffleT :: [a] -> RVarT m [a]
+shuffleT :: Functor m => [a] -> RVarT m [a]
 shuffleT [] = return []
 shuffleT xs = do
     is <- zipWithM (\_ i -> uniformT 0 i) (tail xs) [1..]
@@ -38,14 +38,14 @@ shuffleT xs = do
 shuffleN :: Int -> [a] -> RVar [a]
 shuffleN = shuffleNT
 
-shuffleNT :: Int -> [a] -> RVarT m [a]
+shuffleNT :: Functor m => Int -> [a] -> RVarT m [a]
 shuffleNT n xs = shuffleNofMT n n xs
 
 -- | A random variable that selects N arbitrary elements of a list of known length M.
 shuffleNofM :: Int -> Int -> [a] -> RVar [a]
 shuffleNofM = shuffleNofMT
 
-shuffleNofMT :: Int -> Int -> [a] -> RVarT m [a]
+shuffleNofMT :: Functor m => Int -> Int -> [a] -> RVarT m [a]
 shuffleNofMT 0 _ _ = return []
 shuffleNofMT n m xs
     | n > m     = error "shuffleNofMT: n > m"

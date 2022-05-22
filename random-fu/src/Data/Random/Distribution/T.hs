@@ -24,7 +24,7 @@ import Numeric.SpecFunctions
 t :: Distribution T a => Integer -> RVar a
 t = rvar . T
 
-tT :: Distribution T a => Integer -> RVarT m a
+tT :: (Distribution T a, Functor m) => Integer -> RVarT m a
 tT = rvarT . T
 
 newtype T a = T Integer

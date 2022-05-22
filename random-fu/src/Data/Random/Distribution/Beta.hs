@@ -15,9 +15,9 @@ import Data.Random.Distribution.Uniform
 
 import Numeric.SpecFunctions
 
-{-# SPECIALIZE fractionalBeta :: Float  -> Float  -> RVarT m Float #-}
-{-# SPECIALIZE fractionalBeta :: Double -> Double -> RVarT m Double #-}
-fractionalBeta :: (Fractional a, Eq a, Distribution Gamma a, Distribution StdUniform a) => a -> a -> RVarT m a
+{-# SPECIALIZE fractionalBeta :: Functor m => Float  -> Float  -> RVarT m Float #-}
+{-# SPECIALIZE fractionalBeta :: Functor m => Double -> Double -> RVarT m Double #-}
+fractionalBeta :: (Fractional a, Eq a, Distribution Gamma a, Distribution StdUniform a, Functor m) => a -> a -> RVarT m a
 fractionalBeta 1 1 = stdUniformT
 fractionalBeta a b = do
     x <- gammaT a 1
@@ -29,9 +29,9 @@ fractionalBeta a b = do
 beta :: Distribution Beta a => a -> a -> RVar a
 beta a b = rvar (Beta a b)
 
-{-# SPECIALIZE betaT :: Float  -> Float  -> RVarT m Float #-}
-{-# SPECIALIZE betaT :: Double -> Double -> RVarT m Double #-}
-betaT :: Distribution Beta a => a -> a -> RVarT m a
+{-# SPECIALIZE betaT :: Functor m => Float  -> Float  -> RVarT m Float #-}
+{-# SPECIALIZE betaT :: Functor m => Double -> Double -> RVarT m Double #-}
+betaT :: (Distribution Beta a, Functor m) => a -> a -> RVarT m a
 betaT a b = rvarT (Beta a b)
 
 data Beta a = Beta a a

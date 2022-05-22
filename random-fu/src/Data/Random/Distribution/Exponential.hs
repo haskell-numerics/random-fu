@@ -23,7 +23,7 @@ See also 'exponential'.
 -}
 newtype Exponential a = Exp a
 
-floatingExponential :: (Floating a, Distribution StdUniform a) => a -> RVarT m a
+floatingExponential :: (Floating a, Distribution StdUniform a, Functor m) => a -> RVarT m a
 floatingExponential lambdaRecip = do
     x <- stdUniformT
     return (negate (log x) * lambdaRecip)
@@ -48,7 +48,7 @@ A random variable transformer which samples from the exponential distribution.
 alternatively be viewed as an exponential random variable with parameter @lambda
 = 1 / mu@.
 -}
-exponentialT :: Distribution Exponential a => a -> RVarT m a
+exponentialT :: (Distribution Exponential a, Functor m) => a -> RVarT m a
 exponentialT = rvarT . Exp
 
 instance (Floating a, Distribution StdUniform a) => Distribution Exponential a where

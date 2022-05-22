@@ -26,7 +26,7 @@ data Triangular a = Triangular {
     deriving (Eq, Show)
 
 -- |Compute a triangular distribution for a 'Floating' type.
-floatingTriangular :: (Floating a, Ord a, Distribution StdUniform a) => a -> a -> a -> RVarT m a
+floatingTriangular :: (Floating a, Ord a, Distribution StdUniform a, Functor m) => a -> a -> a -> RVarT m a
 floatingTriangular a b c
     | a > b     = floatingTriangular b a c
     | b > c     = floatingTriangular a c b

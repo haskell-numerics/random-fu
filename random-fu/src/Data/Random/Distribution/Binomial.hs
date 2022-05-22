@@ -26,10 +26,10 @@ import Numeric ( log1p )
     -- note that although it's fast enough for large (eg, 2^10000)
     -- @Integer@s, it's not accurate enough when using @Double@ as
     -- the @b@ parameter.
-integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> b -> RVarT m a
+integralBinomial :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b, Functor m) => a -> b -> RVarT m a
 integralBinomial = bin 0
     where
-        bin :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b) => a -> a -> b -> RVarT m a
+        bin :: (Integral a, Floating b, Ord b, Distribution Beta b, Distribution StdUniform b, Functor m) => a -> a -> b -> RVarT m a
         bin !k !t !p
             | t > 10    = do
                 let a = 1 + t `div` 2
@@ -119,15 +119,15 @@ floatingBinomialLogPDF t p x = logPdf (Binomial (truncate t :: Integer) p) (floo
 binomial :: Distribution (Binomial b) a => a -> b -> RVar a
 binomial t p = rvar (Binomial t p)
 
-{-# SPECIALIZE binomialT :: Int     -> Float  -> RVarT m Int #-}
-{-# SPECIALIZE binomialT :: Int     -> Double -> RVarT m Int #-}
-{-# SPECIALIZE binomialT :: Integer -> Float  -> RVarT m Integer #-}
-{-# SPECIALIZE binomialT :: Integer -> Double -> RVarT m Integer #-}
-{-# SPECIALIZE binomialT :: Float   -> Float  -> RVarT m Float  #-}
-{-# SPECIALIZE binomialT :: Float   -> Double -> RVarT m Float  #-}
-{-# SPECIALIZE binomialT :: Double  -> Float  -> RVarT m Double #-}
-{-# SPECIALIZE binomialT :: Double  -> Double -> RVarT m Double #-}
-binomialT :: Distribution (Binomial b) a => a -> b -> RVarT m a
+{-# SPECIALIZE binomialT :: Functor m => Int     -> Float  -> RVarT m Int #-}
+{-# SPECIALIZE binomialT :: Functor m => Int     -> Double -> RVarT m Int #-}
+{-# SPECIALIZE binomialT :: Functor m => Integer -> Float  -> RVarT m Integer #-}
+{-# SPECIALIZE binomialT :: Functor m => Integer -> Double -> RVarT m Integer #-}
+{-# SPECIALIZE binomialT :: Functor m => Float   -> Float  -> RVarT m Float  #-}
+{-# SPECIALIZE binomialT :: Functor m => Float   -> Double -> RVarT m Float  #-}
+{-# SPECIALIZE binomialT :: Functor m => Double  -> Float  -> RVarT m Double #-}
+{-# SPECIALIZE binomialT :: Functor m => Double  -> Double -> RVarT m Double #-}
+binomialT :: (Distribution (Binomial b) a, Functor m) => a -> b -> RVarT m a
 binomialT t p = rvarT (Binomial t p)
 
 data Binomial b a = Binomial a b

@@ -12,7 +12,7 @@ import Data.Random.Distribution.Gamma
 
 import Data.List
 
-fractionalDirichlet :: (Fractional a, Distribution Gamma a) => [a] -> RVarT m [a]
+fractionalDirichlet :: (Fractional a, Distribution Gamma a, Functor m) => [a] -> RVarT m [a]
 fractionalDirichlet []  = return []
 fractionalDirichlet [_] = return [1]
 fractionalDirichlet as = do
@@ -24,7 +24,7 @@ fractionalDirichlet as = do
 dirichlet :: Distribution Dirichlet [a] => [a] -> RVar [a]
 dirichlet as = rvar (Dirichlet as)
 
-dirichletT :: Distribution Dirichlet [a] => [a] -> RVarT m [a]
+dirichletT :: (Distribution Dirichlet [a], Functor m) => [a] -> RVarT m [a]
 dirichletT as = rvarT (Dirichlet as)
 
 newtype Dirichlet a = Dirichlet a deriving (Eq, Show)

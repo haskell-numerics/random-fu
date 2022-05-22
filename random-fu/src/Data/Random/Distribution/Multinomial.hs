@@ -8,7 +8,7 @@ import Data.Random.Distribution.Binomial
 multinomial :: Distribution (Multinomial p) [a] => [p] -> a -> RVar [a]
 multinomial ps n = rvar (Multinomial ps n)
 
-multinomialT :: Distribution (Multinomial p) [a] => [p] -> a -> RVarT m [a]
+multinomialT :: (Distribution (Multinomial p) [a], Functor m) => [p] -> a -> RVarT m [a]
 multinomialT ps n = rvarT (Multinomial ps n)
 
 data Multinomial p a where

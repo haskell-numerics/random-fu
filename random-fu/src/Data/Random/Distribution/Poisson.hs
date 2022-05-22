@@ -19,10 +19,10 @@ import Data.Int
 import Data.Word
 
 -- from Knuth, with interpretation help from gsl sources
-integralPoisson :: (Integral a, RealFloat b, Distribution StdUniform b, Distribution (Erlang a) b, Distribution (Binomial b) a) => b -> RVarT m a
+integralPoisson :: (Integral a, RealFloat b, Distribution StdUniform b, Distribution (Erlang a) b, Distribution (Binomial b) a, Functor m) => b -> RVarT m a
 integralPoisson = psn 0
     where
-        psn :: (Integral a, RealFloat b, Distribution StdUniform b, Distribution (Erlang a) b, Distribution (Binomial b) a) => a -> b -> RVarT m a
+        psn :: (Integral a, RealFloat b, Distribution StdUniform b, Distribution (Erlang a) b, Distribution (Binomial b) a, Functor m) => a -> b -> RVarT m a
         psn j mu
             | mu > 10   = do
                 let m = floor (mu * (7/8))
@@ -70,7 +70,7 @@ integralPoissonPDF mu k = exp (negate lambda) *
     k_fac_ln = foldl (+) 0 (map (log . fromIntegral) [1..k])
     lambda   = realToFrac mu
 
-fractionalPoisson :: (Num a, Distribution (Poisson b) Integer) => b -> RVarT m a
+fractionalPoisson :: (Num a, Distribution (Poisson b) Integer, Functor m) => b -> RVarT m a
 fractionalPoisson mu = liftM fromInteger (poissonT mu)
 
 fractionalPoissonCDF :: (CDF (Poisson b) Integer, RealFrac a) => b -> a -> Double
@@ -82,7 +82,7 @@ fractionalPoissonPDF mu k = pdf (Poisson mu) (floor k :: Integer)
 poisson :: (Distribution (Poisson b) a) => b -> RVar a
 poisson mu = rvar (Poisson mu)
 
-poissonT :: (Distribution (Poisson b) a) => b -> RVarT m a
+poissonT :: (Distribution (Poisson b) a, Functor m) => b -> RVarT m a
 poissonT mu = rvarT (Poisson mu)
 
 newtype Poisson b a = Poisson b

@@ -27,12 +27,12 @@ import Numeric.SpecFunctions
 
 -- |derived from  Marsaglia & Tang, "A Simple Method for generating gamma
 -- variables", ACM Transactions on Mathematical Software, Vol 26, No 3 (2000), p363-372.
-{-# SPECIALIZE mtGamma :: Double -> Double -> RVarT m Double #-}
-{-# SPECIALIZE mtGamma :: Float  -> Float  -> RVarT m Float  #-}
+{-# SPECIALIZE mtGamma :: Functor m => Double -> Double -> RVarT m Double #-}
+{-# SPECIALIZE mtGamma :: Functor m => Float  -> Float  -> RVarT m Float  #-}
 mtGamma
     :: (Floating a, Ord a,
         Distribution StdUniform a,
-        Distribution Normal a)
+        Distribution Normal a, Functor m)
     => a -> a -> RVarT m a
 mtGamma a b
     | a < 1     = do
@@ -64,13 +64,13 @@ mtGamma a b
 gamma :: (Distribution Gamma a) => a -> a -> RVar a
 gamma a b = rvar (Gamma a b)
 
-gammaT :: (Distribution Gamma a) => a -> a -> RVarT m a
+gammaT :: (Distribution Gamma a, Functor m) => a -> a -> RVarT m a
 gammaT a b = rvarT (Gamma a b)
 
 erlang :: (Distribution (Erlang a) b) => a -> RVar b
 erlang a = rvar (Erlang a)
 
-erlangT :: (Distribution (Erlang a) b) => a -> RVarT m b
+erlangT :: (Distribution (Erlang a) b, Functor m) => a -> RVarT m b
 erlangT a = rvarT (Erlang a)
 
 data    Gamma a    = Gamma a a

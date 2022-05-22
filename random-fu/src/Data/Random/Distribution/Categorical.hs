@@ -37,7 +37,7 @@ categorical = rvar . fromList
 
 -- |Construct a 'Categorical' random process from a list of probabilities
 -- and categories, where the probabilities all sum to 1.
-categoricalT :: (Num p, Distribution (Categorical p) a) => [(p,a)] -> RVarT m a
+categoricalT :: (Num p, Distribution (Categorical p) a, Functor m) => [(p,a)] -> RVarT m a
 categoricalT = rvarT . fromList
 
 -- |Construct a 'Categorical' random variable from a list of weights
@@ -47,7 +47,7 @@ weightedCategorical = rvar . fromWeightedList
 
 -- |Construct a 'Categorical' random process from a list of weights
 -- and categories. The weights do /not/ have to sum to 1.
-weightedCategoricalT :: (Fractional p, Eq p, Distribution (Categorical p) a) => [(p,a)] -> RVarT m a
+weightedCategoricalT :: (Fractional p, Eq p, Distribution (Categorical p) a, Functor m) => [(p,a)] -> RVarT m a
 weightedCategoricalT = rvarT . fromWeightedList
 
 -- | Construct a 'Categorical' distribution from a list of weighted categories.

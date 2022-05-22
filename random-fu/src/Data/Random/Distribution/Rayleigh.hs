@@ -12,7 +12,7 @@ import Data.Random.RVar
 import Data.Random.Distribution
 import Data.Random.Distribution.Uniform
 
-floatingRayleigh :: (Floating a, Eq a, Distribution StdUniform a) => a -> RVarT m a
+floatingRayleigh :: (Floating a, Eq a, Distribution StdUniform a, Functor m) => a -> RVarT m a
 floatingRayleigh s = do
     u <- stdUniformPosT
     return (s * sqrt (-2 * log u))
@@ -26,7 +26,7 @@ newtype Rayleigh a = Rayleigh a
 rayleigh :: Distribution Rayleigh a => a -> RVar a
 rayleigh = rvar . Rayleigh
 
-rayleighT :: Distribution Rayleigh a => a -> RVarT m a
+rayleighT :: (Distribution Rayleigh a, Functor m) => a -> RVarT m a
 rayleighT = rvarT . Rayleigh
 
 rayleighCDF :: Real a => a -> a -> Double

@@ -16,7 +16,7 @@ import Numeric.SpecFunctions
 chiSquare :: Distribution ChiSquare t => Integer -> RVar t
 chiSquare = rvar . ChiSquare
 
-chiSquareT :: Distribution ChiSquare t => Integer -> RVarT m t
+chiSquareT :: (Distribution ChiSquare t, Functor m) => Integer -> RVarT m t
 chiSquareT = rvarT . ChiSquare
 
 newtype ChiSquare b = ChiSquare Integer
