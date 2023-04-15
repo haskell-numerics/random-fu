@@ -55,5 +55,5 @@ Library
   build-depends:        base            >= 3 && <5,
                         bytestring,
                         MonadPrompt     == 1.0.*,
-                        transformers    >= 0.2 && < 0.6,
+                        transformers    >= 0.2 && < 0.7,
                         random          >= 1.2.0
