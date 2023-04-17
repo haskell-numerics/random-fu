@@ -1,11 +1,12 @@
 let
 
 myHaskellPackageOverlay = self: super: {
-  myHaskellPackages = super.haskell.packages.ghc8107.override {
+  myHaskellPackages = super.haskell.packages.ghc961.override {
     overrides = hself: hsuper: rec {
       random-fu     =  hself.callPackage  ./random-fu { };
+      random-source =  hself.callPackage ./random-source { };
       rvar          =  hself.callPackage ./rvar { };
-      microstache   = super.haskell.lib.doJailbreak hsuper.microstache;
+      vector-binary-instances = super.haskell.lib.doJailbreak hsuper.vector-binary-instances;
     };
   };
 };
