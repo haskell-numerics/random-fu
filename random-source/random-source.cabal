@@ -1,5 +1,5 @@
 name:                   random-source
-version:                0.3.0.12
+version:                0.3.0.13
 stability:              provisional
 
 cabal-version:          >= 1.10
@@ -18,10 +18,13 @@ description:            Random number generation based on entropy sources
                         \"completing\" partial implementations, making it
                         easy to define new entropy sources in a way that
                         is naturally forward-compatible.
+                        Now DEPRECATED: see [README] for further
+                        details.
 
 tested-with:            GHC == 7.4.2, GHC == 7.6.1
 
 extra-source-files:     changelog.md
+                        README.md
 
 source-repository head
   type:                 git
