@@ -1,6 +1,6 @@
-It is better to use the
+This is now **deprecated** and it is better to use the
 [random](https://hackage.haskell.org/package/random "well maintained")
-package and the source of randomness.
+package as the source of randomness.
 
 Here's what you might have written before:
 
