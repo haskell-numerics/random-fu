@@ -71,7 +71,7 @@ import Control.Monad (ap, liftM)
 -- >>> runState (sampleStateRVar (Fu.uniform 1 (100 :: Integer))) (mkStdGen 2021)
 -- (79,StdGen {unStdGen = SMGen 4687568268719557181 4805600293067301895})
 --
--- * Using a mutable pseud-random number generator that has an instance for `StatefulGen` with
+-- * Using a mutable pseudo-random number generator that has an instance for `StatefulGen` with
 --   `ReaderT` monad.
 --
 -- >>> import qualified Data.Random as Fu (uniform)
