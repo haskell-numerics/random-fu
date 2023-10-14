@@ -1,0 +1,8 @@
+resolver: nightly-2023-10-09
+
+packages:
+- .
+
+allow-newer: true
+
+extra-deps: []

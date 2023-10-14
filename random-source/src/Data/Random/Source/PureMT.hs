@@ -24,6 +24,7 @@ module Data.Random.Source.PureMT
     , getRandomPrimFromMTRef
     ) where
 
+import Control.Monad
 import Control.Monad.State
 import Control.Monad.RWS
 import qualified Control.Monad.State.Strict as S
