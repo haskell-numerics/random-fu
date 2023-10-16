@@ -14,6 +14,7 @@ import Language.Haskell.TH.Extras
 import qualified Language.Haskell.TH.FlexibleDefaults as FD
 
 import Control.Monad.Reader
+import Control.Monad(when)
 
 data Method
     = GetPrim

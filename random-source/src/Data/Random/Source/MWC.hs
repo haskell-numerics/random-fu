@@ -18,6 +18,7 @@ module Data.Random.Source.MWC
 import Data.Random.Internal.Words
 import Data.Random.Source
 import System.Random.MWC
+import Control.Monad
 import Control.Monad.ST
 import Control.Monad.Reader
 import Control.Monad.Primitive

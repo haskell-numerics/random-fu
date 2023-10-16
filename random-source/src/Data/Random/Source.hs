@@ -24,6 +24,8 @@ module Data.Random.Source
     , monadRandom, randomSource
     ) where
 
+import Control.Monad
+
 import Data.Word
 
 import Data.Random.Internal.Source
